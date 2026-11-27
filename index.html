@@ -71,6 +71,10 @@ label.f{display:flex;flex-direction:column;gap:6px;font-size:13px;font-weight:60
 .mdn{font-size:13px;font-weight:700}.mdh{font-size:10px;font-weight:700;color:#fff;background:#6B2D5C;border-radius:6px;padding:1px 5px}
 .mdc{font-size:20px;font-weight:700;color:#4A1D42}.mdc small{font-size:11px;font-weight:500}
 .mds{font-size:11px;color:#6B6470}
+.badge{margin-left:auto;min-width:20px;height:20px;padding:0 6px;border-radius:10px;background:#C98DB8;color:#1E1A22;font-size:11px;font-weight:700;display:inline-flex;align-items:center;justify-content:center}
+.lem{display:flex;flex-wrap:wrap;align-items:center;gap:12px;padding:14px 0;border-bottom:1px solid #F0ECE7}
+.lem:last-child{border-bottom:0}
+.lemh{flex:none;width:58px;height:58px;border-radius:50%;background:#F1E6EE;color:#4A1D42;font-size:14px;font-weight:700;display:flex;align-items:center;justify-content:center}
 .mcal{width:100%;max-width:330px;margin:0 auto;box-sizing:border-box;background:#FBF7FA;border:1px solid #EBD9E6;border-radius:18px;padding:14px 12px 12px}
 .mch{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:0 4px 10px;font-size:14px;color:#4A1D42}
 .mcleg{display:flex;align-items:center;gap:5px;font-size:11px;color:#6B6470}
@@ -220,7 +224,7 @@ const S = {
   appts: APPT0.map(([id, p, d, h, s, cliente, status, metodo, orig]) => ({ id, p, d: D0 + d, h, s, cliente, status, metodo, orig })),
   grade: PROFS.map((p) => p.dias.slice()),
   sel: 'a3', panel: null, fone: '', toast: null, agProf: 'cam',
-  agD: 0, agView: 'dia', confirmEx: null,
+  agD: 0, agView: 'dia', confirmEx: null, lemD: 1,
   form: { cliente: '', serv: 'cfem', prof: 'cam', d: 0, hora: null, editId: null },
   cat: 'Todos', servTab: 'lista', ns: null, nsErr: {}, editId: null, confirmDel: false,
   perD: 'semana', perG: 'semana', ord: 'fat', sent: {},
@@ -288,7 +292,7 @@ function nav(r) {
   const L = (h, t, extra) => `<a href="#${h}" class="${r === h ? 'on' : ''}">${extra || ''}${t}</a>`;
   return `<nav class="side" aria-label="Menu principal">
     <div class="brand"><div class="logo">C</div><div class="bt"><div style="font-weight:700;font-size:15px;color:#fff">${SALAO}</div><div style="font-size:12px;color:#B9B2BF">Gestão e agendamento</div></div></div>
-    ${L('agenda', 'Agenda')}${L('escala', 'Escala')}${L('servicos', 'Serviços')}${L('pagamentos', 'Pagamentos')}${L('cliente', 'Link de agendamento')}
+    ${L('agenda', 'Agenda')}${L('lembretes', 'Lembretes' + (lemPendentes(1) ? ` <span class="badge">${lemPendentes(1)}</span>` : ''))}${L('escala', 'Escala')}${L('servicos', 'Serviços')}${L('pagamentos', 'Pagamentos')}${L('cliente', 'Link de agendamento')}
     <div class="sec">Gestão</div>${L('gestora', 'Painel da Gestora', LOCK)}
     <div class="note" style="margin-top:auto;font-size:12px;color:#9C94A3;padding:8px 14px">Protótipo · dados de exemplo</div>
   </nav>`;
@@ -372,6 +376,12 @@ function vAgenda() {
     const c = ST[cur.status], s = SV(cur.s), d = DIAS[cur.d];
     const aberto = cur.status === 'agendado' || cur.status === 'confirmado';
     const acoes = aberto ? `<div style="border-top:1px solid #ECE7E1;padding-top:14px;display:flex;flex-direction:column;gap:8px">
+        <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap"><span style="font-size:13px;font-weight:600">Lembrete no WhatsApp</span>${lemChip(cur)}</div>
+        <div style="display:flex;gap:8px;align-items:center">
+          <input type="tel" inputmode="tel" data-fone="${cur.id}" value="${esc(cur.fone || '')}" placeholder="WhatsApp da cliente" aria-label="WhatsApp da cliente" style="flex:1;min-width:0">
+          <button class="btnwa" style="flex:none" data-a="lemEnviar" data-v="${cur.id}">${WA}${cur.lem ? 'Reenviar' : 'Enviar'}</button>
+        </div></div>
+      <div style="border-top:1px solid #ECE7E1;padding-top:14px;display:flex;flex-direction:column;gap:8px">
         <div style="font-size:13px;font-weight:600">Registrar pagamento</div>
         <div style="display:flex;gap:8px;flex-wrap:wrap">
           <button class="btn" style="flex:1;padding:0 8px" data-a="pay" data-v="Pix">Pix</button>
@@ -461,6 +471,7 @@ function pNovo() {
   const motivo = !trabalha(f.prof, f.d) ? PF[f.prof].nome + ' está de folga neste dia.' : 'Sem horários livres para este serviço neste dia.';
   return `${topoPainel(f.editId || f.fromId ? 'Remarcar · ' + esc(f.cliente) : 'Novo agendamento · recepção')}
     <label class="f">Cliente<input type="text" id="cliNome" value="${esc(f.cliente)}" placeholder="Nome da cliente"></label>
+    <label class="f">WhatsApp da cliente <span class="sub" style="font-weight:400">(para o lembrete)</span><input type="tel" id="cliFone" inputmode="tel" value="${esc(f.fone || '')}" placeholder="(43) 99999-9999"></label>
     <label class="f">Serviço<select id="fServ">${SA().map((x) => `<option value="${x.id}" ${x.id === s.id ? 'selected' : ''}>${esc(x.nome)} · ${durTxt(x.dur)} · ${brl(x.preco)}</option>`).join('')}</select></label>
     <label class="f">Profissional <span class="sub" style="font-weight:400">(só quem faz este serviço)</span><select id="fProf">${s.profs.map((id) => `<option value="${id}" ${id === f.prof ? 'selected' : ''}>${PF[id].nome} · ${PF[id].func}</option>`).join('')}</select></label>
     <div style="font-size:13px;font-weight:600">Dia</div>
@@ -469,6 +480,71 @@ function pNovo() {
     <div style="display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px">${sl.map((h) => `<button data-a="slot" data-v="${h}" style="height:40px;border-radius:20px;font-size:13px;font-weight:600;cursor:pointer;${f.hora === h ? 'background:#6B2D5C;color:#fff;border:1px solid #6B2D5C' : 'background:#fff;color:#4A1D42;border:1px solid #E2CCDC'}">${hh(h)}</button>`).join('') || `<div class="sub" style="grid-column:1/-1">${motivo}</div>`}</div>
     <button class="btn" data-a="salvar" style="height:48px" ${f.hora == null ? 'disabled' : ''}>${f.editId ? 'Salvar novo horário' : 'Salvar na agenda'}</button>
     <div style="font-size:12px;color:#6B6470">${f.editId ? 'O horário antigo fica livre de novo na agenda e no link.' : 'Assim que salvar, o horário some do link de agendamento online.'}</div>`;
+}
+
+/* ================= LEMBRETES (WhatsApp) ================= */
+// lem: null = não enviado · 'enviado' = aguardando resposta · 'remarcar' = pediu para remarcar · 'confirmou'
+const soDig = (f) => String(f || '').replace(/\D/g, '');
+const aConfirmar = (a) => a.status === 'agendado' || a.status === 'confirmado';
+const lemPendentes = (d) => S.appts.filter((a) => a.d === d && a.status === 'agendado' && !a.lem).length;
+function lembreteMsg(a) {
+  const d = DIAS[a.d], s = SV(a.s);
+  const quando = (a.d === 0 ? 'Hoje, ' : a.d === 1 ? 'Amanhã, ' : '') + d.longo.replace(/^./, (c) => a.d <= 1 ? c.toLowerCase() : c);
+  return 'Oi, ' + a.cliente.split(' ')[0] + '! 💜\n\n' +
+    'Passando para lembrar do seu horário no *' + SALAO + '*:\n\n' +
+    '• ' + s.nome + ' com ' + PF[a.p].nome + '\n' +
+    '• ' + quando + ' às ' + hh(a.h) + '\n\n' +
+    'Responda *1* para confirmar ✅\n' +
+    'Responda *2* se precisar remarcar 📅\n\n' +
+    'Até lá!';
+}
+function lembreteHref(a) { const n = soDig(a.fone); return 'https://wa.me/' + (n.length >= 10 ? '55' + n : '') + '?text=' + encodeURIComponent(lembreteMsg(a)); }
+function lemChip(a) {
+  if (a.status === 'confirmado') return '<span class="tag" style="background:#CFE8E1;color:#0F4A42">Confirmou</span>';
+  if (a.lem === 'remarcar') return '<span class="tag" style="background:#F8DCC8;color:#7A3310">Quer remarcar</span>';
+  if (a.lem === 'enviado') return '<span class="tag" style="background:#EBD9E6;color:#4A1D42">Lembrete enviado · aguardando</span>';
+  return '<span class="tag" style="background:#E9E6E2;color:#3A3540">Não enviado</span>';
+}
+function vLembretes() {
+  const d = S.lemD;
+  const lista = S.appts.filter((a) => a.d === d && aConfirmar(a)).sort((a, b) => a.h - b.h || PI[a.p] - PI[b.p]);
+  const conf = lista.filter((a) => a.status === 'confirmado').length;
+  const env = lista.filter((a) => a.lem || a.status === 'confirmado').length;
+  const falta = lista.filter((a) => a.status === 'agendado' && !a.lem).length;
+  const rem = lista.filter((a) => a.lem === 'remarcar' && a.status !== 'confirmado').length;
+  const itens = lista.map((a) => {
+    const s = SV(a.s), ok = a.status === 'confirmado', semFone = soDig(a.fone).length < 10;
+    return `<div class="lem">
+      <div style="display:flex;align-items:center;gap:12px;flex:1 1 240px;min-width:0">
+        <div class="lemh">${hh(a.h)}</div>
+        <div style="min-width:0"><div style="font-size:15px;font-weight:700">${esc(a.cliente)}</div><div class="sub">${esc(s.nome)} · ${PF[a.p].nome}</div><div style="margin-top:6px">${lemChip(a)}</div></div>
+      </div>
+      <label class="f" style="flex:1 1 170px;max-width:220px;font-size:12px">WhatsApp<input type="tel" inputmode="tel" data-fone="${a.id}" value="${esc(a.fone || '')}" placeholder="(43) 99999-9999" style="height:40px;font-size:14px"></label>
+      <div style="display:flex;gap:6px;flex-wrap:wrap;flex:1 1 260px;justify-content:flex-end">
+        ${ok ? `<button class="btn2" style="height:40px" data-a="lemDesf" data-v="${a.id}">Desfazer</button>` : `
+          <button class="btnwa" style="height:40px" data-a="lemEnviar" data-v="${a.id}" title="${semFone ? 'Sem número: o WhatsApp abre para você escolher o contato' : ''}">${WA}${a.lem ? 'Reenviar' : 'Enviar lembrete'}</button>
+          ${a.lem ? `<button class="btn" style="height:40px;padding:0 14px" data-a="lemConf" data-v="${a.id}">Respondeu 1 · Confirmou</button><button class="btn2" style="height:40px;padding:0 14px" data-a="lemRemarcar" data-v="${a.id}">Respondeu 2 · Remarcar</button>` : ''}`}
+      </div></div>`;
+  }).join('');
+  return `<main>
+    <header class="top"><div><div class="sub">${DIAS[d].longo}${d === 1 ? ' · amanhã' : d === 0 ? ' · hoje' : ''}</div><h1>Lembretes no WhatsApp</h1></div>
+      ${falta ? `<button class="btnwa" data-a="lemProximo">${WA}Enviar o próximo (${falta} faltando)</button>` : ''}</header>
+    <div style="display:flex;gap:8px;align-items:center">${diaStrip('lemDia', d, fechado)}</div>
+    ${toastHtml()}
+    <section class="kpis">
+      <div class="kpi"><div class="kl">Agendamentos</div><div class="kv">${lista.length}</div></div>
+      <div class="kpi"><div class="kl">Lembretes enviados</div><div class="kv">${env}</div><div class="ks">${falta} faltando</div></div>
+      <div class="kpi"><div class="kl">Confirmaram</div><div class="kv" style="color:#145C52">${conf}</div><div class="ks">${lista.length ? Math.round(conf / lista.length * 100) : 0}% do dia</div></div>
+      <div class="kpi"><div class="kl">Querem remarcar</div><div class="kv" style="color:#8A3B12">${rem}</div></div>
+    </section>
+    <section class="card" style="padding:8px 20px">${itens || `<div class="sub" style="padding:16px 0">${fechado(d) ? 'Salão fechado neste dia.' : 'Nenhum agendamento para lembrar neste dia.'}</div>`}</section>
+    <section class="card" style="background:#FBF7FA;border-color:#EBD9E6;font-size:13px;color:#4A4550;display:flex;flex-direction:column;gap:6px">
+      <b style="color:#4A1D42;font-size:14px">Como funciona</b>
+      <div>1. Na véspera, toque em <b>Enviar lembrete</b>. O WhatsApp abre com a mensagem pronta, com dia, hora, serviço e profissional.</div>
+      <div>2. A cliente responde <b>1</b> (confirma) ou <b>2</b> (remarcar). Toque no botão da resposta e a agenda é atualizada.</div>
+      <div>3. Quem pediu para remarcar abre direto no calendário de remarcar.</div>
+      <div class="sub" style="margin-top:4px">Próxima etapa: com a API oficial do WhatsApp e um servidor, o lembrete vai sair sozinho no dia anterior, e a resposta 1 ou 2 vai atualizar a agenda sem ninguém tocar em nada.</div>
+    </section></main>`;
 }
 
 /* ================= ESCALA ================= */
@@ -722,7 +798,7 @@ function vCliente() {
 function vPublico() { return `<div class="pub"><div class="book">${booking()}</div></div>`; }
 
 /* ================= RENDER + EVENTOS ================= */
-const VIEWS = { agenda: vAgenda, escala: vEscala, servicos: vServicos, pagamentos: vPagamentos, gestora: vGestora, cliente: vCliente };
+const VIEWS = { agenda: vAgenda, lembretes: vLembretes, escala: vEscala, servicos: vServicos, pagamentos: vPagamentos, gestora: vGestora, cliente: vCliente };
 let lastM = isM();
 function render() {
   const r = route();
@@ -738,11 +814,11 @@ function centrarDias() {
   document.querySelectorAll('.daystrip').forEach((st) => { const el = st.querySelector('[data-sel]'); if (el) st.scrollLeft = el.offsetLeft - st.clientWidth / 2 + el.offsetWidth / 2; });
 }
 const selA = () => S.appts.find((q) => q.id === S.sel);
-function salvarAgendamento(pid, sid, d, h, cliente, orig) {
+function salvarAgendamento(pid, sid, d, h, cliente, orig, fone) {
   const c = conflito(pid, sid, d, h);
   if (c) return c;
   const id = 'n' + Date.now().toString(36) + Math.random().toString(36).slice(2, 5);
-  S.appts.push({ id, p: pid, d, h, s: sid, cliente, status: 'agendado', metodo: null, orig });
+  S.appts.push({ id, p: pid, d, h, s: sid, cliente, status: 'agendado', metodo: null, orig, fone: fone || '', lem: null });
   return id;
 }
 document.addEventListener('click', (e) => {
@@ -768,10 +844,30 @@ document.addEventListener('click', (e) => {
   else if (a === 'remarcar') {
     const x = selA(), aberto = x.status === 'agendado' || x.status === 'confirmado';
     // Agendado/confirmado: move o próprio horário. Faltou/desmarcou: marca um horário novo e mantém o registro da falta/desmarque.
-    S.form = aberto ? { cliente: x.cliente, serv: x.s, prof: x.p, d: x.d, hora: x.h, editId: x.id }
-      : { cliente: x.cliente, serv: x.s, prof: x.p, d: Math.min(x.d + 1, N_DIAS - 1), hora: null, editId: null, fromId: x.id, orig: x.orig };
+    S.form = aberto ? { cliente: x.cliente, fone: x.fone || '', serv: x.s, prof: x.p, d: x.d, hora: x.h, editId: x.id }
+      : { cliente: x.cliente, fone: x.fone || '', serv: x.s, prof: x.p, d: Math.min(x.d + 1, N_DIAS - 1), hora: null, editId: null, fromId: x.id, orig: x.orig };
     S.panel = 'novo'; S.confirmEx = null;
     if (isM()) setTimeout(() => { const p = document.getElementById('painel'); if (p && p.scrollIntoView) p.scrollIntoView({ behavior: 'smooth' }); }, 0);
+  }
+  else if (a === 'lemDia') S.lemD = Number(v);
+  else if (a === 'lemEnviar' || a === 'lemProximo') {
+    const x = a === 'lemEnviar' ? S.appts.find((q) => q.id === v)
+      : S.appts.filter((q) => q.d === S.lemD && q.status === 'agendado' && !q.lem).sort((p, q) => p.h - q.h)[0];
+    if (!x) return;
+    window.open(lembreteHref(x), '_blank', 'noopener');
+    x.lem = 'enviado';
+    S.toast = 'Lembrete aberto no WhatsApp para ' + x.cliente + (soDig(x.fone).length < 10 ? ' (sem número cadastrado: escolha o contato no WhatsApp)' : '') + '. Quando ela responder, toque em 1 ou 2.';
+  }
+  else if (a === 'lemConf') { const x = S.appts.find((q) => q.id === v); x.status = 'confirmado'; x.lem = 'confirmou'; S.toast = x.cliente + ' confirmou o horário das ' + hh(x.h) + '.'; }
+  else if (a === 'lemDesf') { const x = S.appts.find((q) => q.id === v); x.status = 'agendado'; x.lem = 'enviado'; }
+  else if (a === 'lemRemarcar') {
+    const x = S.appts.find((q) => q.id === v);
+    x.lem = 'remarcar';
+    S.sel = x.id; S.agD = x.d; S.agView = 'dia'; S.confirmEx = null;
+    S.form = { cliente: x.cliente, fone: x.fone || '', serv: x.s, prof: x.p, d: x.d, hora: x.h, editId: x.id };
+    S.panel = 'novo';
+    location.hash = '#agenda';
+    return;
   }
   else if (a === 'voltar') { S.panel = null; S.form = { cliente: '', serv: S.form.serv, prof: S.form.prof, d: S.agD, hora: null, editId: null }; }
   else if (a === 'fDiaPick') { S.form.d = Number(v); S.form.hora = null; }
@@ -788,13 +884,15 @@ document.addEventListener('click', (e) => {
       const c = conflito(f.prof, f.serv, f.d, f.hora, x.id);
       if (c) S.toast = 'Não foi possível remarcar: ' + c;
       else {
-        Object.assign(x, { p: f.prof, s: f.serv, d: f.d, h: f.hora, cliente: f.cliente.trim() || x.cliente });
+        // Mudou dia/hora: o lembrete antigo não vale mais
+        if (x.d !== f.d || x.h !== f.hora) x.lem = null;
+        Object.assign(x, { p: f.prof, s: f.serv, d: f.d, h: f.hora, cliente: f.cliente.trim() || x.cliente, fone: f.fone || '' });
         S.toast = 'Remarcado: ' + x.cliente + ' · ' + SV(x.s).nome + ' com ' + PF[x.p].nome + ' · ' + DIAS[x.d].l + ' ' + DIAS[x.d].n + ' às ' + hh(x.h);
         S.agD = x.d; S.agView = 'dia'; S.sel = x.id; S.panel = null; f.editId = null; f.cliente = ''; f.hora = null;
       }
       render(); return;
     }
-    const r = salvarAgendamento(f.prof, f.serv, f.d, f.hora, f.cliente.trim() || 'Nova cliente', f.fromId ? (f.orig || 'rec') : 'rec');
+    const r = salvarAgendamento(f.prof, f.serv, f.d, f.hora, f.cliente.trim() || 'Nova cliente', f.fromId ? (f.orig || 'rec') : 'rec', f.fone);
     if (r.startsWith('n')) {
       S.toast = (f.fromId ? 'Remarcado: ' : 'Agendado: ') + (f.cliente.trim() || 'Nova cliente') + ' · ' + SV(f.serv).nome + ' com ' + PF[f.prof].nome + ' · ' + DIAS[f.d].l + ' ' + DIAS[f.d].n + ' às ' + hh(f.hora) + (f.fromId ? '. O registro anterior continua no histórico.' : '');
       S.agD = f.d; S.agView = 'dia'; S.sel = r;
@@ -862,7 +960,7 @@ document.addEventListener('click', (e) => {
   else if (a === 'cConf') {
     const c = S.cli;
     if (!c.nome.trim() || c.fone.replace(/\D/g, '').length < 10) { c.err = 'Preencha seu nome e um WhatsApp com DDD.'; render(); return; }
-    const r = salvarAgendamento(c.pFinal, c.serv, c.d, c.hora, c.nome.trim(), 'link');
+    const r = salvarAgendamento(c.pFinal, c.serv, c.d, c.hora, c.nome.trim(), 'link', c.fone);
     if (!r.startsWith('n')) { c.err = 'Esse horário acabou de ser ocupado. Escolha outro.'; c.step = 3; render(); return; }
     c.step = 5; c.err = null;
   }
@@ -875,6 +973,8 @@ document.addEventListener('input', (e) => {
   const t = e.target, id = t.id;
   if (id === 'fone') { S.fone = t.value; const l = document.getElementById('walink'); if (l) l.href = waHref(); }
   else if (id === 'cliNome') S.form.cliente = t.value;
+  else if (id === 'cliFone') S.form.fone = t.value;
+  else if (t.dataset.fone) { const x = S.appts.find((q) => q.id === t.dataset.fone); if (x) x.fone = t.value; }
   else if (id === 'cNome') S.cli.nome = t.value;
   else if (id === 'cFone') S.cli.fone = t.value;
   else if (id === 'nsNome') S.ns.nome = t.value;
