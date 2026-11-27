@@ -44,6 +44,17 @@ h2{margin:0;font-size:16px}
 .r{text-align:right}
 .scroll{overflow-x:auto}
 input,select{height:44px;border-radius:10px;border:1px solid #DDD7D0;padding:0 12px;font-size:15px;background:#fff;color:#1E1A22;width:100%}
+textarea{border-radius:10px;border:1px solid #DDD7D0;padding:10px 12px;font-size:15px;font-family:inherit;background:#fff;color:#1E1A22;width:100%;resize:vertical;box-sizing:border-box}
+.cli{display:flex;align-items:center;gap:12px;padding:12px 10px;border:0;border-bottom:1px solid #F0ECE7;background:#fff;color:#1E1A22;cursor:pointer;border-radius:12px;font-family:inherit;width:100%}
+.cli:hover{background:#FBF7FA}.cli.on{background:#F1E6EE}
+.tg-s{background:#F8DCC8;color:#7A3310;font-size:11px;padding:2px 8px}.tg-a{background:#EBD9E6;color:#4A1D42;font-size:11px;padding:2px 8px}.tg-p{background:#CFE8E1;color:#0F4A42;font-size:11px;padding:2px 8px}
+.fk{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:12px;background:#FBF7FA;border:1px solid #EBD9E6;border-radius:16px;padding:16px}
+.pref{border:1px solid #ECE7E1;border-radius:12px;padding:12px 14px;display:flex;flex-direction:column;gap:4px;font-size:14px}
+.hl{position:relative;padding-left:22px}
+.hl::before{content:'';position:absolute;left:6px;top:6px;bottom:6px;width:2px;background:#EBD9E6;border-radius:1px}
+.hi{position:relative;display:flex;gap:12px;align-items:center;padding:10px 0;border-bottom:1px solid #F6F4F1}
+.hid{position:absolute;left:-21px;top:50%;margin-top:-6px;width:12px;height:12px;border-radius:50%;background:#fff;border:2px solid #C98DB8}
+.hi.fut .hid{background:#6B2D5C;border-color:#6B2D5C}
 input[type=checkbox]{width:20px;height:20px;accent-color:#6B2D5C;flex:none}
 label.f{display:flex;flex-direction:column;gap:6px;font-size:13px;font-weight:600}
 .tag{display:inline-block;padding:4px 10px;border-radius:12px;font-size:12px;font-weight:600}
@@ -228,6 +239,7 @@ const S = {
   form: { cliente: '', serv: 'cfem', prof: 'cam', d: 0, hora: null, editId: null },
   cat: 'Todos', servTab: 'lista', ns: null, nsErr: {}, editId: null, confirmDel: false,
   perD: 'semana', perG: 'semana', ord: 'fat', sent: {},
+  clientes: [], cliSel: null, cliBusca: '', cliFiltro: 'todas',
   cli: { step: 1, serv: null, prof: null, d: 0, hora: null, nome: '', fone: '' }
 };
 const SV = (id) => S.servs.find((s) => s.id === id);
@@ -292,7 +304,7 @@ function nav(r) {
   const L = (h, t, extra) => `<a href="#${h}" class="${r === h ? 'on' : ''}">${extra || ''}${t}</a>`;
   return `<nav class="side" aria-label="Menu principal">
     <div class="brand"><div class="logo">C</div><div class="bt"><div style="font-weight:700;font-size:15px;color:#fff">${SALAO}</div><div style="font-size:12px;color:#B9B2BF">Gestão e agendamento</div></div></div>
-    ${L('agenda', 'Agenda')}${L('lembretes', 'Lembretes' + (lemPendentes(1) ? ` <span class="badge">${lemPendentes(1)}</span>` : ''))}${L('escala', 'Escala')}${L('servicos', 'Serviços')}${L('pagamentos', 'Pagamentos')}${L('cliente', 'Link de agendamento')}
+    ${L('agenda', 'Agenda')}${L('lembretes', 'Lembretes' + (lemPendentes(1) ? ` <span class="badge">${lemPendentes(1)}</span>` : ''))}${L('clientes', 'Clientes')}${L('escala', 'Escala')}${L('servicos', 'Serviços')}${L('pagamentos', 'Pagamentos')}${L('cliente', 'Link de agendamento')}
     <div class="sec">Gestão</div>${L('gestora', 'Painel da Gestora', LOCK)}
     <div class="note" style="margin-top:auto;font-size:12px;color:#9C94A3;padding:8px 14px">Protótipo · dados de exemplo</div>
   </nav>`;
@@ -378,7 +390,7 @@ function vAgenda() {
     const acoes = aberto ? `<div style="border-top:1px solid #ECE7E1;padding-top:14px;display:flex;flex-direction:column;gap:8px">
         <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap"><span style="font-size:13px;font-weight:600">Lembrete no WhatsApp</span>${lemChip(cur)}</div>
         <div style="display:flex;gap:8px;align-items:center">
-          <input type="tel" inputmode="tel" data-fone="${cur.id}" value="${esc(cur.fone || '')}" placeholder="WhatsApp da cliente" aria-label="WhatsApp da cliente" style="flex:1;min-width:0">
+          <input type="tel" inputmode="tel" data-fone="${cur.id}" value="${esc(foneDe(cur))}" placeholder="WhatsApp da cliente" aria-label="WhatsApp da cliente" style="flex:1;min-width:0">
           <button class="btnwa" style="flex:none" data-a="lemEnviar" data-v="${cur.id}">${WA}${cur.lem ? 'Reenviar' : 'Enviar'}</button>
         </div></div>
       <div style="border-top:1px solid #ECE7E1;padding-top:14px;display:flex;flex-direction:column;gap:8px">
@@ -404,7 +416,8 @@ function vAgenda() {
       ? `<div style="background:#FBEFE6;border-radius:12px;padding:12px;display:flex;flex-direction:column;gap:8px"><div style="font-size:13px;color:#7A3310;font-weight:600">Excluir de vez o agendamento de ${esc(cur.cliente)}? Ele some da agenda e dos relatórios.</div><div style="display:flex;gap:8px"><button class="btn" style="flex:1;background:#9A2D0F" data-a="excluirSim">Sim, excluir</button><button class="btn2" style="flex:1" data-a="excluirNao">Não</button></div></div>`
       : `<button data-a="excluir" style="height:44px;border:0;background:transparent;color:#9A2D0F;font-size:13px;font-weight:600;cursor:pointer">Excluir agendamento</button>`;
     side = `<div class="cap">Agendamento</div>
-      <div><div style="font-size:20px;font-weight:700">${esc(cur.cliente)}</div><div style="font-size:14px;color:#4A4550;margin-top:2px">${esc(s.nome)}</div></div>
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:8px"><div><div style="font-size:20px;font-weight:700">${esc(cur.cliente)}</div><div style="font-size:14px;color:#4A4550;margin-top:2px">${esc(s.nome)}</div></div>${cur.cid ? `<button class="pill" style="flex:none" data-a="verFicha" data-v="${cur.cid}">Ver ficha</button>` : ''}</div>
+      ${cur.cid && CL(cur.cid) && CL(cur.cid).obs ? `<div style="background:#FBEFE6;color:#7A3310;border-radius:10px;padding:10px 12px;font-size:13px"><b>Obs.:</b> ${esc(CL(cur.cid).obs)}</div>` : ''}
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;font-size:13px">
         <div><div class="kl">Profissional</div><b>${PF[cur.p].nome}</b></div>
         <div><div class="kl">Dia</div><b>${d.l} ${d.n}</b></div>
@@ -470,7 +483,8 @@ function pNovo() {
   if (f.hora != null && !sl.includes(f.hora)) f.hora = null;
   const motivo = !trabalha(f.prof, f.d) ? PF[f.prof].nome + ' está de folga neste dia.' : 'Sem horários livres para este serviço neste dia.';
   return `${topoPainel(f.editId || f.fromId ? 'Remarcar · ' + esc(f.cliente) : 'Novo agendamento · recepção')}
-    <label class="f">Cliente<input type="text" id="cliNome" value="${esc(f.cliente)}" placeholder="Nome da cliente"></label>
+    <label class="f">Cliente<input type="text" id="cliNome" list="dlCli" autocomplete="off" value="${esc(f.cliente)}" placeholder="Digite para buscar ou cadastrar"></label>
+    <datalist id="dlCli">${S.clientes.map((c) => `<option value="${esc(c.nome)}"></option>`).join('')}</datalist>
     <label class="f">WhatsApp da cliente <span class="sub" style="font-weight:400">(para o lembrete)</span><input type="tel" id="cliFone" inputmode="tel" value="${esc(f.fone || '')}" placeholder="(43) 99999-9999"></label>
     <label class="f">Serviço<select id="fServ">${SA().map((x) => `<option value="${x.id}" ${x.id === s.id ? 'selected' : ''}>${esc(x.nome)} · ${durTxt(x.dur)} · ${brl(x.preco)}</option>`).join('')}</select></label>
     <label class="f">Profissional <span class="sub" style="font-weight:400">(só quem faz este serviço)</span><select id="fProf">${s.profs.map((id) => `<option value="${id}" ${id === f.prof ? 'selected' : ''}>${PF[id].nome} · ${PF[id].func}</option>`).join('')}</select></label>
@@ -498,7 +512,7 @@ function lembreteMsg(a) {
     'Responda *2* se precisar remarcar 📅\n\n' +
     'Até lá!';
 }
-function lembreteHref(a) { const n = soDig(a.fone); return 'https://wa.me/' + (n.length >= 10 ? '55' + n : '') + '?text=' + encodeURIComponent(lembreteMsg(a)); }
+function lembreteHref(a) { const n = soDig(foneDe(a)); return 'https://wa.me/' + (n.length >= 10 ? '55' + n : '') + '?text=' + encodeURIComponent(lembreteMsg(a)); }
 function lemChip(a) {
   if (a.status === 'confirmado') return '<span class="tag" style="background:#CFE8E1;color:#0F4A42">Confirmou</span>';
   if (a.lem === 'remarcar') return '<span class="tag" style="background:#F8DCC8;color:#7A3310">Quer remarcar</span>';
@@ -519,7 +533,7 @@ function vLembretes() {
         <div class="lemh">${hh(a.h)}</div>
         <div style="min-width:0"><div style="font-size:15px;font-weight:700">${esc(a.cliente)}</div><div class="sub">${esc(s.nome)} · ${PF[a.p].nome}</div><div style="margin-top:6px">${lemChip(a)}</div></div>
       </div>
-      <label class="f" style="flex:1 1 170px;max-width:220px;font-size:12px">WhatsApp<input type="tel" inputmode="tel" data-fone="${a.id}" value="${esc(a.fone || '')}" placeholder="(43) 99999-9999" style="height:40px;font-size:14px"></label>
+      <label class="f" style="flex:1 1 170px;max-width:220px;font-size:12px">WhatsApp<input type="tel" inputmode="tel" data-fone="${a.id}" value="${esc(foneDe(a))}" placeholder="(43) 99999-9999" style="height:40px;font-size:14px"></label>
       <div style="display:flex;gap:6px;flex-wrap:wrap;flex:1 1 260px;justify-content:flex-end">
         ${ok ? `<button class="btn2" style="height:40px" data-a="lemDesf" data-v="${a.id}">Desfazer</button>` : `
           <button class="btnwa" style="height:40px" data-a="lemEnviar" data-v="${a.id}" title="${semFone ? 'Sem número: o WhatsApp abre para você escolher o contato' : ''}">${WA}${a.lem ? 'Reenviar' : 'Enviar lembrete'}</button>
@@ -797,8 +811,150 @@ function vCliente() {
 }
 function vPublico() { return `<div class="pub"><div class="book">${booking()}</div></div>`; }
 
+/* ================= CLIENTES (ficha + histórico) ================= */
+const normNome = (n) => String(n || '').trim().toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '');
+const CL = (id) => S.clientes.find((c) => c.id === id);
+const foneDe = (a) => a.fone || ((a.cid && CL(a.cid)) || {}).fone || '';
+const pad2 = (n) => String(n).padStart(2, '0');
+const dataDias = (n) => { const d = new Date(HOJE); d.setDate(d.getDate() + n); return d; };
+const fmtD = (d) => pad2(d.getDate()) + '/' + MES_AB[d.getMonth()];
+const iniciais = (n) => String(n).split(/\s+/).filter(Boolean).slice(0, 2).map((p) => p[0]).join('').toUpperCase() || '?';
+// Acha a cliente pelo WhatsApp ou pelo nome; se não existir, cadastra
+function cliDe(nome, fone) {
+  const f = soDig(fone), n = normNome(nome);
+  let c = (f.length >= 10 && S.clientes.find((x) => soDig(x.fone) === f)) || (n && S.clientes.find((x) => normNome(x.nome) === n));
+  if (!c) { c = { id: 'c' + Date.now().toString(36) + Math.random().toString(36).slice(2, 6), nome: String(nome || '').trim() || 'Nova cliente', fone: fone || '', nasc: '', obs: '', hist: [] }; S.clientes.push(c); }
+  else if (f.length >= 10 && !soDig(c.fone)) c.fone = fone;
+  return c.id;
+}
+// Exemplo: histórico de visitas anteriores e algumas clientes sumidas
+(function exemplosClientes() {
+  let seed = 11; const rnd = () => { seed = (seed * 9301 + 49297) % 233280; return seed / 233280; };
+  S.appts.forEach((a) => { a.cid = cliDe(a.cliente, a.fone); });
+  const OBS = ['Alergia a amônia: usar coloração sem amônia.', 'Prefere água com gás e música baixa.', 'Cabelo fino, escova média. Não gosta de muito volume.', 'Unhas fracas: evitar lixar muito.', 'Sempre pede a mesma profissional.', ''];
+  const metodos = ['Pix', 'Cartão', 'Dinheiro'];
+  S.clientes.forEach((c, i) => {
+    const ap = S.appts.find((a) => a.cid === c.id);
+    const n = Math.floor(rnd() * 9);
+    let dias = 8 + Math.floor(rnd() * 30);
+    for (let k = 0; k < n; k++) {
+      const usa = ap && rnd() < 0.7;
+      const s = usa ? SV(ap.s) : SA()[Math.floor(rnd() * SA().length)];
+      const st = rnd() < 0.08 ? 'faltou' : rnd() < 0.06 ? 'desmarcado' : 'pago';
+      c.hist.push({ dias, s: s.id, p: usa ? ap.p : s.profs[0], valor: s.preco, status: st, metodo: st === 'pago' ? metodos[Math.floor(rnd() * 3)] : null });
+      dias += 18 + Math.floor(rnd() * 45);
+    }
+    const mm = i % 8 === 0 ? HOJE.getMonth() : Math.floor(rnd() * 12);
+    c.nasc = (1965 + Math.floor(rnd() * 40)) + '-' + pad2(mm + 1) + '-' + pad2(1 + Math.floor(rnd() * 28));
+    c.obs = i % 4 === 0 ? OBS[Math.floor(rnd() * OBS.length)] : '';
+  });
+  [['Cláudia M.', 95, 'escova', 'cam'], ['Sandra P.', 130, 'maope', 'jul'], ['Rita F.', 72, 'limp', 'bia'], ['Denise A.', 200, 'color', 'cam']].forEach(([nome, d0, s, p]) => {
+    const c = CL(cliDe(nome, ''));
+    for (let k = 0; k < 4; k++) c.hist.push({ dias: d0 + k * 35, s, p, valor: SV(s).preco, status: 'pago', metodo: metodos[k % 3] });
+    c.nasc = '1979-' + pad2(((HOJE.getMonth() + 2) % 12) + 1) + '-12';
+  });
+})();
+function moda(arr) { const m = {}; let best = null; arr.forEach((x) => { m[x] = (m[x] || 0) + 1; if (best == null || m[x] > m[best]) best = x; }); return best; }
+function cliStats(c) {
+  const aps = S.appts.filter((a) => a.cid === c.id);
+  const atuais = aps.map((a) => ({ id: a.id, s: a.s, p: a.p, valor: valor(a), status: a.status, metodo: a.metodo, data: DIAS[a.d].dt, q: a.d, h: a.h }));
+  const passado = c.hist.map((h) => ({ ...h, data: dataDias(-h.dias), q: -h.dias, h: 0 }));
+  const todos = [...atuais, ...passado].sort((x, y) => y.q - x.q || y.h - x.h);
+  const pagos = todos.filter((x) => x.status === 'pago');
+  const gasto = pagos.reduce((t, x) => t + x.valor, 0);
+  const ult = pagos.length ? Math.min(...pagos.map((x) => -x.q)) : null;
+  const prox = atuais.filter((x) => x.status === 'agendado' || x.status === 'confirmado').sort((a, b) => a.q - b.q || a.h - b.h)[0] || null;
+  const qs = pagos.map((x) => x.q).sort((a, b) => a - b);
+  const freq = qs.length > 1 ? Math.round((qs[qs.length - 1] - qs[0]) / (qs.length - 1)) : null;
+  const aniv = !!c.nasc && Number(c.nasc.slice(5, 7)) - 1 === HOJE.getMonth();
+  return {
+    todos, gasto, ult, prox, freq, aniv, visitas: pagos.length,
+    prefP: moda(pagos.map((x) => x.p)), prefS: moda(pagos.map((x) => x.s)),
+    faltas: todos.filter((x) => x.status === 'faltou').length, desm: todos.filter((x) => x.status === 'desmarcado').length,
+    sumida: !prox && ult != null && ult >= 60
+  };
+}
+const ultTxt = (u) => u == null ? 'Ainda não veio' : u === 0 ? 'Hoje' : u === 1 ? 'Ontem' : 'Há ' + u + ' dias';
+function cliMsg(c, st) {
+  const n = c.nome.split(' ')[0];
+  if (st.aniv) return 'Feliz aniversário, ' + n + '! 🎉💜\n\nToda a equipe do *' + SALAO + '* deseja um dia lindo pra você. Que tal comemorar se cuidando com a gente?\n\nAgende pelo link: ' + LINK;
+  if (st.sumida) return 'Oi, ' + n + '! 💜 Que saudade de você aqui no *' + SALAO + '*!\n\nFaz um tempinho que você não vem... Que tal reservar seu horário? É rapidinho pelo link:\n' + LINK;
+  return 'Oi, ' + n + '! Aqui é do *' + SALAO + '* 💜';
+}
+function cliHref(c, st) { const f = soDig(c.fone); return 'https://wa.me/' + (f.length >= 10 ? '55' + f : '') + '?text=' + encodeURIComponent(cliMsg(c, st)); }
+function vClientes() {
+  const m = isM();
+  const all = S.clientes.map((c) => ({ c, st: cliStats(c) }));
+  const FIL = [['todas', 'Todas', () => true], ['sumidas', 'Sumidas há 60+ dias', (x) => x.st.sumida], ['aniv', 'Aniversariantes de ' + MES_LONGO[HOJE.getMonth()], (x) => x.st.aniv], ['agend', 'Com horário marcado', (x) => !!x.st.prox]];
+  const fil = FIL.find((f) => f[0] === S.cliFiltro) || FIL[0];
+  const q = normNome(S.cliBusca), qd = soDig(S.cliBusca);
+  const lista = all.filter(fil[2]).filter((x) => !q || normNome(x.c.nome).includes(q) || (qd.length >= 3 && soDig(x.c.fone).includes(qd))).sort((a, b) => a.c.nome.localeCompare(b.c.nome, 'pt-BR'));
+  const sel = all.find((x) => x.c.id === S.cliSel) || (m ? null : lista[0]);
+  const itens = lista.map(({ c, st }) => `<button class="cli ${sel && sel.c.id === c.id ? 'on' : ''}" data-a="cliSel" data-v="${c.id}">
+      <span class="av" style="width:40px;height:40px">${esc(iniciais(c.nome))}</span>
+      <span style="flex:1;min-width:0;text-align:left"><span style="display:block;font-size:14px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${esc(c.nome)}</span><span class="sub" style="display:block;font-size:12px">${ultTxt(st.ult)} · ${st.visitas} visita${st.visitas === 1 ? '' : 's'}</span>
+      <span style="display:flex;gap:4px;flex-wrap:wrap;margin-top:4px">${st.sumida ? '<span class="tag tg-s">Sumida</span>' : ''}${st.aniv ? '<span class="tag tg-a">Aniversário</span>' : ''}${st.prox ? '<span class="tag tg-p">Marcado</span>' : ''}</span></span>
+      <b style="font-size:13px;flex:none">${brl(st.gasto)}</b></button>`).join('');
+  const listaHtml = `<section class="card" style="flex:1 1 320px;max-width:${m ? 'none' : '420px'};min-width:0;padding:16px;display:flex;flex-direction:column;gap:12px">
+      <input type="search" id="cliBusca" value="${esc(S.cliBusca)}" placeholder="Buscar por nome ou WhatsApp" aria-label="Buscar cliente">
+      <div class="chips">${FIL.map(([k, t, f]) => `<button class="pill ${fil[0] === k ? 'on' : ''}" data-a="cliFiltro" data-v="${k}">${t} · ${all.filter(f).length}</button>`).join('')}</div>
+      <div style="display:flex;flex-direction:column;max-height:${m ? 'none' : '780px'};overflow-y:auto">${itens || '<div class="sub" style="padding:12px 0">Nenhuma cliente encontrada.</div>'}</div></section>`;
+  return `<main>
+    <header class="top"><div><div class="sub">${S.clientes.length} clientes cadastradas</div><h1>Clientes</h1></div><button class="btn" data-a="cliNova">+ Nova cliente</button></header>
+    ${toastHtml()}
+    <div class="flexrow" style="${m ? 'flex-direction:column;align-items:stretch' : ''}">
+      ${m && sel ? '' : listaHtml}
+      ${sel ? ficha(sel.c, sel.st, m) : (m ? '' : '<section class="card" style="flex:999 1 480px"><div class="sub">Escolha uma cliente.</div></section>')}
+    </div></main>`;
+}
+function ficha(c, st, m) {
+  const ticket = st.visitas ? st.gasto / st.visitas : 0;
+  const nasc = c.nasc ? new Date(c.nasc + 'T12:00:00') : null;
+  const kp = [['Visitas', st.visitas], ['Total gasto', brl(st.gasto)], ['Ticket médio', brl(ticket)], ['Última visita', ultTxt(st.ult)], ['Vem a cada', st.freq ? '~' + st.freq + ' dias' : '—'], ['Faltas / desmarques', st.faltas + ' / ' + st.desm]];
+  const hist = st.todos.map((x) => {
+    const c2 = ST[x.status], fut = x.q > 0 || (x.q === 0 && (x.status === 'agendado' || x.status === 'confirmado'));
+    const quando = x.q > 0 ? DIAS[x.q].l + ' ' + DIAS[x.q].n + ' · ' + hh(x.h) : x.q === 0 ? 'Hoje · ' + hh(x.h) : fmtD(x.data) + ' · há ' + (-x.q) + ' dias';
+    return `<div class="hi ${fut ? 'fut' : ''}"><span class="hid"></span>
+      <div style="flex:1;min-width:0"><div style="font-size:12px;color:#6B6470">${quando}${fut ? ' · <b style="color:#6B2D5C">próximo</b>' : ''}</div>
+        <div style="font-size:14px;font-weight:600">${esc(SV(x.s).nome)} <span style="font-weight:400;color:#4A4550">com ${PF[x.p].nome}</span></div></div>
+      <div style="text-align:right;flex:none"><div style="font-size:14px;font-weight:700">${brl(x.valor)}</div><span class="tag" style="background:${c2.bg};color:${c2.fg};font-size:11px;padding:2px 8px">${x.status === 'pago' && x.metodo ? 'Pago · ' + x.metodo : c2.label}</span></div></div>`;
+  }).join('');
+  return `<section class="card" style="flex:999 1 480px;min-width:0;display:flex;flex-direction:column;gap:18px">
+    ${m ? '<button class="voltar" data-a="cliSel" data-v="">' + BACK + '<span>Voltar à lista</span></button>' : ''}
+    <div style="display:flex;align-items:center;gap:14px;flex-wrap:wrap">
+      <span class="av" style="width:64px;height:64px;font-size:20px">${esc(iniciais(c.nome))}</span>
+      <div style="flex:1;min-width:180px"><div style="font-size:22px;font-weight:700">${esc(c.nome)}</div>
+        <div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:6px">
+          ${st.sumida ? `<span class="tag tg-s">Sumida · ${ultTxt(st.ult).toLowerCase()}</span>` : ''}
+          ${st.aniv && nasc ? `<span class="tag tg-a">Aniversário dia ${pad2(nasc.getDate())}/${MES_AB[nasc.getMonth()]}</span>` : ''}
+          ${st.prox ? `<span class="tag tg-p">Próximo: ${DIAS[st.prox.q].l} ${DIAS[st.prox.q].n} às ${hh(st.prox.h)}</span>` : ''}
+        </div></div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap">
+        <a class="btnwa" style="text-decoration:none" href="${cliHref(c, st)}" target="_blank" rel="noopener">${WA}${st.aniv ? 'Mandar parabéns' : st.sumida ? 'Chamar de volta' : 'WhatsApp'}</a>
+        <button class="btn" data-a="cliAgendar" data-v="${c.id}">Agendar horário</button>
+      </div></div>
+    <div class="fk">${kp.map(([l, v]) => `<div><div class="kl">${l}</div><div style="font-size:17px;font-weight:700;margin-top:2px">${v}</div></div>`).join('')}</div>
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px">
+      <div class="pref"><div class="kl">Profissional preferida</div><b>${st.prefP ? PF[st.prefP].nome + ' · ' + PF[st.prefP].func : '—'}</b></div>
+      <div class="pref"><div class="kl">Serviço que mais faz</div><b>${st.prefS ? esc(SV(st.prefS).nome) : '—'}</b></div>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:12px;border-top:1px solid #ECE7E1;padding-top:16px">
+      <div class="cap">Dados da cliente</div>
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px">
+        <label class="f">Nome<input type="text" id="cfNome" data-cf="nome" value="${esc(c.nome)}"></label>
+        <label class="f">WhatsApp<input type="tel" inputmode="tel" data-cf="fone" value="${esc(c.fone)}" placeholder="(43) 99999-9999"></label>
+        <label class="f">Aniversário<input type="date" data-cf="nasc" value="${esc(c.nasc)}"></label>
+      </div>
+      <label class="f">Observações <span class="sub" style="font-weight:400">(alergias, preferências, cuidados)</span><textarea data-cf="obs" rows="3" placeholder="Ex.: alergia a amônia, prefere escova média...">${esc(c.obs)}</textarea></label>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:4px;border-top:1px solid #ECE7E1;padding-top:16px">
+      <div class="cap" style="margin-bottom:8px">Histórico · ${st.todos.length} registro${st.todos.length === 1 ? '' : 's'}</div>
+      <div class="hl">${hist || '<div class="sub">Sem atendimentos ainda.</div>'}</div>
+    </div></section>`;
+}
+
 /* ================= RENDER + EVENTOS ================= */
-const VIEWS = { agenda: vAgenda, lembretes: vLembretes, escala: vEscala, servicos: vServicos, pagamentos: vPagamentos, gestora: vGestora, cliente: vCliente };
+const VIEWS = { agenda: vAgenda, lembretes: vLembretes, clientes: vClientes, escala: vEscala, servicos: vServicos, pagamentos: vPagamentos, gestora: vGestora, cliente: vCliente };
 let lastM = isM();
 function render() {
   const r = route();
@@ -818,7 +974,7 @@ function salvarAgendamento(pid, sid, d, h, cliente, orig, fone) {
   const c = conflito(pid, sid, d, h);
   if (c) return c;
   const id = 'n' + Date.now().toString(36) + Math.random().toString(36).slice(2, 5);
-  S.appts.push({ id, p: pid, d, h, s: sid, cliente, status: 'agendado', metodo: null, orig, fone: fone || '', lem: null });
+  S.appts.push({ id, p: pid, d, h, s: sid, cliente, status: 'agendado', metodo: null, orig, fone: fone || '', lem: null, cid: cliDe(cliente, fone) });
   return id;
 }
 document.addEventListener('click', (e) => {
@@ -848,6 +1004,21 @@ document.addEventListener('click', (e) => {
       : { cliente: x.cliente, fone: x.fone || '', serv: x.s, prof: x.p, d: Math.min(x.d + 1, N_DIAS - 1), hora: null, editId: null, fromId: x.id, orig: x.orig };
     S.panel = 'novo'; S.confirmEx = null;
     if (isM()) setTimeout(() => { const p = document.getElementById('painel'); if (p && p.scrollIntoView) p.scrollIntoView({ behavior: 'smooth' }); }, 0);
+  }
+  else if (a === 'cliSel') { S.cliSel = v || null; if (isM()) window.scrollTo(0, 0); }
+  else if (a === 'cliFiltro') S.cliFiltro = v;
+  else if (a === 'cliNova') {
+    const c = { id: 'c' + Date.now().toString(36), nome: 'Nova cliente', fone: '', nasc: '', obs: '', hist: [] };
+    S.clientes.push(c); S.cliSel = c.id; S.cliBusca = ''; S.cliFiltro = 'todas';
+    render(); const el = document.getElementById('cfNome'); if (el) { el.focus(); el.select(); } return;
+  }
+  else if (a === 'verFicha') { S.cliSel = v; S.cliBusca = ''; S.cliFiltro = 'todas'; location.hash = '#clientes'; return; }
+  else if (a === 'cliAgendar') {
+    const c = CL(v), st = cliStats(c);
+    const sv = st.prefS && SV(st.prefS) && !SV(st.prefS).arq ? st.prefS : S.form.serv;
+    const pr = st.prefP && SV(sv).profs.includes(st.prefP) ? st.prefP : SV(sv).profs[0];
+    S.form = { cliente: c.nome, fone: c.fone, serv: sv, prof: pr, d: S.agD, hora: null, editId: null };
+    S.panel = 'novo'; S.agView = 'dia'; location.hash = '#agenda'; return;
   }
   else if (a === 'lemDia') S.lemD = Number(v);
   else if (a === 'lemEnviar' || a === 'lemProximo') {
@@ -972,9 +1143,24 @@ document.addEventListener('click', (e) => {
 document.addEventListener('input', (e) => {
   const t = e.target, id = t.id;
   if (id === 'fone') { S.fone = t.value; const l = document.getElementById('walink'); if (l) l.href = waHref(); }
-  else if (id === 'cliNome') S.form.cliente = t.value;
+  else if (id === 'cliNome') {
+    S.form.cliente = t.value;
+    // Cliente já cadastrada: preenche o WhatsApp
+    const c = S.clientes.find((x) => normNome(x.nome) === normNome(t.value));
+    const ff = document.getElementById('cliFone');
+    if (c && c.fone && ff && !ff.value) { ff.value = c.fone; S.form.fone = c.fone; }
+  }
   else if (id === 'cliFone') S.form.fone = t.value;
-  else if (t.dataset.fone) { const x = S.appts.find((q) => q.id === t.dataset.fone); if (x) x.fone = t.value; }
+  else if (t.dataset.fone) { const x = S.appts.find((q) => q.id === t.dataset.fone); if (x) { x.fone = t.value; if (x.cid && soDig(t.value).length >= 10) CL(x.cid).fone = t.value; } }
+  else if (id === 'cliBusca') {
+    S.cliBusca = t.value; render();
+    const el = document.getElementById('cliBusca'); if (el) { el.focus(); el.setSelectionRange(el.value.length, el.value.length); }
+  }
+  else if (t.dataset.cf) {
+    const c = CL(S.cliSel); if (!c) return;
+    c[t.dataset.cf] = t.value;
+    if (t.dataset.cf === 'nome') S.appts.forEach((a) => { if (a.cid === c.id) a.cliente = t.value; });
+  }
   else if (id === 'cNome') S.cli.nome = t.value;
   else if (id === 'cFone') S.cli.fone = t.value;
   else if (id === 'nsNome') S.ns.nome = t.value;
@@ -983,7 +1169,8 @@ document.addEventListener('input', (e) => {
 });
 document.addEventListener('change', (e) => {
   const t = e.target, id = t.id;
-  if (id === 'fServ') { S.form.serv = t.value; S.form.hora = null; render(); }
+  if (t.dataset.cf === 'nasc' || t.dataset.cf === 'nome') render();
+  else if (id === 'fServ') { S.form.serv = t.value; S.form.hora = null; render(); }
   else if (id === 'fProf') { S.form.prof = t.value; S.form.hora = null; render(); }
   else if (id === 'fDia') { S.form.d = Number(t.value); S.form.hora = null; render(); }
   else if (id === 'nsCat') { S.ns.cat = t.value; render(); }
