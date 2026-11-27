@@ -164,11 +164,12 @@ const S = {
   grade: PROFS.map((p) => p.dias.slice()),
   sel: 'a3', panel: null, fone: '', toast: null, agProf: 'cam',
   form: { cliente: '', serv: 'cfem', prof: 'cam', d: 0, hora: null },
-  cat: 'Todos', servTab: 'lista', ns: null, nsErr: {},
+  cat: 'Todos', servTab: 'lista', ns: null, nsErr: {}, editId: null, confirmDel: false,
   perD: 'semana', perG: 'semana', ord: 'fat', sent: {},
   cli: { step: 1, serv: null, prof: null, d: 0, hora: null, nome: '', fone: '' }
 };
 const SV = (id) => S.servs.find((s) => s.id === id);
+const SA = () => S.servs.filter((s) => !s.arq);
 const route = () => (location.hash.replace('#', '') || 'agenda');
 const LINK = location.origin + location.pathname + '#agendar';
 
@@ -299,7 +300,7 @@ function pShare() {
     <a href="#agendar" target="_blank" rel="noopener" style="font-size:13px;font-weight:600;color:#6B2D5C">Abrir o link como a cliente vê →</a>`;
 }
 function pNovo() {
-  const f = S.form, s = SV(f.serv) || S.servs[0];
+  const f = S.form, s = (SV(f.serv) && !SV(f.serv).arq) ? SV(f.serv) : SA()[0];
   f.serv = s.id;
   if (!s.profs.includes(f.prof)) f.prof = s.profs[0];
   const sl = livres(f.prof, f.serv, f.d);
@@ -307,7 +308,7 @@ function pNovo() {
   const motivo = !trabalha(f.prof, f.d) ? PF[f.prof].nome + ' está de folga neste dia.' : 'Sem horários livres para este serviço neste dia.';
   return `<div style="display:flex;justify-content:space-between;align-items:center"><div class="cap">Novo agendamento · recepção</div><button class="x" data-a="panel" data-v="" aria-label="Fechar">×</button></div>
     <label class="f">Cliente<input type="text" id="cliNome" value="${esc(f.cliente)}" placeholder="Nome da cliente"></label>
-    <label class="f">Serviço<select id="fServ">${S.servs.map((x) => `<option value="${x.id}" ${x.id === s.id ? 'selected' : ''}>${esc(x.nome)} · ${durTxt(x.dur)} · ${brl(x.preco)}</option>`).join('')}</select></label>
+    <label class="f">Serviço<select id="fServ">${SA().map((x) => `<option value="${x.id}" ${x.id === s.id ? 'selected' : ''}>${esc(x.nome)} · ${durTxt(x.dur)} · ${brl(x.preco)}</option>`).join('')}</select></label>
     <label class="f">Profissional <span class="sub" style="font-weight:400">(só quem faz este serviço)</span><select id="fProf">${s.profs.map((id) => `<option value="${id}" ${id === f.prof ? 'selected' : ''}>${PF[id].nome} · ${PF[id].func}</option>`).join('')}</select></label>
     <label class="f">Dia<select id="fDia">${DIAS.map((d, i) => `<option value="${i}" ${i === f.d ? 'selected' : ''}>${d.l} · ${d.n}</option>`).join('')}</select></label>
     <div style="font-size:13px;font-weight:600">Horários livres</div>
@@ -343,18 +344,21 @@ function vEscala() {
 
 /* ================= SERVIÇOS ================= */
 function nsVazio() { return { nome: '', cat: 'Cabelo', catNova: '', dur: 60, preco: '', sinal: 'auto', com: '', profs: [], online: true }; }
-function cats() { return [...new Set(S.servs.map((s) => s.cat))]; }
+function cats() { return [...new Set(SA().map((s) => s.cat))]; }
+function nsFrom(x) { return { nome: x.nome, cat: x.cat, catNova: '', dur: x.dur, preco: String(x.preco), sinal: String(x.sinal), com: x.com == null ? '' : String(Math.round(x.com * 100)), profs: x.profs.slice(), online: x.online }; }
+const pendentes = (sid) => S.appts.filter((a) => a.s === sid && (a.status === 'agendado' || a.status === 'confirmado'));
 function vServicos() {
   const tab = S.servTab;
-  const abas = `<div class="seg" role="tablist" style="align-self:flex-start"><button role="tab" class="${tab === 'lista' ? 'on' : ''}" data-a="servTab" data-v="lista">Serviços cadastrados</button><button role="tab" class="${tab === 'novo' ? 'on' : ''}" data-a="servTab" data-v="novo">+ Novo serviço</button></div>`;
+  const abas = `<div class="seg" role="tablist" style="align-self:flex-start"><button role="tab" class="${tab === 'lista' ? 'on' : ''}" data-a="servTab" data-v="lista">Serviços cadastrados</button><button role="tab" class="${tab === 'novo' ? 'on' : ''}" data-a="servTab" data-v="novo">${S.editId ? 'Editar serviço' : '+ Novo serviço'}</button></div>`;
   return `<main>
-    <header class="top"><div><div class="sub">${S.servs.length} serviços · ${S.servs.filter((s) => s.online).length} no link online</div><h1>Serviços</h1></div></header>
+    <header class="top"><div><div class="sub">${SA().length} serviços · ${SA().filter((s) => s.online).length} no link online</div><h1>Serviços</h1></div></header>
     ${toastHtml()}${abas}
     ${tab === 'lista' ? servLista() : servNovo()}</main>`;
 }
 function servLista() {
   const lista = ['Todos', ...cats()];
-  const rows = S.servs.filter((s) => S.cat === 'Todos' || s.cat === S.cat);
+  const rows = SA().filter((s) => S.cat === 'Todos' || s.cat === S.cat);
+  const ed = (s) => `<button class="btn2" style="height:36px;padding:0 12px;font-size:13px" data-a="nsEdit" data-v="${s.id}" aria-label="Editar ${esc(s.nome)}">Editar</button>`;
   const tog = (s) => `<button data-a="online" data-v="${s.id}" role="switch" aria-checked="${s.online}" aria-label="No link online: ${esc(s.nome)}" style="width:48px;height:28px;border-radius:14px;border:0;padding:3px;cursor:pointer;display:flex;flex:none;${s.online ? 'background:#1F7A6D;justify-content:flex-end' : 'background:#CFC8C2;justify-content:flex-start'}"><span style="width:22px;height:22px;border-radius:50%;background:#fff;display:block"></span></button>`;
   const avs = (s) => s.profs.map((id) => `<span class="av" title="${PF[id].nome}" style="width:30px;height:30px;background:#EDE9E4;color:#3A3540;font-size:11px">${PF[id].ini}</span>`).join('');
   const sinal = (s) => s.sinal ? brl2(Math.round(s.preco * s.sinal / 100)) + ' (' + s.sinal + '%)' : '—';
@@ -362,12 +366,12 @@ function servLista() {
   if (isM()) {
     corpo = `<div style="display:flex;flex-direction:column;gap:10px">${rows.map((s) => `<div class="mcard"><div style="display:flex;justify-content:space-between;gap:10px;align-items:flex-start"><div><b style="font-size:15px">${esc(s.nome)}</b><div class="sub">${esc(s.cat)} · ${durTxt(s.dur)}</div></div><b>${brl2(s.preco)}</b></div>
       <div style="display:flex;justify-content:space-between;align-items:center;gap:10px"><div style="display:flex;gap:4px">${avs(s)}</div><div style="display:flex;align-items:center;gap:8px;font-size:12px;color:#4A4550">No link ${tog(s)}</div></div>
-      <div class="sub">Sinal: ${sinal(s)}</div></div>`).join('')}</div>`;
+      <div style="display:flex;justify-content:space-between;align-items:center;gap:10px"><span class="sub">Sinal: ${sinal(s)}</span>${ed(s)}</div></div>`).join('')}</div>`;
   } else {
-    const cols = 'grid-template-columns:2fr 1.1fr .8fr .9fr 1.1fr 1.4fr .9fr;padding-left:20px;padding-right:20px';
-    corpo = `<section class="card scroll" style="padding:0"><div style="min-width:860px">
-      <div class="th" style="${cols};padding-top:14px;padding-bottom:14px"><div>Serviço</div><div>Categoria</div><div>Duração</div><div class="r">Preço</div><div class="r">Sinal (Pix)</div><div>Quem faz</div><div class="r">No link online</div></div>
-      ${rows.map((s) => `<div class="tr" style="${cols}"><div style="font-weight:600">${esc(s.nome)}</div><div><span class="tag" style="background:#F1E6EE;color:#4A1D42">${esc(s.cat)}</span></div><div style="color:#4A4550">${durTxt(s.dur)}</div><div class="r" style="font-weight:600">${brl2(s.preco)}</div><div class="r" style="color:#4A4550">${sinal(s)}</div><div style="display:flex;gap:4px">${avs(s)}</div><div style="display:flex;justify-content:flex-end">${tog(s)}</div></div>`).join('')}
+    const cols = 'grid-template-columns:1.8fr 1fr .7fr .8fr 1.1fr 1.2fr .8fr .7fr;padding-left:20px;padding-right:20px';
+    corpo = `<section class="card scroll" style="padding:0"><div style="min-width:940px">
+      <div class="th" style="${cols};padding-top:14px;padding-bottom:14px"><div>Serviço</div><div>Categoria</div><div>Duração</div><div class="r">Preço</div><div class="r">Sinal (Pix)</div><div>Quem faz</div><div class="r">No link online</div><div></div></div>
+      ${rows.map((s) => `<div class="tr" style="${cols}"><div style="font-weight:600">${esc(s.nome)}</div><div><span class="tag" style="background:#F1E6EE;color:#4A1D42">${esc(s.cat)}</span></div><div style="color:#4A4550">${durTxt(s.dur)}</div><div class="r" style="font-weight:600">${brl2(s.preco)}</div><div class="r" style="color:#4A4550">${sinal(s)}</div><div style="display:flex;gap:4px">${avs(s)}</div><div style="display:flex;justify-content:flex-end">${tog(s)}</div><div class="r">${ed(s)}</div></div>`).join('')}
     </div></section>`;
   }
   return `<div class="chips">${lista.map((c) => `<button class="pill ${c === S.cat ? 'on' : ''}" data-a="cat" data-v="${esc(c)}">${esc(c)}</button>`).join('')}</div>${corpo}
@@ -378,7 +382,8 @@ function servNovo() {
   const durs = [15, 30, 45, 60, 75, 90, 105, 120, 150, 180, 210, 240];
   const err = (k) => E[k] ? `<span class="err">${E[k]}</span>` : '';
   return `<section class="card" style="display:flex;flex-direction:column;gap:16px;max-width:760px">
-    <h2>Novo serviço</h2>
+    <h2>${S.editId ? 'Editar serviço: ' + esc(SV(S.editId).nome) : 'Novo serviço'}</h2>
+    ${E.geral ? `<div class="err" style="font-size:13px">${esc(E.geral)}</div>` : ''}
     <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:14px">
       <label class="f">Nome do serviço *<input id="nsNome" type="text" value="${esc(n.nome)}" placeholder="Ex.: Hidratação">${err('nome')}</label>
       <label class="f">Categoria *<select id="nsCat">${cats().map((c) => `<option ${c === n.cat ? 'selected' : ''}>${esc(c)}</option>`).join('')}<option value="__nova" ${n.cat === '__nova' ? 'selected' : ''}>+ Nova categoria…</option></select></label>
@@ -393,7 +398,12 @@ function servNovo() {
       ${err('profs')}
       <div class="sub" style="margin-top:6px">Só os marcados aparecem para este serviço na agenda e no link.</div></fieldset>
     <label style="display:flex;align-items:center;gap:10px;min-height:44px;font-size:14px;font-weight:600;cursor:pointer"><input type="checkbox" id="nsOnline" ${n.online ? 'checked' : ''}>Disponível no link de agendamento online</label>
-    <div style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn" data-a="nsSalvar">Salvar serviço</button><button class="btn2" data-a="nsLimpar">Limpar</button></div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center">${S.editId
+      ? `<button class="btn" data-a="nsSalvar">Salvar alterações</button><button class="btn2" data-a="nsCancelar">Cancelar</button><span style="flex:1"></span>${S.confirmDel
+          ? `<span style="font-size:13px;font-weight:600;color:#9A2D0F">Excluir este serviço?</span><button class="btn" style="background:#9A2D0F" data-a="nsDel">Sim, excluir</button><button class="btn2" data-a="nsDelNao">Não</button>`
+          : `<button class="btn2" style="color:#9A2D0F;border-color:#E8C4B4" data-a="nsDel">Excluir serviço</button>`}`
+      : `<button class="btn" data-a="nsSalvar">Salvar serviço</button><button class="btn2" data-a="nsLimpar">Limpar</button>`}</div>
+    ${S.editId ? '<div class="sub">Excluir tira o serviço da lista, da agenda e do link, mas mantém o histórico de atendimentos e pagamentos.</div>' : ''}
   </section>`;
 }
 
@@ -445,7 +455,7 @@ function vGestora() {
   const mes = S.perG === 'mes', mult = mes ? 4 : 1, m = isM();
   const hojeAtivos = S.appts.filter((a) => a.d === 0);
   const P = mes ? { label: 'Novembro de 2026', total: 392 + hojeAtivos.length, concl: 349 } : { label: 'Semana de 23 a 29 de novembro', total: 84 + hojeAtivos.length, concl: 81 };
-  const cont = S.servs.map((s) => ({ s, q: (BASE_PEDIDOS[s.id] || 0) * mult + S.appts.filter((a) => a.s === s.id && ativo(a)).length })).sort((a, b) => b.q - a.q);
+  const cont = SA().map((s) => ({ s, q: (BASE_PEDIDOS[s.id] || 0) * mult + S.appts.filter((a) => a.s === s.id && ativo(a)).length })).sort((a, b) => b.q - a.q);
   const top = cont[0], rank = cont.slice(1, 6);
   const DS = [['Desmarcou com antecedência', 'Avisou mais de 24h antes: dá para reaproveitar o horário', 5, '#C98DB8'], ['Desmarcou em cima da hora', 'Avisou menos de 24h antes', 3, '#E0995F'], ['Não compareceu', 'Faltou sem avisar', 3 + S.appts.filter((a) => a.status === 'faltou').length, '#B5532A']];
   const EQ = { cam: [22, 3080, .86, 2, .72], jul: [31, 2015, .91, 4, .81], raf: [27, 1650, .78, 3, .85], bia: [11, 1720, .62, 1, .64], thi: [13, 1950, .69, 2, .58] };
@@ -491,7 +501,7 @@ function vGestora() {
 /* ================= LINK DE AGENDAMENTO ================= */
 function booking() {
   const c = S.cli;
-  const online = S.servs.filter((s) => s.online && s.profs.length);
+  const online = SA().filter((s) => s.online && s.profs.length);
   const sv = c.serv ? SV(c.serv) : null;
   const labels = ['Etapa 1 de 4 · Serviço', 'Etapa 2 de 4 · Profissional', 'Etapa 3 de 4 · Dia e horário', 'Etapa 4 de 4 · Confirmação', 'Pronto'];
   let body = '';
@@ -574,7 +584,7 @@ function salvarAgendamento(pid, sid, d, h, cliente, orig) {
 document.addEventListener('click', (e) => {
   const b = e.target.closest('[data-a]'); if (!b) return;
   const a = b.dataset.a, v = b.dataset.v;
-  if (a !== 'toastX' && !['nsSalvar', 'salvar', 'esc'].includes(a)) S.toast = null;
+  if (a !== 'toastX' && !['nsSalvar', 'salvar', 'esc', 'nsDel'].includes(a)) S.toast = null;
   if (a === 'toastX') S.toast = null;
   else if (a === 'sel') { S.sel = v; S.panel = null; if (isM()) setTimeout(() => { const p = document.getElementById('painel'); if (p && p.scrollIntoView) p.scrollIntoView({ behavior: 'smooth' }); }, 0); }
   else if (a === 'agProf') S.agProf = v;
@@ -602,13 +612,22 @@ document.addEventListener('click', (e) => {
   }
   else if (a === 'cat') S.cat = v;
   else if (a === 'online') { const s = SV(v); s.online = !s.online; }
-  else if (a === 'servTab') { S.servTab = v; S.nsErr = {}; }
+  else if (a === 'servTab') { S.servTab = v; S.nsErr = {}; S.confirmDel = false; if (v === 'novo' && S.editId && b.textContent.includes('Novo')) { S.editId = null; S.ns = nsVazio(); } }
+  else if (a === 'nsEdit') { S.editId = v; S.ns = nsFrom(SV(v)); S.servTab = 'novo'; S.nsErr = {}; S.confirmDel = false; window.scrollTo(0, 0); }
+  else if (a === 'nsCancelar') { S.editId = null; S.ns = nsVazio(); S.nsErr = {}; S.servTab = 'lista'; S.confirmDel = false; }
+  else if (a === 'nsDelNao') S.confirmDel = false;
+  else if (a === 'nsDel') {
+    const x = SV(S.editId), pend = pendentes(x.id);
+    if (pend.length) { S.nsErr = { geral: 'Não dá para excluir: ' + pend.length + ' cliente(s) marcada(s) para ' + x.nome + ' (' + pend.slice(0, 3).map((p) => p.cliente + ' ' + DIAS[p.d].l + ' ' + hh(p.h)).join(', ') + '). Remarque ou cancele antes.' }; S.confirmDel = false; }
+    else if (!S.confirmDel) S.confirmDel = true;
+    else { x.arq = true; S.toast = 'Serviço "' + x.nome + '" excluído. O histórico de atendimentos foi mantido.'; S.editId = null; S.ns = nsVazio(); S.servTab = 'lista'; S.confirmDel = false; S.nsErr = {}; }
+  }
   else if (a === 'nsLimpar') { S.ns = nsVazio(); S.nsErr = {}; }
   else if (a === 'nsSalvar') {
     const n = S.ns, E = {};
     const nome = n.nome.trim();
     if (!nome) E.nome = 'Informe o nome.';
-    else if (S.servs.some((s) => s.nome.toLowerCase() === nome.toLowerCase())) E.nome = 'Já existe um serviço com esse nome.';
+    else if (SA().some((s) => s.id !== S.editId && s.nome.toLowerCase() === nome.toLowerCase())) E.nome = 'Já existe um serviço com esse nome.';
     const cat = n.cat === '__nova' ? n.catNova.trim() : n.cat;
     if (!cat) E.cat = 'Informe a categoria.';
     const preco = parseFloat(String(n.preco).replace(',', '.'));
@@ -616,10 +635,20 @@ document.addEventListener('click', (e) => {
     if (!n.profs.length) E.profs = 'Marque pelo menos um profissional.';
     S.nsErr = E;
     if (Object.keys(E).length) { S.toast = null; render(); return; }
-    const id = 's' + Date.now().toString(36);
     const sinal = n.sinal === 'auto' ? (preco >= 150 ? 30 : 0) : Number(n.sinal);
-    S.servs.push({ id, nome, cat, dur: Number(n.dur), preco, profs: n.profs.slice(), online: n.online, sinal, com: n.com === '' ? null : Number(n.com) / 100 });
-    S.toast = 'Serviço "' + nome + '" adicionado. Já aparece na agenda' + (n.online ? ', no link de agendamento' : '') + ' e no Painel da Gestora.';
+    const dados = { nome, cat, dur: Number(n.dur), preco, profs: n.profs.slice(), online: n.online, sinal, com: n.com === '' ? null : Number(n.com) / 100 };
+    if (S.editId) {
+      const x = SV(S.editId), antes = { ...x, profs: x.profs.slice() };
+      Object.assign(x, dados);
+      const erros = auditoria();
+      if (erros.length) { Object.assign(x, antes); S.nsErr = { geral: 'Não dá para salvar: a mudança bate com clientes já marcadas (' + erros.slice(0, 3).join('; ') + '). Remarque essas clientes ou ajuste a mudança.' }; render(); return; }
+      S.toast = 'Serviço "' + nome + '" atualizado. Agenda, link e painel já usam os novos dados.';
+      S.editId = null;
+    } else {
+      const id = 's' + Date.now().toString(36);
+      S.servs.push({ id, ...dados });
+      S.toast = 'Serviço "' + nome + '" adicionado. Já aparece na agenda' + (n.online ? ', no link de agendamento' : '') + ' e no Painel da Gestora.';
+    }
     S.ns = nsVazio(); S.servTab = 'lista'; S.cat = 'Todos';
   }
   else if (a === 'perD') S.perD = v;
