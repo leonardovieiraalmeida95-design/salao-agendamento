@@ -2,7 +2,9 @@
 
 Sistema de agendamento e gestão para salões de beleza: agenda por profissional, escala da equipe, catálogo de serviços, pagamentos, painel da gestora e link de agendamento online enviado pelo WhatsApp.
 
-**Protótipo clicável:** https://claude.ai/artifact/9x1rwChaxVoLGmu56L1Eec
+**Ver online:** https://leonardovieiraalmeida95-design.github.io/salao-agendamento/
+
+**Protótipo no canvas de design:** https://claude.ai/artifact/9x1rwChaxVoLGmu56L1Eec
 
 ## Telas do protótipo
 
@@ -15,7 +17,7 @@ Sistema de agendamento e gestão para salões de beleza: agenda por profissional
 | Painel da Gestora | `prototipo/Gestora.dc.html` | Só gestora | Total de agendamentos, inadimplências, desmarques, serviço mais pedido, desempenho por colaborador |
 | Link de agendamento | `prototipo/Cliente.dc.html` | Cliente final | Escolhe serviço → profissional → horário → paga sinal via Pix |
 
-Os arquivos `.dc.html` são o código-fonte das telas do protótipo (formato do canvas de design) e servem de referência visual para o desenvolvimento. O app de verdade será construído do zero (ver Stack).
+O `index.html` na raiz é a versão navegável (GitHub Pages), com todas as telas funcionando. Os arquivos `.dc.html` são o código-fonte das telas do protótipo (formato do canvas de design) e servem de referência visual para o desenvolvimento. O app de verdade será construído do zero (ver Stack).
 
 ## Escopo do MVP
 
