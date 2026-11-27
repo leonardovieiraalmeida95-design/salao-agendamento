@@ -82,6 +82,14 @@ label.f{display:flex;flex-direction:column;gap:6px;font-size:13px;font-weight:60
 .mdn{font-size:13px;font-weight:700}.mdh{font-size:10px;font-weight:700;color:#fff;background:#6B2D5C;border-radius:6px;padding:1px 5px}
 .mdc{font-size:20px;font-weight:700;color:#4A1D42}.mdc small{font-size:11px;font-weight:500}
 .mds{font-size:11px;color:#6B6470}
+.quem{margin-top:auto;display:flex;align-items:center;gap:10px;padding:12px 8px 0;border-top:1px solid #3A2F40}
+.sair{flex:none;height:36px;padding:0 12px;border-radius:9px;border:1px solid #4A3F52;background:transparent;color:#CFC8D4;font-size:12px;font-weight:600;cursor:pointer;font-family:inherit}
+.sair:hover{color:#fff;border-color:#9C94A3}
+.lgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(110px,1fr));gap:8px}
+.lus{display:flex;flex-direction:column;align-items:center;gap:6px;padding:12px 6px;border-radius:14px;border:1px solid #ECE7E1;background:#fff;color:#1E1A22;cursor:pointer;font-family:inherit}
+.lus:hover{border-color:#C98DB8}.lus.on{border:2px solid #6B2D5C;background:#FBF7FA}
+.eqr{display:flex;flex-wrap:wrap;gap:10px;align-items:flex-start;padding:12px 0;border-bottom:1px solid #F0ECE7}
+.x:disabled{opacity:.3;cursor:not-allowed}
 .badge{margin-left:auto;min-width:20px;height:20px;padding:0 6px;border-radius:10px;background:#C98DB8;color:#1E1A22;font-size:11px;font-weight:700;display:inline-flex;align-items:center;justify-content:center}
 .lem{display:flex;flex-wrap:wrap;align-items:center;gap:12px;padding:14px 0;border-bottom:1px solid #F0ECE7}
 .lem:last-child{border-bottom:0}
@@ -126,6 +134,7 @@ label.f{display:flex;flex-direction:column;gap:6px;font-size:13px;font-weight:60
   .mday{min-height:58px;padding:5px;gap:2px;border-radius:8px}
   .mdc{font-size:15px}.mdc small,.mds,.mdh{display:none}
   .navx{display:none}
+  .quem{margin:0;padding:0 0 0 8px;border:0;flex:none}
 }
 </style>
 </head>
@@ -301,12 +310,14 @@ const comissao = (a) => valor(a) * (SV(a.s).com != null ? SV(a.s).com : PF[a.p].
 
 /* ================= NAV ================= */
 function nav(r) {
-  const L = (h, t, extra) => `<a href="#${h}" class="${r === h ? 'on' : ''}">${extra || ''}${t}</a>`;
+  const pode = PERM[papel()] || [];
+  const L = (h, t, extra) => pode.includes(h) ? `<a href="#${h}" class="${r === h ? 'on' : ''}">${extra || ''}${t}</a>` : '';
+  const u = U();
   return `<nav class="side" aria-label="Menu principal">
     <div class="brand"><div class="logo">C</div><div class="bt"><div style="font-weight:700;font-size:15px;color:#fff">${SALAO}</div><div style="font-size:12px;color:#B9B2BF">Gestão e agendamento</div></div></div>
-    ${L('agenda', 'Agenda')}${L('lembretes', 'Lembretes' + (lemPendentes(1) ? ` <span class="badge">${lemPendentes(1)}</span>` : ''))}${L('clientes', 'Clientes')}${L('escala', 'Escala')}${L('servicos', 'Serviços')}${L('pagamentos', 'Pagamentos')}${L('cliente', 'Link de agendamento')}
-    <div class="sec">Gestão</div>${L('gestora', 'Painel da Gestora', LOCK)}
-    <div class="note" style="margin-top:auto;font-size:12px;color:#9C94A3;padding:8px 14px">Protótipo · dados de exemplo</div>
+    ${L('agenda', minhaProf() ? 'Minha agenda' : 'Agenda')}${L('comissao', 'Minha comissão')}${L('lembretes', 'Lembretes' + (lemPendentes(1) ? ` <span class="badge">${lemPendentes(1)}</span>` : ''))}${L('clientes', 'Clientes')}${L('escala', 'Escala')}${L('servicos', 'Serviços')}${L('pagamentos', 'Pagamentos')}${L('cliente', 'Link de agendamento')}
+    ${pode.includes('gestora') ? `<div class="sec">Gestão</div>${L('gestora', 'Painel da Gestora', LOCK)}${L('equipe', 'Equipe e acesso')}` : ''}
+    <div class="quem"><span class="av" style="width:32px;height:32px;background:#3A2F40;color:#fff">${esc(iniciais(u.nome))}</span><span class="bt" style="flex:1;min-width:0"><span style="display:block;color:#fff;font-size:13px;font-weight:600">${esc(u.nome)}</span><span style="display:block;color:#9C94A3;font-size:11px">${PAPEIS[u.papel]}</span></span><button class="sair" data-a="sair">Sair</button></div>
   </nav>`;
 }
 function toastHtml() { return S.toast ? `<div class="toast" role="status"><span>${esc(S.toast)}</span><button class="x" style="background:transparent" data-a="toastX" aria-label="Fechar aviso">×</button></div>` : ''; }
@@ -353,7 +364,7 @@ function vMes() {
   const cells = [];
   for (let k = 0; k < DIAS[0].w; k++) cells.push('<div aria-hidden="true"></div>');
   DIAS.forEach((d, i) => {
-    const at = S.appts.filter((a) => a.d === i && ativo(a));
+    const at = S.appts.filter((a) => a.d === i && ativo(a) && (!minhaProf() || a.p === minhaProf()));
     const fat = at.reduce((t, a) => t + valor(a), 0);
     const off = fechado(i);
     const dn = d.dt.getDate() + (i === 0 || d.dt.getDate() === 1 ? ' ' + MES_AB[d.dt.getMonth()] : '');
@@ -365,16 +376,18 @@ function vMes() {
 }
 function vAgenda() {
   const dia = S.agView !== 'mes';
-  const doDia = S.appts.filter((a) => a.d === S.agD);
-  const escopo = dia ? doDia : S.appts;
-  const cur = S.appts.find((a) => a.id === S.sel && a.d === S.agD) || doDia.filter((a) => a.status !== 'desmarcado').sort((a, b) => a.h - b.h)[0];
+  // Profissional logada vê só a própria agenda, sem botões de alterar
+  const meu = minhaProf(), minha = (a) => !meu || a.p === meu;
+  const doDia = S.appts.filter((a) => a.d === S.agD && minha(a));
+  const escopo = dia ? doDia : S.appts.filter(minha);
+  const cur = S.appts.find((a) => a.id === S.sel && a.d === S.agD && minha(a)) || doDia.filter((a) => a.status !== 'desmarcado').sort((a, b) => a.h - b.h)[0];
   const rec = escopo.filter((a) => a.status === 'pago').reduce((t, a) => t + valor(a), 0);
   const arec = escopo.filter((a) => a.status === 'agendado' || a.status === 'confirmado').reduce((t, a) => t + valor(a), 0);
   const horas = [9,10,11,12,13,14,15,16,17,18].map((h) => `<div style="height:64px;padding:4px 8px 0 0;text-align:right;font-size:11px;color:#6B6470">${hh(h)}</div>`).join('');
   const m = isM();
-  const mostrar = m ? [PF[S.agProf]] : PROFS;
+  const mostrar = meu ? [PF[meu]] : m ? [PF[S.agProf]] : PROFS;
   const grade = `<section class="card ${m ? '' : 'scroll'}" style="flex:999 1 600px;min-width:0;padding:0">
-    ${m ? `<div class="chips" style="padding:12px">${PROFS.map((p) => `<button class="pill ${p.id === S.agProf ? 'on' : ''}" data-a="agProf" data-v="${p.id}">${p.nome}</button>`).join('')}</div>` : ''}
+    ${m && !meu ? `<div class="chips" style="padding:12px">${PROFS.map((p) => `<button class="pill ${p.id === S.agProf ? 'on' : ''}" data-a="agProf" data-v="${p.id}">${p.nome}</button>`).join('')}</div>` : ''}
     <div style="${m ? '' : 'min-width:820px'}">
       <div style="display:flex;border-bottom:1px solid #ECE7E1"><div style="width:56px;flex:none"></div>${mostrar.map((p) => `<div style="flex:1;padding:12px 8px;display:flex;align-items:center;gap:8px;border-left:1px solid #F0ECE7"><div class="av" style="width:32px;height:32px">${p.ini}</div><div><div style="font-size:13px;font-weight:600">${p.nome}</div><div style="font-size:11px;color:#6B6470">${p.func} · ${trabalha(p.id, S.agD) ? hh(p.h0) + '–' + hh(p.h1) : 'folga'}</div></div></div>`).join('')}</div>
       <div style="display:flex"><div style="width:56px;flex:none">${horas}</div>${mostrar.map((p) => colunaProf(p, cur || {})).join('')}</div>
@@ -416,7 +429,7 @@ function vAgenda() {
       ? `<div style="background:#FBEFE6;border-radius:12px;padding:12px;display:flex;flex-direction:column;gap:8px"><div style="font-size:13px;color:#7A3310;font-weight:600">Excluir de vez o agendamento de ${esc(cur.cliente)}? Ele some da agenda e dos relatórios.</div><div style="display:flex;gap:8px"><button class="btn" style="flex:1;background:#9A2D0F" data-a="excluirSim">Sim, excluir</button><button class="btn2" style="flex:1" data-a="excluirNao">Não</button></div></div>`
       : `<button data-a="excluir" style="height:44px;border:0;background:transparent;color:#9A2D0F;font-size:13px;font-weight:600;cursor:pointer">Excluir agendamento</button>`;
     side = `<div class="cap">Agendamento</div>
-      <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:8px"><div><div style="font-size:20px;font-weight:700">${esc(cur.cliente)}</div><div style="font-size:14px;color:#4A4550;margin-top:2px">${esc(s.nome)}</div></div>${cur.cid ? `<button class="pill" style="flex:none" data-a="verFicha" data-v="${cur.cid}">Ver ficha</button>` : ''}</div>
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:8px"><div><div style="font-size:20px;font-weight:700">${esc(cur.cliente)}</div><div style="font-size:14px;color:#4A4550;margin-top:2px">${esc(s.nome)}</div></div>${cur.cid && !meu ? `<button class="pill" style="flex:none" data-a="verFicha" data-v="${cur.cid}">Ver ficha</button>` : ''}</div>
       ${cur.cid && CL(cur.cid) && CL(cur.cid).obs ? `<div style="background:#FBEFE6;color:#7A3310;border-radius:10px;padding:10px 12px;font-size:13px"><b>Obs.:</b> ${esc(CL(cur.cid).obs)}</div>` : ''}
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;font-size:13px">
         <div><div class="kl">Profissional</div><b>${PF[cur.p].nome}</b></div>
@@ -426,16 +439,16 @@ function vAgenda() {
         <div><div class="kl">Status</div><b style="color:${c.fg}">${c.label}</b></div>
         <div><div class="kl">Origem</div><b>${ORIG[cur.orig]}</b></div>
       </div>
-      ${acoes}
+      ${meu ? '' : acoes}
       ${cur.status === 'pago' ? `<div style="border-radius:10px;background:#E3F2EE;color:#145C52;padding:12px;font-size:13px;font-weight:600">Pago via ${cur.metodo} · comissão de ${PF[cur.p].nome}: ${brl2(comissao(cur))}</div>` : ''}
-      ${excluir}
+      ${meu ? '' : excluir}
       <div style="display:flex;flex-wrap:wrap;gap:10px;font-size:11px;color:#4A4550;border-top:1px solid #ECE7E1;padding-top:12px">${Object.values(ST).map((x) => `<span style="display:flex;align-items:center;gap:4px"><span style="width:10px;height:10px;border-radius:3px;background:${x.bg}"></span>${x.label}</span>`).join('')}</div>`;
   }
   const desm = doDia.filter((a) => a.status === 'desmarcado');
   const lbl = dia ? 'no dia' : 'no mês';
   return `<main>
     <header class="top"><div><div class="sub">${dia ? DIAS[S.agD].longo + (S.agD === 0 ? ' · hoje' : '') : 'Hoje e os próximos ' + (N_DIAS - 1) + ' dias'}</div><h1>${dia ? 'Agenda do dia' : 'Agenda do mês'}</h1></div>
-      <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center"><div class="seg" role="group" aria-label="Visão da agenda"><button class="${dia ? 'on' : ''}" data-a="agView" data-v="dia">Dia</button><button class="${dia ? '' : 'on'}" data-a="agView" data-v="mes">Mês</button></div><button class="btnwa" data-a="panel" data-v="share">${WA}Enviar link pelo WhatsApp</button><button class="btn" data-a="panel" data-v="novo">+ Novo agendamento</button></div></header>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center"><div class="seg" role="group" aria-label="Visão da agenda"><button class="${dia ? 'on' : ''}" data-a="agView" data-v="dia">Dia</button><button class="${dia ? '' : 'on'}" data-a="agView" data-v="mes">Mês</button></div>${meu ? '' : `<button class="btnwa" data-a="panel" data-v="share">${WA}Enviar link pelo WhatsApp</button><button class="btn" data-a="panel" data-v="novo">+ Novo agendamento</button>`}</div></header>
     ${dia ? `<div style="display:flex;gap:8px;align-items:center"><button class="x navx" data-a="agPrev" aria-label="Dia anterior" ${S.agD === 0 ? 'disabled' : ''}>‹</button>${diaStrip('agDia', S.agD, fechado)}<button class="x navx" data-a="agNext" aria-label="Próximo dia" ${S.agD === N_DIAS - 1 ? 'disabled' : ''}>›</button></div>` : ''}
     ${toastHtml()}
     <section class="kpis">
@@ -985,17 +998,156 @@ function ficha(c, st, m) {
     </div></section>`;
 }
 
+/* ================= DADOS SALVOS NESTE APARELHO ================= */
+// Tudo fica no navegador (localStorage). Datas são guardadas como data real (AAAA-MM-DD)
+// e, ao abrir, viram "dias a partir de hoje". O que já passou vai para o histórico da cliente.
+const LS_DADOS = 'salao-cristina-dados-v1', LS_SESSAO = 'salao-cristina-sessao-v1';
+const isoDe = (dt) => dt.getFullYear() + '-' + pad2(dt.getMonth() + 1) + '-' + pad2(dt.getDate());
+const diasAte = (iso) => Math.round((new Date(iso + 'T00:00:00') - HOJE) / 86400000);
+function pacoteDados() {
+  return {
+    v: 1, app: 'salao-cristina', salvoEm: new Date().toISOString(),
+    servs: S.servs, grade: S.grade, sent: S.sent, users: S.users,
+    appts: S.appts.map(({ d, ...r }) => ({ ...r, iso: isoDe(DIAS[d].dt) })),
+    clientes: S.clientes.map((c) => ({ ...c, hist: c.hist.map(({ dias, ...r }) => ({ ...r, iso: isoDe(dataDias(-dias)) })) }))
+  };
+}
+function salvarDados() {
+  try { localStorage.setItem(LS_DADOS, JSON.stringify(pacoteDados())); S.salvoEm = new Date(); S.semSalvar = false; }
+  catch (e) { S.semSalvar = true; }
+}
+function aplicarDados(dados) {
+  S.servs = dados.servs; S.grade = dados.grade; S.sent = dados.sent || {}; S.users = dados.users && dados.users.length ? dados.users : usuariosPadrao();
+  S.clientes = (dados.clientes || []).map(({ hist, ...c }) => ({ ...c, hist: (hist || []).map(({ iso, ...h }) => ({ ...h, dias: -diasAte(iso) })) }));
+  S.appts = [];
+  (dados.appts || []).forEach(({ iso, ...a }) => {
+    const d = diasAte(iso);
+    if (d >= 0 && d < N_DIAS) S.appts.push({ ...a, d });
+    else if (d < 0) {
+      // Já passou: entra no histórico da cliente
+      const c = a.cid && S.clientes.find((x) => x.id === a.cid), sv = S.servs.find((s) => s.id === a.s);
+      if (c) c.hist.push({ dias: -d, s: a.s, p: a.p, valor: sv ? sv.preco : 0, status: a.status, metodo: a.metodo });
+    }
+  });
+  S.sel = null; S.cliSel = null; S.cliEdit = null; S.panel = null;
+}
+function carregarDados() {
+  let dados = null;
+  try { dados = JSON.parse(localStorage.getItem(LS_DADOS) || 'null'); } catch (e) { dados = null; }
+  if (!dados || dados.v !== 1 || !Array.isArray(dados.appts)) return false;
+  aplicarDados(dados); return true;
+}
+
+/* ================= LOGIN POR PESSOA ================= */
+// Protótipo: o PIN protege contra uso por engano no aparelho do salão. Não é segurança de verdade
+// (os dados estão no próprio navegador). A versão com servidor terá login com senha.
+const PAPEIS = { gestora: 'Gestora', recepcao: 'Recepção', profissional: 'Profissional' };
+const PERM = {
+  gestora: ['agenda', 'lembretes', 'clientes', 'escala', 'servicos', 'pagamentos', 'cliente', 'gestora', 'equipe'],
+  recepcao: ['agenda', 'lembretes', 'clientes', 'cliente'],
+  profissional: ['agenda', 'comissao']
+};
+function usuariosPadrao() {
+  return [{ id: 'u-cris', nome: 'Cristina', papel: 'gestora', pin: '1234' }, { id: 'u-rec', nome: 'Recepção', papel: 'recepcao', pin: '0000' }]
+    .concat(PROFS.map((p) => ({ id: 'u-' + p.id, nome: p.nome, papel: 'profissional', pid: p.id, pin: '1111' })));
+}
+const U = () => S.users.find((u) => u.id === S.userId) || null;
+const papel = () => (U() || {}).papel;
+const minhaProf = () => papel() === 'profissional' ? U().pid : null;
+function vLogin() {
+  const sel = S.users.find((u) => u.id === S.loginSel);
+  const grupos = ['gestora', 'recepcao', 'profissional'].map((pp) => {
+    const us = S.users.filter((u) => u.papel === pp);
+    return us.length ? `<div class="cap" style="margin-top:6px">${PAPEIS[pp]}</div><div class="lgrid">${us.map((u) => `<button class="lus ${sel && sel.id === u.id ? 'on' : ''}" data-a="loginSel" data-v="${u.id}"><span class="av" style="width:44px;height:44px">${esc(iniciais(u.nome))}</span><span style="font-weight:600;font-size:14px">${esc(u.nome)}</span></button>`).join('')}</div>` : '';
+  }).join('');
+  return `<div class="pub"><div class="book" style="padding:0">
+    <header style="background:#1E1A22;color:#fff;padding:28px 24px;display:flex;align-items:center;gap:12px"><div class="logo">C</div><div><div style="font-size:12px;color:#B9B2BF">Gestão e agendamento</div><div style="font-size:20px;font-weight:700">${SALAO}</div></div></header>
+    <div style="padding:24px;display:flex;flex-direction:column;gap:12px">
+      <h1 style="font-size:22px;margin:0">Quem está entrando?</h1>
+      ${grupos}
+      ${sel ? `<div style="border-top:1px solid #ECE7E1;padding-top:16px;display:flex;flex-direction:column;gap:10px">
+        <label class="f">PIN de ${esc(sel.nome)} <input type="password" id="loginPin" inputmode="numeric" maxlength="6" autocomplete="off" placeholder="4 números" style="font-size:22px;letter-spacing:8px;text-align:center"></label>
+        ${S.loginErr ? `<div class="err">${esc(S.loginErr)}</div>` : ''}
+        <button class="btn" style="height:52px;font-size:16px" data-a="loginEntrar">Entrar</button></div>` : ''}
+      <div class="sub" style="font-size:12px;background:#FBF7FA;border-radius:12px;padding:10px 12px">Protótipo: PINs iniciais são Cristina <b>1234</b>, Recepção <b>0000</b> e profissionais <b>1111</b>. A gestora troca em <b>Equipe e acesso</b>.</div>
+    </div></div></div>`;
+}
+
+/* ================= EQUIPE E ACESSO (gestora) ================= */
+function vEquipe() {
+  const gestoras = S.users.filter((u) => u.papel === 'gestora').length;
+  const linhas = S.users.map((u) => `<div class="eqr">
+      <label class="f" style="flex:1 1 160px">Nome<input type="text" data-eq="${u.id}|nome" value="${esc(u.nome)}"></label>
+      <label class="f" style="flex:1 1 150px">Acesso<select data-eq="${u.id}|papel">${Object.entries(PAPEIS).map(([k, t]) => `<option value="${k}" ${u.papel === k ? 'selected' : ''}>${t}</option>`).join('')}</select></label>
+      ${u.papel === 'profissional' ? `<label class="f" style="flex:1 1 150px">Agenda de<select data-eq="${u.id}|pid">${PROFS.map((p) => `<option value="${p.id}" ${u.pid === p.id ? 'selected' : ''}>${p.nome}</option>`).join('')}</select></label>` : '<div style="flex:1 1 150px"></div>'}
+      <label class="f" style="flex:0 1 120px">PIN<input type="text" inputmode="numeric" maxlength="6" data-eq="${u.id}|pin" value="${esc(u.pin)}"></label>
+      <button class="x" style="align-self:flex-end;margin-bottom:4px" data-a="eqDel" data-v="${u.id}" aria-label="Remover ${esc(u.nome)}" ${u.id === S.userId || (u.papel === 'gestora' && gestoras <= 1) ? 'disabled title="Não dá para remover"' : ''}>×</button>
+    </div>`).join('');
+  const salvo = S.salvoEm ? pad2(S.salvoEm.getHours()) + ':' + pad2(S.salvoEm.getMinutes()) : '—';
+  return `<main>
+    <header class="top"><div><div class="sub">Só a gestora vê esta tela</div><h1>Equipe e acesso</h1></div><button class="btn" data-a="eqAdd">+ Adicionar pessoa</button></header>
+    ${toastHtml()}
+    <section class="card" style="display:flex;flex-direction:column;gap:6px">
+      <h2>Quem entra no sistema</h2>
+      <div class="sub">Gestora vê tudo. Recepção vê agenda, lembretes, clientes e o link. Profissional vê só a própria agenda e a comissão. Cada pessoa entra com o próprio PIN.</div>
+      ${linhas}
+    </section>
+    <section class="card" style="display:flex;flex-direction:column;gap:12px">
+      <h2>Dados deste aparelho</h2>
+      <div style="font-size:14px;color:#4A4550">${S.semSalvar ? '<b style="color:#9A2D0F">Não foi possível salvar neste navegador (modo anônimo ou armazenamento bloqueado).</b>' : 'Tudo é salvo automaticamente <b>neste aparelho</b>. Último salvamento: <b>' + salvo + '</b>.'}</div>
+      <div style="background:#FBEFE6;color:#7A3310;border-radius:12px;padding:12px 14px;font-size:13px">Os dados ficam só neste navegador. Se limpar o histórico do navegador ou trocar de aparelho, eles somem. <b>Baixe uma cópia de segurança toda semana.</b> O link de agendamento aberto no celular da cliente não chega neste aparelho: para isso é preciso a versão com servidor.</div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap">
+        <button class="btn" data-a="bkBaixar">Baixar cópia de segurança</button>
+        <label class="btn2" style="display:inline-flex;align-items:center;cursor:pointer">Restaurar uma cópia<input type="file" id="bkArquivo" accept="application/json,.json" style="display:none"></label>
+      </div>
+      <div style="border-top:1px solid #ECE7E1;padding-top:12px;display:flex;flex-direction:column;gap:8px">
+        <div style="font-size:13px;font-weight:600">Começar a usar de verdade</div>
+        ${S.confirmLimpar ? `<div style="background:#FBEFE6;border-radius:12px;padding:12px;display:flex;flex-direction:column;gap:8px"><div style="font-size:13px;color:#7A3310;font-weight:600">Apagar todos os agendamentos, clientes e históricos de exemplo? Serviços, escala e equipe continuam.</div><div style="display:flex;gap:8px"><button class="btn" style="background:#9A2D0F" data-a="bkLimparSim">Sim, apagar</button><button class="btn2" data-a="bkLimparNao">Não</button></div></div>`
+          : '<div style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn2" data-a="bkLimpar">Apagar dados de exemplo</button><button class="btn2" data-a="bkExemplo">Voltar aos dados de exemplo</button></div>'}
+      </div>
+    </section></main>`;
+}
+
+/* ================= MINHA COMISSÃO (profissional) ================= */
+function vComissao() {
+  const pid = minhaProf(), p = PF[pid];
+  const per = S.comPer || 'semana', lim = { hoje: 0, semana: 6, mes: 29 }[per];
+  const itens = [];
+  S.appts.filter((a) => a.p === pid && a.d === 0 && a.status === 'pago').forEach((a) => itens.push({ q: 0, h: a.h, s: a.s, cliente: a.cliente, valor: valor(a), metodo: a.metodo }));
+  S.clientes.forEach((c) => c.hist.forEach((h) => { if (h.p === pid && h.status === 'pago' && h.dias <= lim) itens.push({ q: -h.dias, h: 0, s: h.s, cliente: c.nome, valor: h.valor, metodo: h.metodo }); }));
+  itens.sort((a, b) => b.q - a.q || b.h - a.h);
+  const pct = (sid) => { const s = SV(sid); return s && s.com != null ? s.com : p.com; };
+  const prod = itens.reduce((t, x) => t + x.valor, 0), com = itens.reduce((t, x) => t + x.valor * pct(x.s), 0);
+  const hojeAg = S.appts.filter((a) => a.p === pid && a.d === 0 && aConfirmar(a)).length;
+  return `<main>
+    <header class="top"><div><div class="sub">${esc(p.nome)} · ${p.func} · comissão ${Math.round(p.com * 100)}%</div><h1>Minha comissão</h1></div>
+      <div class="seg">${[['hoje', 'Hoje'], ['semana', '7 dias'], ['mes', '30 dias']].map(([k, t]) => `<button class="${per === k ? 'on' : ''}" data-a="comPer" data-v="${k}">${t}</button>`).join('')}</div></header>
+    <section class="kpis">
+      <div class="kpi"><div class="kl">Atendimentos pagos</div><div class="kv">${itens.length}</div></div>
+      <div class="kpi"><div class="kl">Você produziu</div><div class="kv">${brl2(prod)}</div></div>
+      <div class="kpi"><div class="kl">Sua comissão</div><div class="kv" style="color:#145C52">${brl2(com)}</div></div>
+      <div class="kpi"><div class="kl">Ainda hoje</div><div class="kv">${hojeAg}</div><div class="ks">atendimentos marcados</div></div>
+    </section>
+    <section class="card"><h2 style="margin-bottom:8px">Atendimentos</h2>
+      ${itens.map((x) => `<div style="display:flex;justify-content:space-between;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid #F0ECE7"><div style="min-width:0"><div style="font-size:14px;font-weight:600">${esc(SV(x.s).nome)} · ${esc(x.cliente)}</div><div class="sub" style="font-size:12px">${x.q === 0 ? 'Hoje · ' + hh(x.h) : fmtD(dataDias(x.q)) + ' · há ' + (-x.q) + ' dias'}${x.metodo ? ' · ' + x.metodo : ''}</div></div><div class="r" style="flex:none"><div style="font-size:14px;font-weight:700;color:#145C52">${brl2(x.valor * pct(x.s))}</div><div class="sub" style="font-size:11px">de ${brl2(x.valor)}</div></div></div>`).join('') || '<div class="sub">Nenhum atendimento pago neste período.</div>'}
+    </section></main>`;
+}
+
 /* ================= RENDER + EVENTOS ================= */
-const VIEWS = { agenda: vAgenda, lembretes: vLembretes, clientes: vClientes, escala: vEscala, servicos: vServicos, pagamentos: vPagamentos, gestora: vGestora, cliente: vCliente };
+const VIEWS = { agenda: vAgenda, lembretes: vLembretes, clientes: vClientes, escala: vEscala, servicos: vServicos, pagamentos: vPagamentos, gestora: vGestora, cliente: vCliente, equipe: vEquipe, comissao: vComissao };
 let lastM = isM();
 function render() {
   const r = route();
   const app = document.getElementById('app');
-  if (r === 'agendar') { document.title = 'Agende no ' + SALAO; app.innerHTML = vPublico(); centrarDias(); return; }
+  if (r === 'agendar') { document.title = 'Agende no ' + SALAO; app.innerHTML = vPublico(); centrarDias(); salvarDados(); return; }
   document.title = SALAO + ' — Gestão e agendamento';
-  const v = VIEWS[r] ? r : 'agenda';
+  if (!U()) { app.innerHTML = vLogin(); const pin = document.getElementById('loginPin'); if (pin) pin.focus(); return; }
+  const perm = PERM[papel()];
+  const v = perm.includes(r) && VIEWS[r] ? r : perm[0];
+  if (minhaProf()) S.agProf = minhaProf();
   app.innerHTML = `<div class="wrap">${nav(v)}${VIEWS[v]()}</div>`;
   centrarDias();
+  salvarDados();
 }
 // Mantém o dia escolhido visível no meio da faixa de dias
 function centrarDias() {
@@ -1237,8 +1389,75 @@ document.addEventListener('change', (e) => {
 });
 window.addEventListener('hashchange', () => { S.toast = null; render(); window.scrollTo(0, 0); });
 window.addEventListener('resize', () => { if (isM() !== lastM) { lastM = isM(); render(); } });
+/* Login, equipe e cópia de segurança */
+document.addEventListener('click', (e) => {
+  const b = e.target.closest('[data-a]'); if (!b) return;
+  const a = b.dataset.a, v = b.dataset.v;
+  if (a === 'loginSel') { S.loginSel = v; S.loginErr = null; }
+  else if (a === 'loginEntrar') entrar();
+  else if (a === 'sair') { S.userId = null; S.loginSel = null; S.panel = null; S.sel = null; try { localStorage.removeItem(LS_SESSAO); } catch (er) {} }
+  else if (a === 'comPer') S.comPer = v;
+  else if (a === 'eqAdd') { S.users.push({ id: 'u' + Date.now().toString(36), nome: 'Nova pessoa', papel: 'recepcao', pin: String(Math.floor(1000 + Math.random() * 9000)) }); S.toast = 'Pessoa adicionada. Ajuste o nome, o acesso e o PIN.'; }
+  else if (a === 'eqDel') { const u = S.users.find((x) => x.id === v); if (!u || u.id === S.userId) return; S.users = S.users.filter((x) => x.id !== v); S.toast = u.nome + ' não tem mais acesso.'; }
+  else if (a === 'bkBaixar') {
+    const blob = new Blob([JSON.stringify(pacoteDados(), null, 1)], { type: 'application/json' });
+    const link = document.createElement('a'); link.href = URL.createObjectURL(blob); link.download = 'salao-cristina-copia-' + isoDe(new Date()) + '.json';
+    document.body.appendChild(link); link.click(); link.remove(); setTimeout(() => URL.revokeObjectURL(link.href), 1000);
+    S.toast = 'Cópia de segurança baixada. Guarde o arquivo no Google Drive ou mande para o seu WhatsApp.';
+  }
+  else if (a === 'bkLimpar') S.confirmLimpar = true;
+  else if (a === 'bkLimparNao') S.confirmLimpar = false;
+  else if (a === 'bkLimparSim') { S.appts = []; S.clientes = []; S.sent = {}; S.sel = null; S.cliSel = null; S.confirmLimpar = false; S.toast = 'Dados de exemplo apagados. A agenda está pronta para uso.'; }
+  else if (a === 'bkExemplo') { try { localStorage.removeItem(LS_DADOS); } catch (er) {} location.reload(); return; }
+  else return;
+  render();
+});
+function entrar() {
+  const u = S.users.find((x) => x.id === S.loginSel), el = document.getElementById('loginPin');
+  if (!u || !el) return;
+  if (el.value.trim() !== String(u.pin)) { S.loginErr = 'PIN errado. Tente de novo.'; render(); return; }
+  S.userId = u.id; S.loginSel = null; S.loginErr = null; S.toast = null;
+  try { localStorage.setItem(LS_SESSAO, u.id); } catch (er) {}
+  render(); window.scrollTo(0, 0);
+}
+document.addEventListener('keydown', (e) => { if (e.target.id === 'loginPin' && e.key === 'Enter') entrar(); });
+document.addEventListener('change', (e) => {
+  const t = e.target;
+  if (t.dataset.eq) {
+    const [id, campo] = t.dataset.eq.split('|'), u = S.users.find((x) => x.id === id); if (!u) return;
+    if (campo === 'papel') {
+      if (u.papel === 'gestora' && t.value !== 'gestora' && S.users.filter((x) => x.papel === 'gestora').length <= 1) { S.toast = 'O salão precisa de pelo menos uma gestora.'; render(); return; }
+      if (u.id === S.userId && t.value !== 'gestora') { S.toast = 'Você não pode tirar o seu próprio acesso de gestora.'; render(); return; }
+      u.papel = t.value; if (u.papel === 'profissional' && !u.pid) u.pid = PROFS[0].id;
+    }
+    else if (campo === 'pin') { const pin = soDig(t.value); if (pin.length < 4) { S.toast = 'O PIN precisa ter pelo menos 4 números.'; render(); return; } u.pin = pin; S.toast = 'PIN de ' + u.nome + ' alterado.'; }
+    else u[campo] = t.value.trim() || u[campo];
+    render();
+  }
+  else if (t.id === 'bkArquivo' && t.files && t.files[0]) {
+    const leitor = new FileReader();
+    leitor.onload = () => {
+      try {
+        const dados = JSON.parse(leitor.result);
+        if (!dados || dados.app !== 'salao-cristina' || dados.v !== 1) throw new Error('arquivo');
+        aplicarDados(dados);
+        if (!U()) S.userId = null;
+        S.toast = 'Cópia restaurada (salva em ' + new Date(dados.salvoEm).toLocaleString('pt-BR') + ').';
+      } catch (er) { S.toast = 'Esse arquivo não é uma cópia de segurança do salão.'; }
+      render();
+    };
+    leitor.readAsText(t.files[0]);
+  }
+});
+// Salva também o que é digitado sem redesenhar a tela (WhatsApp, observações...)
+let tSalvar = null;
+document.addEventListener('input', () => { clearTimeout(tSalvar); tSalvar = setTimeout(salvarDados, 400); });
+
 window.__auditoria = auditoria;
 window.__S = S;
+S.users = usuariosPadrao();
+if (!carregarDados()) salvarDados();
+try { const sess = localStorage.getItem(LS_SESSAO); if (sess && S.users.some((u) => u.id === sess)) S.userId = sess; } catch (er) {}
 render();
 </script>
 </body>
