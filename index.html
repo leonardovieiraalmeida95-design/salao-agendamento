@@ -81,6 +81,8 @@ label.f{display:flex;flex-direction:column;gap:6px;font-size:13px;font-weight:60
 <div id="app"></div>
 <script>
 const SALAO = 'Salão da Cristina';
+const ZAP = '5543998421576', ZAP_FMT = '(43) 99842-1576';
+const zapSalao = (txt) => 'https://wa.me/' + ZAP + '?text=' + encodeURIComponent(txt);
 const brl2 = (v) => 'R$ ' + Number(v).toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 const brl = (v) => 'R$ ' + Math.round(v).toLocaleString('pt-BR');
 const hh = (h) => { const H = Math.floor(h), m = Math.round((h - H) * 60); return String(H).padStart(2, '0') + ':' + String(m).padStart(2, '0'); };
@@ -288,15 +290,22 @@ function vAgenda() {
       <aside id="painel" class="card" style="flex:1 1 300px;display:flex;flex-direction:column;gap:14px">${side}</aside>
     </div></main>`;
 }
-function waMsg() { return 'Olá! Para agendar seu horário no ' + SALAO + ', é só tocar no link e escolher o serviço, a profissional e o horário: ' + LINK; }
+function waMsg() {
+  return '✨ Oi! Aqui é do *' + SALAO + '* 💜\n\n' +
+    'Agora ficou muito mais fácil cuidar de você: agende seu horário em menos de 1 minuto, direto pelo celular, a qualquer hora do dia! 💇‍♀️💅\n\n' +
+    '👉 Toque aqui para agendar:\n' + LINK + '\n\n' +
+    'É só escolher o serviço, a profissional e o melhor horário pra você.\n\n' +
+    'Ficou com alguma dúvida? Chama a gente no WhatsApp ' + ZAP_FMT + ' 😉';
+}
 function waHref() { const d = S.fone.replace(/\D/g, ''); return 'https://wa.me/' + (d ? '55' + d : '') + '?text=' + encodeURIComponent(waMsg()); }
 function pShare() {
   return `<div style="display:flex;justify-content:space-between;align-items:center"><div class="cap">Link pelo WhatsApp</div><button class="x" data-a="panel" data-v="" aria-label="Fechar">×</button></div>
     <p style="margin:0;font-size:13px;color:#4A4550">A cliente recebe a mensagem, toca no link e escolhe serviço, profissional e horário. Só aparecem horários livres, de quem faz o serviço e está escalado.</p>
     <label class="f">WhatsApp da cliente<input type="tel" id="fone" inputmode="tel" value="${esc(S.fone)}" placeholder="(00) 00000-0000"></label>
-    <div style="background:#E9F4EF;border-radius:12px;padding:12px 14px;font-size:13px;color:#1E3B35;overflow-wrap:anywhere">${esc(waMsg())}</div>
+    <div style="background:#E9F4EF;border-radius:12px;padding:12px 14px;font-size:13px;color:#1E3B35;overflow-wrap:anywhere;white-space:pre-line">${esc(waMsg())}</div>
+    <button class="btn2" data-a="copiarMsg" id="copiarMsg">Copiar mensagem (para status, Instagram, grupos)</button>
     <a id="walink" href="${waHref()}" target="_blank" rel="noopener" style="height:48px;border-radius:12px;background:#1F7A6D;color:#fff;font-size:15px;font-weight:700;display:flex;align-items:center;justify-content:center;text-decoration:none">Abrir no WhatsApp</a>
-    <div style="font-size:12px;color:#6B6470">Link fixo do salão: <b style="color:#1E1A22;overflow-wrap:anywhere">${esc(LINK)}</b></div>
+    <div style="font-size:12px;color:#6B6470">Link fixo do salão: <b style="color:#1E1A22;overflow-wrap:anywhere">${esc(LINK)}</b><br>WhatsApp do salão: <b style="color:#1E1A22">${ZAP_FMT}</b></div>
     <a href="#agendar" target="_blank" rel="noopener" style="font-size:13px;font-weight:600;color:#6B2D5C">Abrir o link como a cliente vê →</a>`;
 }
 function pNovo() {
@@ -507,7 +516,8 @@ function booking() {
   let body = '';
   if (c.step === 1) {
     const grupos = [...new Set(online.map((s) => s.cat))];
-    body = `<h2 style="font-size:20px">Qual serviço?</h2>${grupos.map((g) => `<div class="cap" style="margin-top:6px">${esc(g)}</div>${online.filter((s) => s.cat === g).map((s) => `<button class="opt" data-a="cServ" data-v="${s.id}"><span><span style="display:block;font-size:15px;font-weight:600">${esc(s.nome)}</span><span style="display:block;font-size:12px;color:#6B6470;margin-top:2px">${durTxt(s.dur)}</span></span><b style="font-size:14px;flex:none">${brl2(s.preco)}</b></button>`).join('')}`).join('')}`;
+    body = `<div style="background:#F1E6EE;border-radius:14px;padding:14px 16px;color:#4A1D42"><div style="font-size:17px;font-weight:700">Agende em menos de 1 minuto</div><div style="font-size:13px;margin-top:4px">Escolha o serviço, a profissional e o melhor horário. Só aparecem horários livres de verdade.</div></div>
+    <h2 style="font-size:20px;margin-top:6px">Qual serviço?</h2>${grupos.map((g) => `<div class="cap" style="margin-top:6px">${esc(g)}</div>${online.filter((s) => s.cat === g).map((s) => `<button class="opt" data-a="cServ" data-v="${s.id}"><span><span style="display:block;font-size:15px;font-weight:600">${esc(s.nome)}</span><span style="display:block;font-size:12px;color:#6B6470;margin-top:2px">${durTxt(s.dur)}</span></span><b style="font-size:14px;flex:none">${brl2(s.preco)}</b></button>`).join('')}`).join('')}`;
   }
   if (c.step === 2) body = `<h2 style="font-size:20px">Com quem?</h2>
     ${sv.profs.length > 1 ? `<button class="opt" style="justify-content:flex-start" data-a="cProf" data-v="__any"><span class="av" style="width:40px;height:40px;background:#E9F4EF;color:#145C52">✓</span><span><span style="display:block;font-size:15px;font-weight:600">Qualquer profissional</span><span style="display:block;font-size:12px;color:#6B6470;margin-top:2px">Mostra o primeiro horário livre</span></span></button>` : ''}
@@ -543,12 +553,14 @@ function booking() {
     body = `<div style="display:flex;flex-direction:column;align-items:center;text-align:center;gap:12px;padding-top:32px">
     <div style="width:72px;height:72px;border-radius:50%;background:#CFE8E1;color:#0F4A42;display:flex;align-items:center;justify-content:center"><svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6L9 17l-5-5"></path></svg></div>
     <h2 style="font-size:22px">Horário confirmado!</h2><p style="margin:0;font-size:14px;color:#4A4550;max-width:300px">${esc(sv.nome)} com ${PF[c.pFinal].nome}, ${d.l} ${d.n} às ${hh(c.hora)}. Você vai receber um lembrete no WhatsApp um dia antes.</p>
+    <a href="${zapSalao('Olá, ' + SALAO + '! Acabei de agendar pelo link:\n\n• Serviço: ' + sv.nome + '\n• Profissional: ' + PF[c.pFinal].nome + '\n• Dia: ' + d.l + ' ' + d.n + ' às ' + hh(c.hora) + '\n• Nome: ' + c.nome + '\n\nAté lá! 💜')}" target="_blank" rel="noopener" style="height:48px;padding:0 18px;border-radius:12px;background:#1F7A6D;color:#fff;font-size:15px;font-weight:700;display:flex;align-items:center;justify-content:center;gap:8px;text-decoration:none;margin-top:8px">${WA}Enviar confirmação ao salão</a>
+    <div style="font-size:12px;color:#6B6470">Abre o WhatsApp do salão (${ZAP_FMT}) com os dados do seu horário.</div>
     <button class="btn2" data-a="cReset" style="margin-top:8px">Fazer outro agendamento</button></div>`;
   }
   return `<header style="background:#1E1A22;color:#fff;padding:24px 20px 18px;display:flex;flex-direction:column;gap:12px;flex:none">
       <div style="display:flex;align-items:center;gap:10px">${c.step > 1 && c.step < 5 ? `<button data-a="cBack" aria-label="Voltar" style="width:44px;height:44px;border-radius:10px;border:0;background:#3A2F40;color:#fff;cursor:pointer;display:flex;align-items:center;justify-content:center;flex:none">${BACK}</button>` : `<div class="logo">C</div>`}<div><div style="font-size:12px;color:#B9B2BF">Agende no</div><div style="font-size:18px;font-weight:700">${SALAO}</div></div></div>
       <div style="display:flex;gap:6px">${[1, 2, 3, 4].map((i) => `<div style="flex:1;height:4px;border-radius:2px;background:${i <= c.step ? '#C98DB8' : '#3A2F40'}"></div>`).join('')}</div>
-      <div style="font-size:13px;color:#CFC8D4">${labels[c.step - 1]}</div></header>
+      <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap"><span style="font-size:13px;color:#CFC8D4">${labels[c.step - 1]}</span><a href="${zapSalao('Olá! Vim pelo link de agendamento do ' + SALAO + ' e tenho uma dúvida.')}" target="_blank" rel="noopener" style="display:inline-flex;align-items:center;gap:6px;color:#9FE0CF;font-size:13px;font-weight:600;text-decoration:none;min-height:32px">${WA}Dúvidas? ${ZAP_FMT}</a></div></header>
     <div class="bookbody" style="flex:1;overflow-y:auto;padding:20px;display:flex;flex-direction:column;gap:10px">${body}</div>`;
 }
 function vCliente() {
@@ -587,6 +599,7 @@ document.addEventListener('click', (e) => {
   if (a !== 'toastX' && !['nsSalvar', 'salvar', 'esc', 'nsDel'].includes(a)) S.toast = null;
   if (a === 'toastX') S.toast = null;
   else if (a === 'sel') { S.sel = v; S.panel = null; if (isM()) setTimeout(() => { const p = document.getElementById('painel'); if (p && p.scrollIntoView) p.scrollIntoView({ behavior: 'smooth' }); }, 0); }
+  else if (a === 'copiarMsg') { const done = () => { b.textContent = 'Mensagem copiada!'; }; if (navigator.clipboard) navigator.clipboard.writeText(waMsg()).then(done, () => { b.textContent = 'Não consegui copiar: selecione o texto acima'; }); return; }
   else if (a === 'agProf') S.agProf = v;
   else if (a === 'pay') { const x = S.appts.find((q) => q.id === S.sel); x.status = 'pago'; x.metodo = v; }
   else if (a === 'falta') { const x = S.appts.find((q) => q.id === S.sel); x.status = 'faltou'; }
