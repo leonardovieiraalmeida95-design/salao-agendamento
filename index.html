@@ -57,6 +57,20 @@ label.f{display:flex;flex-direction:column;gap:6px;font-size:13px;font-weight:60
 .toast{background:#E3F2EE;color:#145C52;border-radius:12px;padding:12px 16px;font-size:14px;font-weight:600;display:flex;justify-content:space-between;gap:12px;align-items:center}
 .err{color:#9A2D0F;font-size:12px;font-weight:600}
 .chips{display:flex;gap:6px;overflow-x:auto;padding-bottom:4px}
+.daystrip{position:relative;flex:1;min-width:0;padding-bottom:6px}
+.dchip{flex:none;width:56px;min-height:64px;border-radius:12px;border:1px solid #ECE7E1;background:#fff;color:#1E1A22;cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;padding:4px 2px}
+.dchip.off{background:#FAF8F6;color:#6B6470;border-style:dashed}
+.dchip.on{background:#6B2D5C;color:#fff;border:1px solid #6B2D5C}
+.navx{flex:none;width:44px;height:44px;background:#fff;border:1px solid #DDD7D0;font-size:22px}
+.navx:disabled{opacity:.4;cursor:not-allowed}
+.mgrid{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:6px}
+.mday{min-height:88px;min-width:0;border-radius:12px;border:1px solid #ECE7E1;background:#fff;color:#1E1A22;cursor:pointer;display:flex;flex-direction:column;align-items:flex-start;gap:4px;padding:8px;text-align:left}
+.mday:hover{border-color:#C98DB8}
+.mday.on{border:2px solid #6B2D5C}
+.mday.off{background:#FAF8F6;color:#6B6470}
+.mdn{font-size:13px;font-weight:700}.mdh{font-size:10px;font-weight:700;color:#fff;background:#6B2D5C;border-radius:6px;padding:1px 5px}
+.mdc{font-size:20px;font-weight:700;color:#4A1D42}.mdc small{font-size:11px;font-weight:500}
+.mds{font-size:11px;color:#6B6470}
 .mcard{border:1px solid #ECE7E1;border-radius:14px;padding:14px;display:flex;flex-direction:column;gap:10px;background:#fff}
 .preview{flex:999 1 560px;min-width:0;display:flex;flex-wrap:wrap;gap:24px;justify-content:center;align-items:flex-start;padding:28px 16px}
 .phone{width:390px;max-width:100%;height:780px;background:#F6F4F1;border-radius:28px;border:1px solid #DDD7D0;overflow:hidden;display:flex;flex-direction:column;box-shadow:0 8px 30px rgba(30,26,34,.12)}
@@ -74,6 +88,10 @@ label.f{display:flex;flex-direction:column;gap:6px;font-size:13px;font-weight:60
   .kpis{grid-template-columns:repeat(2,minmax(0,1fr))}
   .kv{font-size:20px}
   .preview{padding:0}
+  .mgrid{gap:3px}
+  .mday{min-height:58px;padding:5px;gap:2px;border-radius:8px}
+  .mdc{font-size:15px}.mdc small,.mds,.mdh{display:none}
+  .navx{display:none}
 }
 </style>
 </head>
@@ -147,14 +165,32 @@ const APPT0 = [
   ['a19','thi',0,13.5,'prog','Paula E.','agendado',null,'rec'],
   ['a20','thi',0,16.5,'cmasc','Rodrigo B.','agendado',null,'link']
 ];
-// Dias de agendamento: w = índice do dia na escala (Seg=0 … Dom=6)
-const DIAS = [{ l: 'Hoje', n: '27/11', w: 4 }, { l: 'Sáb', n: '28/11', w: 5 }, { l: 'Ter', n: '01/12', w: 1 }, { l: 'Qua', n: '02/12', w: 2 }, { l: 'Qui', n: '03/12', w: 3 }];
+// Dias de agendamento: hoje + os próximos 30 dias (mês inteiro). w = índice do dia na escala (Seg=0 … Dom=6)
+const N_DIAS = 31;
+const SEM_AB = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'];
+const SEM_LONGO = ['Domingo', 'Segunda-feira', 'Terça-feira', 'Quarta-feira', 'Quinta-feira', 'Sexta-feira', 'Sábado'];
+const MES_AB = ['jan', 'fev', 'mar', 'abr', 'mai', 'jun', 'jul', 'ago', 'set', 'out', 'nov', 'dez'];
+const MES_LONGO = ['janeiro', 'fevereiro', 'março', 'abril', 'maio', 'junho', 'julho', 'agosto', 'setembro', 'outubro', 'novembro', 'dezembro'];
+const HOJE = new Date(); HOJE.setHours(0, 0, 0, 0);
+const DIAS = [...Array(N_DIAS)].map((_, i) => {
+  const dt = new Date(HOJE); dt.setDate(HOJE.getDate() + i);
+  const js = dt.getDay();
+  return {
+    dt, sem: SEM_AB[js], w: (js + 6) % 7,
+    l: i === 0 ? 'Hoje' : i === 1 ? 'Amanhã' : SEM_AB[js],
+    n: String(dt.getDate()).padStart(2, '0') + '/' + String(dt.getMonth() + 1).padStart(2, '0'),
+    longo: SEM_LONGO[js] + ', ' + dt.getDate() + ' de ' + MES_LONGO[dt.getMonth()]
+  };
+});
+// Os agendamentos de exemplo caem na primeira sexta-feira (dia em que toda a equipe trabalha)
+const D0 = Math.max(0, DIAS.findIndex((d) => d.w === 4));
 const DIAS_ESC = ['Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb', 'Dom'];
 const ST = {
   pago: { label: 'Pago', bg: '#CFE8E1', fg: '#0F4A42' },
   confirmado: { label: 'Confirmado', bg: '#EBD9E6', fg: '#4A1D42' },
   agendado: { label: 'Agendado', bg: '#E9E6E2', fg: '#3A3540' },
-  faltou: { label: 'Faltou', bg: '#F8DCC8', fg: '#7A3310' }
+  faltou: { label: 'Faltou', bg: '#F8DCC8', fg: '#7A3310' },
+  desmarcado: { label: 'Desmarcado', bg: '#EEEAF0', fg: '#5A5160' }
 };
 const ORIG = { link: 'Cliente pelo link (WhatsApp)', rec: 'Recepção / gestora' };
 const BASE_PEDIDOS = { maope: 31, cmasc: 22, cfem: 15, escova: 12, cbarba: 10, color: 6, mao: 5, limp: 5, barba: 4, gel: 4, sobr: 3, spa: 2, dren: 2, mechas: 2, prog: 1 };
@@ -162,10 +198,11 @@ const BASE_PEDIDOS = { maope: 31, cmasc: 22, cfem: 15, escova: 12, cbarba: 10, c
 /* ================= ESTADO ================= */
 const S = {
   servs: SERV0.map((s) => ({ ...s, profs: s.profs.slice() })),
-  appts: APPT0.map(([id, p, d, h, s, cliente, status, metodo, orig]) => ({ id, p, d, h, s, cliente, status, metodo, orig })),
+  appts: APPT0.map(([id, p, d, h, s, cliente, status, metodo, orig]) => ({ id, p, d: D0 + d, h, s, cliente, status, metodo, orig })),
   grade: PROFS.map((p) => p.dias.slice()),
   sel: 'a3', panel: null, fone: '', toast: null, agProf: 'cam',
-  form: { cliente: '', serv: 'cfem', prof: 'cam', d: 0, hora: null },
+  agD: 0, agView: 'dia', confirmEx: null,
+  form: { cliente: '', serv: 'cfem', prof: 'cam', d: 0, hora: null, editId: null },
   cat: 'Todos', servTab: 'lista', ns: null, nsErr: {}, editId: null, confirmDel: false,
   perD: 'semana', perG: 'semana', ord: 'fat', sent: {},
   cli: { step: 1, serv: null, prof: null, d: 0, hora: null, nome: '', fone: '' }
@@ -176,7 +213,7 @@ const route = () => (location.hash.replace('#', '') || 'agenda');
 const LINK = location.origin + location.pathname + '#agendar';
 
 /* ================= REGRAS ================= */
-const ativo = (a) => a.status !== 'faltou';
+const ativo = (a) => a.status !== 'faltou' && a.status !== 'desmarcado';
 const fim = (a) => a.h + SV(a.s).dur / 60;
 function trabalha(pid, d) { return !!S.grade[PI[pid]][DIAS[d].w]; }
 // Motivo pelo qual o horário NÃO serve (ou null se está livre)
@@ -192,10 +229,10 @@ function conflito(pid, sid, d, h, ignoreId) {
   if (c) return 'choca com ' + c.cliente + ' (' + hh(c.h) + ')';
   return null;
 }
-function livres(pid, sid, d) {
+function livres(pid, sid, d, ignoreId) {
   const s = SV(sid), out = [];
   if (!s) return out;
-  for (let h = AG_INI; h + s.dur / 60 <= AG_FIM; h += 0.5) if (!conflito(pid, sid, d, h)) out.push(h);
+  for (let h = AG_INI; h + s.dur / 60 <= AG_FIM; h += 0.5) if (!conflito(pid, sid, d, h, ignoreId)) out.push(h);
   return out;
 }
 function auditoria() {
@@ -205,6 +242,27 @@ function auditoria() {
 }
 const valor = (a) => SV(a.s).preco;
 const comissao = (a) => valor(a) * (SV(a.s).com != null ? SV(a.s).com : PF[a.p].com);
+
+// Exemplo: espalha alguns agendamentos pelo resto do mês para a visão mensal não ficar vazia
+(function exemplosDoMes() {
+  const nomes = ['Aline', 'Bruna', 'Cíntia', 'Débora', 'Elisa', 'Flávia', 'Giovana', 'Isabela', 'Jéssica', 'Karina', 'Letícia', 'Mônica', 'Natália', 'Priscila', 'Raquel', 'Tatiane', 'Vitória', 'Bruno', 'Caio', 'Felipe', 'Gustavo', 'Henrique', 'Marcos', 'Otávio'];
+  const sob = ['A.', 'B.', 'C.', 'D.', 'F.', 'G.', 'L.', 'M.', 'N.', 'P.', 'R.', 'S.', 'T.', 'V.'];
+  let seed = 7; const rnd = () => { seed = (seed * 9301 + 49297) % 233280; return seed / 233280; };
+  for (let d = 0; d < N_DIAS; d++) {
+    if (d === D0) continue;
+    PROFS.forEach((p) => {
+      if (!trabalha(p.id, d)) return;
+      const servs = SA().filter((s) => s.profs.includes(p.id));
+      const n = Math.floor(rnd() * (d < 8 ? 4 : 3));
+      for (let k = 0; k < n; k++) {
+        const s = servs[Math.floor(rnd() * servs.length)];
+        const sl = livres(p.id, s.id, d);
+        if (!sl.length) continue;
+        S.appts.push({ id: 'g' + d + p.id + k, p: p.id, d, h: sl[Math.floor(rnd() * sl.length)], s: s.id, cliente: nomes[Math.floor(rnd() * nomes.length)] + ' ' + sob[Math.floor(rnd() * sob.length)], status: rnd() < 0.4 ? 'confirmado' : 'agendado', metodo: null, orig: rnd() < 0.55 ? 'link' : 'rec' });
+      }
+    });
+  }
+})();
 
 /* ================= NAV ================= */
 function nav(r) {
@@ -222,72 +280,110 @@ function toastHtml() { return S.toast ? `<div class="toast" role="status"><span>
 function colunaProf(p, cur) {
   const top = (h) => (h - AG_INI) * 64;
   let blocos = '';
-  if (!trabalha(p.id, 0)) blocos = `<div class="blk" style="top:0;height:640px">Folga</div>`;
+  if (!trabalha(p.id, S.agD)) blocos = `<div class="blk" style="top:0;height:640px">Folga</div>`;
   else {
     if (p.h0 > AG_INI) blocos += `<div class="blk" style="top:0;height:${top(p.h0)}px">Fora do expediente</div>`;
     if (p.h1 < AG_FIM) blocos += `<div class="blk" style="top:${top(p.h1)}px;height:${top(AG_FIM) - top(p.h1)}px">Fora do expediente</div>`;
     blocos += `<div class="blk" style="top:${top(ALMOCO[0])}px;height:64px">Almoço</div>`;
   }
-  const ap = S.appts.filter((a) => a.p === p.id && a.d === 0).map((a) => {
+  const ap = S.appts.filter((a) => a.p === p.id && a.d === S.agD && a.status !== 'desmarcado').map((a) => {
     const c = ST[a.status], s = SV(a.s);
     return `<button class="appt" data-a="sel" data-v="${a.id}" style="top:${top(a.h) + 2}px;height:${s.dur / 60 * 64 - 4}px;background:${c.bg};color:${c.fg};${a.id === cur.id ? 'border-color:#6B2D5C' : ''}" aria-label="${esc(a.cliente)}, ${esc(s.nome)}, ${hh(a.h)}, ${c.label}"><div style="font-size:12px;font-weight:600">${esc(a.cliente)}</div><div style="font-size:11px">${hh(a.h)} · ${esc(s.nome)}</div></button>`;
   }).join('');
   return `<div style="flex:1;position:relative;height:640px;border-left:1px solid #F0ECE7;background-image:repeating-linear-gradient(to bottom,#EEEAE5 0,#EEEAE5 1px,transparent 1px,transparent 64px)">${blocos}${ap}</div>`;
 }
+// Faixa de dias rolável (agenda e link da cliente). off(i) = dia sem atendimento
+function diaStrip(act, sel, off) {
+  return `<div class="chips daystrip" role="group" aria-label="Escolher dia">${DIAS.map((d, i) => `<button class="dchip ${i === sel ? 'on' : ''} ${off(i) ? 'off' : ''}" ${i === sel ? 'data-sel="1" aria-current="date"' : ''} data-a="${act}" data-v="${i}" aria-label="${d.longo}${off(i) ? ', sem atendimento' : ''}"><span style="font-size:11px">${i === 0 ? 'Hoje' : d.sem}</span><b style="font-size:16px">${d.dt.getDate()}</b><span style="font-size:10px">${MES_AB[d.dt.getMonth()]}</span></button>`).join('')}</div>`;
+}
+const fechado = (i) => PROFS.every((p) => !trabalha(p.id, i));
+function vMes() {
+  const cells = [];
+  for (let k = 0; k < DIAS[0].w; k++) cells.push('<div aria-hidden="true"></div>');
+  DIAS.forEach((d, i) => {
+    const at = S.appts.filter((a) => a.d === i && ativo(a));
+    const fat = at.reduce((t, a) => t + valor(a), 0);
+    const off = fechado(i);
+    const dn = d.dt.getDate() + (i === 0 || d.dt.getDate() === 1 ? ' ' + MES_AB[d.dt.getMonth()] : '');
+    cells.push(`<button class="mday ${i === S.agD ? 'on' : ''} ${off ? 'off' : ''}" data-a="agDia" data-v="${i}" aria-label="${d.longo}: ${off ? 'fechado' : at.length + ' agendamentos'}"><span class="mdn">${dn}${i === 0 ? ' <span class="mdh">hoje</span>' : ''}</span>${off ? '<span class="mds" style="display:block">Fechado</span>' : `<span class="mdc">${at.length}<small> agend.</small></span><span class="mds">${brl(fat)}</span>`}</button>`);
+  });
+  return `<section class="card" style="flex:999 1 600px;min-width:0;padding:16px">
+    <div class="mgrid">${DIAS_ESC.map((x) => `<div class="cap" style="text-align:center;padding:4px 0">${x}</div>`).join('')}${cells.join('')}</div>
+    <div class="sub" style="margin-top:12px">Toque em um dia para abrir a agenda dele. Mostra hoje e os próximos ${N_DIAS - 1} dias.</div></section>`;
+}
 function vAgenda() {
-  const hoje = S.appts.filter((a) => a.d === 0);
-  const cur = S.appts.find((a) => a.id === S.sel) || hoje[0];
-  const rec = hoje.filter((a) => a.status === 'pago').reduce((t, a) => t + valor(a), 0);
-  const arec = hoje.filter((a) => a.status === 'agendado' || a.status === 'confirmado').reduce((t, a) => t + valor(a), 0);
+  const dia = S.agView !== 'mes';
+  const doDia = S.appts.filter((a) => a.d === S.agD);
+  const escopo = dia ? doDia : S.appts;
+  const cur = S.appts.find((a) => a.id === S.sel && a.d === S.agD) || doDia.filter((a) => a.status !== 'desmarcado').sort((a, b) => a.h - b.h)[0];
+  const rec = escopo.filter((a) => a.status === 'pago').reduce((t, a) => t + valor(a), 0);
+  const arec = escopo.filter((a) => a.status === 'agendado' || a.status === 'confirmado').reduce((t, a) => t + valor(a), 0);
   const horas = [9,10,11,12,13,14,15,16,17,18].map((h) => `<div style="height:64px;padding:4px 8px 0 0;text-align:right;font-size:11px;color:#6B6470">${hh(h)}</div>`).join('');
   const m = isM();
   const mostrar = m ? [PF[S.agProf]] : PROFS;
   const grade = `<section class="card ${m ? '' : 'scroll'}" style="flex:999 1 600px;min-width:0;padding:0">
     ${m ? `<div class="chips" style="padding:12px">${PROFS.map((p) => `<button class="pill ${p.id === S.agProf ? 'on' : ''}" data-a="agProf" data-v="${p.id}">${p.nome}</button>`).join('')}</div>` : ''}
     <div style="${m ? '' : 'min-width:820px'}">
-      <div style="display:flex;border-bottom:1px solid #ECE7E1"><div style="width:56px;flex:none"></div>${mostrar.map((p) => `<div style="flex:1;padding:12px 8px;display:flex;align-items:center;gap:8px;border-left:1px solid #F0ECE7"><div class="av" style="width:32px;height:32px">${p.ini}</div><div><div style="font-size:13px;font-weight:600">${p.nome}</div><div style="font-size:11px;color:#6B6470">${p.func} · ${trabalha(p.id, 0) ? hh(p.h0) + '–' + hh(p.h1) : 'folga'}</div></div></div>`).join('')}</div>
+      <div style="display:flex;border-bottom:1px solid #ECE7E1"><div style="width:56px;flex:none"></div>${mostrar.map((p) => `<div style="flex:1;padding:12px 8px;display:flex;align-items:center;gap:8px;border-left:1px solid #F0ECE7"><div class="av" style="width:32px;height:32px">${p.ini}</div><div><div style="font-size:13px;font-weight:600">${p.nome}</div><div style="font-size:11px;color:#6B6470">${p.func} · ${trabalha(p.id, S.agD) ? hh(p.h0) + '–' + hh(p.h1) : 'folga'}</div></div></div>`).join('')}</div>
       <div style="display:flex"><div style="width:56px;flex:none">${horas}</div>${mostrar.map((p) => colunaProf(p, cur || {})).join('')}</div>
     </div></section>`;
-  let side;
+  let side = null;
   if (S.panel === 'share') side = pShare();
   else if (S.panel === 'novo') side = pNovo();
-  else if (!cur) side = '<div class="sub">Nenhum agendamento hoje.</div>';
+  else if (!dia) side = null;
+  else if (!cur) side = `<div class="sub">${fechado(S.agD) ? 'Salão fechado neste dia.' : 'Nenhum agendamento neste dia.'}</div>`;
   else {
-    const c = ST[cur.status], s = SV(cur.s);
-    const pode = cur.status === 'agendado' || cur.status === 'confirmado';
-    side = `<div class="cap">Agendamento</div>
-      <div><div style="font-size:20px;font-weight:700">${esc(cur.cliente)}</div><div style="font-size:14px;color:#4A4550;margin-top:2px">${esc(s.nome)}</div></div>
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;font-size:13px">
-        <div><div class="kl">Profissional</div><b>${PF[cur.p].nome}</b></div>
-        <div><div class="kl">Horário</div><b>${hh(cur.h)} – ${hh(fim(cur))}</b></div>
-        <div><div class="kl">Valor</div><b>${brl2(s.preco)}</b></div>
-        <div><div class="kl">Status</div><b style="color:${c.fg}">${c.label}</b></div>
-        <div style="grid-column:1/-1"><div class="kl">Origem</div><b>${ORIG[cur.orig]}</b></div>
-      </div>
-      ${pode ? `<div style="border-top:1px solid #ECE7E1;padding-top:14px;display:flex;flex-direction:column;gap:8px">
+    const c = ST[cur.status], s = SV(cur.s), d = DIAS[cur.d];
+    const aberto = cur.status === 'agendado' || cur.status === 'confirmado';
+    const acoes = aberto ? `<div style="border-top:1px solid #ECE7E1;padding-top:14px;display:flex;flex-direction:column;gap:8px">
         <div style="font-size:13px;font-weight:600">Registrar pagamento</div>
         <div style="display:flex;gap:8px;flex-wrap:wrap">
           <button class="btn" style="flex:1;padding:0 8px" data-a="pay" data-v="Pix">Pix</button>
           <button class="btn2" style="flex:1;padding:0 8px" data-a="pay" data-v="Cartão">Cartão</button>
           <button class="btn2" style="flex:1;padding:0 8px" data-a="pay" data-v="Dinheiro">Dinheiro</button>
-        </div>
-        <button data-a="falta" style="height:44px;border:0;background:transparent;color:#8A3B12;font-size:13px;font-weight:600;cursor:pointer">Marcar como falta</button></div>` : ''}
+        </div></div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+        ${cur.status === 'agendado' ? '<button class="btn2" style="padding:0 8px" data-a="confirmar">Confirmar presença</button>' : ''}
+        <button class="btn2" style="padding:0 8px" data-a="remarcar">Remarcar</button>
+        <button class="btn2" style="padding:0 8px" data-a="desmarcar">Cliente desmarcou</button>
+        <button class="btn2" style="padding:0 8px;color:#8A3B12" data-a="falta">Faltou</button>
+      </div>`
+      : `<button class="btn2" data-a="desfazer">${cur.status === 'pago' ? 'Desfazer pagamento' : 'Voltar para agendado'}</button>`;
+    const excluir = S.confirmEx === cur.id
+      ? `<div style="background:#FBEFE6;border-radius:12px;padding:12px;display:flex;flex-direction:column;gap:8px"><div style="font-size:13px;color:#7A3310;font-weight:600">Excluir de vez o agendamento de ${esc(cur.cliente)}? Ele some da agenda e dos relatórios.</div><div style="display:flex;gap:8px"><button class="btn" style="flex:1;background:#9A2D0F" data-a="excluirSim">Sim, excluir</button><button class="btn2" style="flex:1" data-a="excluirNao">Não</button></div></div>`
+      : `<button data-a="excluir" style="height:44px;border:0;background:transparent;color:#9A2D0F;font-size:13px;font-weight:600;cursor:pointer">Excluir agendamento</button>`;
+    side = `<div class="cap">Agendamento</div>
+      <div><div style="font-size:20px;font-weight:700">${esc(cur.cliente)}</div><div style="font-size:14px;color:#4A4550;margin-top:2px">${esc(s.nome)}</div></div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;font-size:13px">
+        <div><div class="kl">Profissional</div><b>${PF[cur.p].nome}</b></div>
+        <div><div class="kl">Dia</div><b>${d.l} ${d.n}</b></div>
+        <div><div class="kl">Horário</div><b>${hh(cur.h)} – ${hh(fim(cur))}</b></div>
+        <div><div class="kl">Valor</div><b>${brl2(s.preco)}</b></div>
+        <div><div class="kl">Status</div><b style="color:${c.fg}">${c.label}</b></div>
+        <div><div class="kl">Origem</div><b>${ORIG[cur.orig]}</b></div>
+      </div>
+      ${acoes}
       ${cur.status === 'pago' ? `<div style="border-radius:10px;background:#E3F2EE;color:#145C52;padding:12px;font-size:13px;font-weight:600">Pago via ${cur.metodo} · comissão de ${PF[cur.p].nome}: ${brl2(comissao(cur))}</div>` : ''}
+      ${excluir}
       <div style="display:flex;flex-wrap:wrap;gap:10px;font-size:11px;color:#4A4550;border-top:1px solid #ECE7E1;padding-top:12px">${Object.values(ST).map((x) => `<span style="display:flex;align-items:center;gap:4px"><span style="width:10px;height:10px;border-radius:3px;background:${x.bg}"></span>${x.label}</span>`).join('')}</div>`;
   }
+  const desm = doDia.filter((a) => a.status === 'desmarcado');
+  const lbl = dia ? 'no dia' : 'no mês';
   return `<main>
-    <header class="top"><div><div class="sub">Sexta-feira, 27 de novembro</div><h1>Agenda do dia</h1></div>
-      <div style="display:flex;gap:8px;flex-wrap:wrap"><button class="btnwa" data-a="panel" data-v="share">${WA}Enviar link pelo WhatsApp</button><button class="btn" data-a="panel" data-v="novo">+ Novo agendamento</button></div></header>
+    <header class="top"><div><div class="sub">${dia ? DIAS[S.agD].longo + (S.agD === 0 ? ' · hoje' : '') : 'Hoje e os próximos ' + (N_DIAS - 1) + ' dias'}</div><h1>${dia ? 'Agenda do dia' : 'Agenda do mês'}</h1></div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center"><div class="seg" role="group" aria-label="Visão da agenda"><button class="${dia ? 'on' : ''}" data-a="agView" data-v="dia">Dia</button><button class="${dia ? '' : 'on'}" data-a="agView" data-v="mes">Mês</button></div><button class="btnwa" data-a="panel" data-v="share">${WA}Enviar link pelo WhatsApp</button><button class="btn" data-a="panel" data-v="novo">+ Novo agendamento</button></div></header>
+    ${dia ? `<div style="display:flex;gap:8px;align-items:center"><button class="x navx" data-a="agPrev" aria-label="Dia anterior" ${S.agD === 0 ? 'disabled' : ''}>‹</button>${diaStrip('agDia', S.agD, fechado)}<button class="x navx" data-a="agNext" aria-label="Próximo dia" ${S.agD === N_DIAS - 1 ? 'disabled' : ''}>›</button></div>` : ''}
     ${toastHtml()}
     <section class="kpis">
-      <div class="kpi"><div class="kl">Agendamentos hoje</div><div class="kv">${hoje.length}</div></div>
-      <div class="kpi"><div class="kl">Recebido hoje</div><div class="kv" style="color:#145C52">${brl2(rec)}</div></div>
+      <div class="kpi"><div class="kl">Agendamentos ${lbl}</div><div class="kv">${escopo.filter((a) => a.status !== 'desmarcado').length}</div></div>
+      <div class="kpi"><div class="kl">Recebido ${lbl}</div><div class="kv" style="color:#145C52">${brl2(rec)}</div></div>
       <div class="kpi"><div class="kl">A receber</div><div class="kv">${brl2(arec)}</div></div>
-      <div class="kpi"><div class="kl">Faltas</div><div class="kv" style="color:#8A3B12">${hoje.filter((a) => a.status === 'faltou').length}</div></div>
+      <div class="kpi"><div class="kl">Faltas e desmarques</div><div class="kv" style="color:#8A3B12">${escopo.filter((a) => a.status === 'faltou' || a.status === 'desmarcado').length}</div></div>
     </section>
+    ${dia && desm.length ? `<div class="card" style="padding:12px 16px;display:flex;flex-wrap:wrap;gap:8px;align-items:center"><span style="font-size:13px;font-weight:600;color:#5A5160">Desmarcados neste dia:</span>${desm.map((a) => `<button class="pill ${cur && a.id === cur.id ? 'on' : ''}" data-a="sel" data-v="${a.id}">${esc(a.cliente)} · ${hh(a.h)} · ${PF[a.p].nome}</button>`).join('')}</div>` : ''}
     <div class="flexrow" style="${m ? 'flex-direction:column;align-items:stretch' : ''}">
-      ${grade}
-      <aside id="painel" class="card" style="flex:1 1 300px;display:flex;flex-direction:column;gap:14px">${side}</aside>
+      ${dia ? grade : vMes()}
+      ${side ? `<aside id="painel" class="card" style="flex:1 1 300px;display:flex;flex-direction:column;gap:14px">${side}</aside>` : ''}
     </div></main>`;
 }
 function waMsg() {
@@ -312,18 +408,18 @@ function pNovo() {
   const f = S.form, s = (SV(f.serv) && !SV(f.serv).arq) ? SV(f.serv) : SA()[0];
   f.serv = s.id;
   if (!s.profs.includes(f.prof)) f.prof = s.profs[0];
-  const sl = livres(f.prof, f.serv, f.d);
+  const sl = livres(f.prof, f.serv, f.d, f.editId);
   if (f.hora != null && !sl.includes(f.hora)) f.hora = null;
   const motivo = !trabalha(f.prof, f.d) ? PF[f.prof].nome + ' está de folga neste dia.' : 'Sem horários livres para este serviço neste dia.';
-  return `<div style="display:flex;justify-content:space-between;align-items:center"><div class="cap">Novo agendamento · recepção</div><button class="x" data-a="panel" data-v="" aria-label="Fechar">×</button></div>
+  return `<div style="display:flex;justify-content:space-between;align-items:center"><div class="cap">${f.editId ? 'Remarcar agendamento' : 'Novo agendamento · recepção'}</div><button class="x" data-a="panel" data-v="" aria-label="Fechar">×</button></div>
     <label class="f">Cliente<input type="text" id="cliNome" value="${esc(f.cliente)}" placeholder="Nome da cliente"></label>
     <label class="f">Serviço<select id="fServ">${SA().map((x) => `<option value="${x.id}" ${x.id === s.id ? 'selected' : ''}>${esc(x.nome)} · ${durTxt(x.dur)} · ${brl(x.preco)}</option>`).join('')}</select></label>
     <label class="f">Profissional <span class="sub" style="font-weight:400">(só quem faz este serviço)</span><select id="fProf">${s.profs.map((id) => `<option value="${id}" ${id === f.prof ? 'selected' : ''}>${PF[id].nome} · ${PF[id].func}</option>`).join('')}</select></label>
-    <label class="f">Dia<select id="fDia">${DIAS.map((d, i) => `<option value="${i}" ${i === f.d ? 'selected' : ''}>${d.l} · ${d.n}</option>`).join('')}</select></label>
+    <label class="f">Dia<select id="fDia">${DIAS.map((d, i) => `<option value="${i}" ${i === f.d ? 'selected' : ''}>${d.l} · ${d.n}${fechado(i) ? ' · fechado' : ''}</option>`).join('')}</select></label>
     <div style="font-size:13px;font-weight:600">Horários livres</div>
     <div style="display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px">${sl.map((h) => `<button data-a="slot" data-v="${h}" style="height:40px;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;${f.hora === h ? 'background:#6B2D5C;color:#fff;border:1px solid #6B2D5C' : 'background:#fff;color:#4A1D42;border:1px solid #E2CCDC'}">${hh(h)}</button>`).join('') || `<div class="sub" style="grid-column:1/-1">${motivo}</div>`}</div>
-    <button class="btn" data-a="salvar" style="height:48px" ${f.hora == null ? 'disabled' : ''}>Salvar na agenda</button>
-    <div style="font-size:12px;color:#6B6470">Assim que salvar, o horário some do link de agendamento online.</div>`;
+    <button class="btn" data-a="salvar" style="height:48px" ${f.hora == null ? 'disabled' : ''}>${f.editId ? 'Salvar novo horário' : 'Salvar na agenda'}</button>
+    <div style="font-size:12px;color:#6B6470">${f.editId ? 'O horário antigo fica livre de novo na agenda e no link.' : 'Assim que salvar, o horário some do link de agendamento online.'}</div>`;
 }
 
 /* ================= ESCALA ================= */
@@ -466,7 +562,7 @@ function vGestora() {
   const P = mes ? { label: 'Novembro de 2026', total: 392 + hojeAtivos.length, concl: 349 } : { label: 'Semana de 23 a 29 de novembro', total: 84 + hojeAtivos.length, concl: 81 };
   const cont = SA().map((s) => ({ s, q: (BASE_PEDIDOS[s.id] || 0) * mult + S.appts.filter((a) => a.s === s.id && ativo(a)).length })).sort((a, b) => b.q - a.q);
   const top = cont[0], rank = cont.slice(1, 6);
-  const DS = [['Desmarcou com antecedência', 'Avisou mais de 24h antes: dá para reaproveitar o horário', 5, '#C98DB8'], ['Desmarcou em cima da hora', 'Avisou menos de 24h antes', 3, '#E0995F'], ['Não compareceu', 'Faltou sem avisar', 3 + S.appts.filter((a) => a.status === 'faltou').length, '#B5532A']];
+  const DS = [['Desmarcou com antecedência', 'Avisou mais de 24h antes: dá para reaproveitar o horário', 5 + S.appts.filter((a) => a.status === 'desmarcado').length, '#C98DB8'], ['Desmarcou em cima da hora', 'Avisou menos de 24h antes', 3, '#E0995F'], ['Não compareceu', 'Faltou sem avisar', 3 + S.appts.filter((a) => a.status === 'faltou').length, '#B5532A']];
   const EQ = { cam: [22, 3080, .86, 2, .72], jul: [31, 2015, .91, 4, .81], raf: [27, 1650, .78, 3, .85], bia: [11, 1720, .62, 1, .64], thi: [13, 1950, .69, 2, .58] };
   const IN = [['Fernanda R.', 'Mechas · Camila · 14/nov', 350, 13], ['Carla D.', 'Alongamento em gel · Juliana · 19/nov', 160, 8], ['Rodrigo B.', 'Corte + barba · Rafael · 21/nov', 80, 6], ['Paula E.', 'Sinal da progressiva · Thiago · 24/nov', 96, 3]];
   const dq = DS.reduce((t, d) => t + d[2] * (d[0] === 'Não compareceu' ? 1 : mult), 0), inV = IN.reduce((t, x) => t + x[2], 0);
@@ -530,7 +626,8 @@ function booking() {
     const folga = profs.every((pid) => !trabalha(pid, c.d));
     body = `<h2 style="font-size:20px">Quando?</h2>
       ${c.err ? `<div class="err">${esc(c.err)}</div>` : ''}
-      <div style="display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:6px">${DIAS.map((d, i) => `<button data-a="cDia" data-v="${i}" style="min-height:60px;border-radius:12px;cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:2px;${i === c.d ? 'background:#6B2D5C;color:#fff;border:1px solid #6B2D5C' : 'background:#fff;color:#1E1A22;border:1px solid #ECE7E1'}"><span style="font-size:11px">${d.l}</span><span style="font-size:14px;font-weight:700">${d.n.slice(0, 2)}</span></button>`).join('')}</div>
+      <div class="sub">${DIAS[c.d].longo}</div>
+      ${diaStrip('cDia', c.d, (i) => profs.every((pid) => !trabalha(pid, i)))}
       <div style="font-size:13px;font-weight:600;margin-top:10px">Horários livres</div>
       <div style="display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px">${hs.map((h) => `<button data-a="cHora" data-v="${h}|${mapa[h]}" style="height:44px;border-radius:10px;border:1px solid #E2CCDC;background:#fff;color:#4A1D42;font-size:14px;font-weight:600;cursor:pointer">${hh(h)}</button>`).join('') || `<div class="sub" style="grid-column:1/-1">${folga ? 'Sem atendimento neste dia. Escolha outro dia.' : 'Todos os horários deste dia já estão ocupados. Escolha outro dia.'}</div>`}</div>`;
   }
@@ -581,11 +678,17 @@ let lastM = isM();
 function render() {
   const r = route();
   const app = document.getElementById('app');
-  if (r === 'agendar') { document.title = 'Agende no ' + SALAO; app.innerHTML = vPublico(); return; }
+  if (r === 'agendar') { document.title = 'Agende no ' + SALAO; app.innerHTML = vPublico(); centrarDias(); return; }
   document.title = SALAO + ' — Gestão e agendamento';
   const v = VIEWS[r] ? r : 'agenda';
   app.innerHTML = `<div class="wrap">${nav(v)}${VIEWS[v]()}</div>`;
+  centrarDias();
 }
+// Mantém o dia escolhido visível no meio da faixa de dias
+function centrarDias() {
+  document.querySelectorAll('.daystrip').forEach((st) => { const el = st.querySelector('[data-sel]'); if (el) st.scrollLeft = el.offsetLeft - st.clientWidth / 2 + el.offsetWidth / 2; });
+}
+const selA = () => S.appts.find((q) => q.id === S.sel);
 function salvarAgendamento(pid, sid, d, h, cliente, orig) {
   const c = conflito(pid, sid, d, h);
   if (c) return c;
@@ -601,24 +704,49 @@ document.addEventListener('click', (e) => {
   else if (a === 'sel') { S.sel = v; S.panel = null; if (isM()) setTimeout(() => { const p = document.getElementById('painel'); if (p && p.scrollIntoView) p.scrollIntoView({ behavior: 'smooth' }); }, 0); }
   else if (a === 'copiarMsg') { const done = () => { b.textContent = 'Mensagem copiada!'; }; if (navigator.clipboard) navigator.clipboard.writeText(waMsg()).then(done, () => { b.textContent = 'Não consegui copiar: selecione o texto acima'; }); return; }
   else if (a === 'agProf') S.agProf = v;
-  else if (a === 'pay') { const x = S.appts.find((q) => q.id === S.sel); x.status = 'pago'; x.metodo = v; }
-  else if (a === 'falta') { const x = S.appts.find((q) => q.id === S.sel); x.status = 'faltou'; }
-  else if (a === 'panel') { S.panel = v || null; if (isM() && v) setTimeout(() => { const p = document.getElementById('painel'); if (p && p.scrollIntoView) p.scrollIntoView({ behavior: 'smooth' }); }, 0); }
+  else if (a === 'pay') { const x = selA(); x.status = 'pago'; x.metodo = v; }
+  else if (a === 'falta') { const x = selA(); x.status = 'faltou'; }
+  else if (a === 'confirmar') selA().status = 'confirmado';
+  else if (a === 'desmarcar') { const x = selA(); x.status = 'desmarcado'; S.toast = x.cliente + ' desmarcou. O horário das ' + hh(x.h) + ' com ' + PF[x.p].nome + ' ficou livre na agenda e no link.'; }
+  else if (a === 'desfazer') {
+    const x = selA();
+    if (x.status !== 'pago') { const c = conflito(x.p, x.s, x.d, x.h, x.id); if (c) { S.toast = 'Não dá para voltar este horário: ' + c + '. Exclua ou marque um novo horário.'; render(); return; } }
+    x.status = 'agendado'; x.metodo = null;
+  }
+  else if (a === 'excluir') S.confirmEx = S.sel;
+  else if (a === 'excluirNao') S.confirmEx = null;
+  else if (a === 'excluirSim') { const x = selA(); S.appts = S.appts.filter((q) => q.id !== x.id); S.toast = 'Agendamento de ' + x.cliente + ' (' + DIAS[x.d].l + ' ' + DIAS[x.d].n + ' às ' + hh(x.h) + ') excluído.'; S.sel = null; S.confirmEx = null; }
+  else if (a === 'remarcar') { const x = selA(); S.form = { cliente: x.cliente, serv: x.s, prof: x.p, d: x.d, hora: x.h, editId: x.id }; S.panel = 'novo'; S.confirmEx = null; }
+  else if (a === 'agDia') { S.agD = Number(v); S.agView = 'dia'; S.confirmEx = null; if (S.form.editId == null) S.form.d = S.agD; }
+  else if (a === 'agPrev') { if (S.agD > 0) S.agD--; S.confirmEx = null; }
+  else if (a === 'agNext') { if (S.agD < N_DIAS - 1) S.agD++; S.confirmEx = null; }
+  else if (a === 'agView') S.agView = v;
+  else if (a === 'panel') { if (v === 'novo') S.form = { cliente: '', serv: S.form.serv, prof: S.form.prof, d: S.agD, hora: null, editId: null }; S.panel = v || null; if (isM() && v) setTimeout(() => { const p = document.getElementById('painel'); if (p && p.scrollIntoView) p.scrollIntoView({ behavior: 'smooth' }); }, 0); }
   else if (a === 'slot') S.form.hora = Number(v);
   else if (a === 'salvar') {
     const f = S.form; if (f.hora == null) return;
+    if (f.editId) {
+      const x = S.appts.find((q) => q.id === f.editId);
+      const c = conflito(f.prof, f.serv, f.d, f.hora, x.id);
+      if (c) S.toast = 'Não foi possível remarcar: ' + c;
+      else {
+        Object.assign(x, { p: f.prof, s: f.serv, d: f.d, h: f.hora, cliente: f.cliente.trim() || x.cliente });
+        S.toast = 'Remarcado: ' + x.cliente + ' · ' + SV(x.s).nome + ' com ' + PF[x.p].nome + ' · ' + DIAS[x.d].l + ' ' + DIAS[x.d].n + ' às ' + hh(x.h);
+        S.agD = x.d; S.agView = 'dia'; S.sel = x.id; S.panel = null; f.editId = null; f.cliente = ''; f.hora = null;
+      }
+      render(); return;
+    }
     const r = salvarAgendamento(f.prof, f.serv, f.d, f.hora, f.cliente.trim() || 'Nova cliente', 'rec');
     if (r.startsWith('n')) {
       S.toast = 'Agendado: ' + (f.cliente.trim() || 'Nova cliente') + ' · ' + SV(f.serv).nome + ' com ' + PF[f.prof].nome + ' · ' + DIAS[f.d].l + ' ' + DIAS[f.d].n + ' às ' + hh(f.hora);
-      if (f.d === 0) S.sel = r;
+      S.agD = f.d; S.agView = 'dia'; S.sel = r;
       S.panel = null; f.cliente = ''; f.hora = null;
     } else S.toast = 'Não foi possível agendar: ' + r;
   }
   else if (a === 'esc') {
     const [ri, di] = v.split(',').map(Number);
     if (S.grade[ri][di]) {
-      const di2 = DIAS.findIndex((d) => d.w === di);
-      const tem = di2 >= 0 && S.appts.some((q) => q.p === PROFS[ri].id && q.d === di2 && ativo(q));
+      const tem = S.appts.some((q) => q.p === PROFS[ri].id && DIAS[q.d].w === di && ativo(q));
       if (tem) { S.toast = PROFS[ri].nome + ' tem clientes marcadas na ' + DIAS_ESC[di] + '. Remarque antes de dar folga.'; render(); return; }
     }
     S.grade[ri][di] = S.grade[ri][di] ? 0 : 1; S.toast = null;
