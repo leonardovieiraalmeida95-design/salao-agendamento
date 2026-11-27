@@ -71,10 +71,14 @@ label.f{display:flex;flex-direction:column;gap:6px;font-size:13px;font-weight:60
 .mdn{font-size:13px;font-weight:700}.mdh{font-size:10px;font-weight:700;color:#fff;background:#6B2D5C;border-radius:6px;padding:1px 5px}
 .mdc{font-size:20px;font-weight:700;color:#4A1D42}.mdc small{font-size:11px;font-weight:500}
 .mds{font-size:11px;color:#6B6470}
-.mcal{background:linear-gradient(#FBF7FA,#FBF7FA);border:1px solid #EBD9E6;border-radius:18px;padding:14px 12px 12px}
+.mcal{width:100%;max-width:330px;margin:0 auto;box-sizing:border-box;background:#FBF7FA;border:1px solid #EBD9E6;border-radius:18px;padding:14px 12px 12px}
 .mch{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:0 4px 10px;font-size:14px;color:#4A1D42}
 .mcleg{display:flex;align-items:center;gap:5px;font-size:11px;color:#6B6470}
-.mcg{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:4px;justify-items:center}
+.mcg{display:grid;grid-template-columns:repeat(7,38px);justify-content:space-between;row-gap:6px;justify-items:center}
+@media (max-width:360px){.mcg{grid-template-columns:repeat(7,minmax(0,1fr))}}
+.voltar{align-self:flex-start;display:inline-flex;align-items:center;gap:6px;height:40px;padding:0 14px 0 10px;border-radius:20px;border:1px solid #E2CCDC;background:#FBF7FA;color:#4A1D42;font-size:13px;font-weight:600;cursor:pointer}
+.voltar:hover{background:#F1E6EE}
+#painel{max-width:420px}
 .mcw{font-size:11px;font-weight:600;color:#6B6470;padding-bottom:2px}
 .mc{position:relative;width:38px;height:38px;max-width:100%;border-radius:50%;border:0;background:#fff;color:#1E1A22;font-size:14px;font-weight:600;cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:0 1px 2px rgba(30,26,34,.08)}
 .mc:hover:not(:disabled){background:#F1E6EE}
@@ -431,8 +435,15 @@ function waMsg() {
     'Ficou com alguma dúvida? Chama a gente no WhatsApp ' + ZAP_FMT + ' 😉';
 }
 function waHref() { const d = S.fone.replace(/\D/g, ''); return 'https://wa.me/' + (d ? '55' + d : '') + '?text=' + encodeURIComponent(waMsg()); }
+// Cabeçalho dos painéis laterais: seta Voltar (sai sem salvar) + título
+function topoPainel(titulo) {
+  const volta = S.sel && S.appts.some((q) => q.id === S.sel && q.d === S.agD) && S.agView !== 'mes' ? 'Voltar ao agendamento' : 'Voltar';
+  return `<div style="display:flex;flex-direction:column;gap:10px">
+    <button class="voltar" data-a="voltar">${BACK}<span>${volta}</span></button>
+    <div class="cap">${titulo}</div></div>`;
+}
 function pShare() {
-  return `<div style="display:flex;justify-content:space-between;align-items:center"><div class="cap">Link pelo WhatsApp</div><button class="x" data-a="panel" data-v="" aria-label="Fechar">×</button></div>
+  return `${topoPainel('Link pelo WhatsApp')}
     <p style="margin:0;font-size:13px;color:#4A4550">A cliente recebe a mensagem, toca no link e escolhe serviço, profissional e horário. Só aparecem horários livres, de quem faz o serviço e está escalado.</p>
     <label class="f">WhatsApp da cliente<input type="tel" id="fone" inputmode="tel" value="${esc(S.fone)}" placeholder="(00) 00000-0000"></label>
     <div style="background:#E9F4EF;border-radius:12px;padding:12px 14px;font-size:13px;color:#1E3B35;overflow-wrap:anywhere;white-space:pre-line">${esc(waMsg())}</div>
@@ -448,14 +459,14 @@ function pNovo() {
   const sl = livres(f.prof, f.serv, f.d, f.editId);
   if (f.hora != null && !sl.includes(f.hora)) f.hora = null;
   const motivo = !trabalha(f.prof, f.d) ? PF[f.prof].nome + ' está de folga neste dia.' : 'Sem horários livres para este serviço neste dia.';
-  return `<div style="display:flex;justify-content:space-between;align-items:center"><div class="cap">${f.editId || f.fromId ? 'Remarcar · ' + esc(f.cliente) : 'Novo agendamento · recepção'}</div><button class="x" data-a="panel" data-v="" aria-label="Fechar">×</button></div>
+  return `${topoPainel(f.editId || f.fromId ? 'Remarcar · ' + esc(f.cliente) : 'Novo agendamento · recepção')}
     <label class="f">Cliente<input type="text" id="cliNome" value="${esc(f.cliente)}" placeholder="Nome da cliente"></label>
     <label class="f">Serviço<select id="fServ">${SA().map((x) => `<option value="${x.id}" ${x.id === s.id ? 'selected' : ''}>${esc(x.nome)} · ${durTxt(x.dur)} · ${brl(x.preco)}</option>`).join('')}</select></label>
     <label class="f">Profissional <span class="sub" style="font-weight:400">(só quem faz este serviço)</span><select id="fProf">${s.profs.map((id) => `<option value="${id}" ${id === f.prof ? 'selected' : ''}>${PF[id].nome} · ${PF[id].func}</option>`).join('')}</select></label>
     <div style="font-size:13px;font-weight:600">Dia</div>
     ${miniCal('fDiaPick', f.d, (i) => !trabalha(f.prof, i), (i) => livres(f.prof, f.serv, i, f.editId).length > 0)}
     <div style="font-size:13px;font-weight:600">Horários livres · <span style="color:#6B2D5C">${DIAS[f.d].longo}</span></div>
-    <div style="display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px">${sl.map((h) => `<button data-a="slot" data-v="${h}" style="height:40px;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;${f.hora === h ? 'background:#6B2D5C;color:#fff;border:1px solid #6B2D5C' : 'background:#fff;color:#4A1D42;border:1px solid #E2CCDC'}">${hh(h)}</button>`).join('') || `<div class="sub" style="grid-column:1/-1">${motivo}</div>`}</div>
+    <div style="display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px">${sl.map((h) => `<button data-a="slot" data-v="${h}" style="height:40px;border-radius:20px;font-size:13px;font-weight:600;cursor:pointer;${f.hora === h ? 'background:#6B2D5C;color:#fff;border:1px solid #6B2D5C' : 'background:#fff;color:#4A1D42;border:1px solid #E2CCDC'}">${hh(h)}</button>`).join('') || `<div class="sub" style="grid-column:1/-1">${motivo}</div>`}</div>
     <button class="btn" data-a="salvar" style="height:48px" ${f.hora == null ? 'disabled' : ''}>${f.editId ? 'Salvar novo horário' : 'Salvar na agenda'}</button>
     <div style="font-size:12px;color:#6B6470">${f.editId ? 'O horário antigo fica livre de novo na agenda e no link.' : 'Assim que salvar, o horário some do link de agendamento online.'}</div>`;
 }
@@ -760,7 +771,9 @@ document.addEventListener('click', (e) => {
     S.form = aberto ? { cliente: x.cliente, serv: x.s, prof: x.p, d: x.d, hora: x.h, editId: x.id }
       : { cliente: x.cliente, serv: x.s, prof: x.p, d: Math.min(x.d + 1, N_DIAS - 1), hora: null, editId: null, fromId: x.id, orig: x.orig };
     S.panel = 'novo'; S.confirmEx = null;
+    if (isM()) setTimeout(() => { const p = document.getElementById('painel'); if (p && p.scrollIntoView) p.scrollIntoView({ behavior: 'smooth' }); }, 0);
   }
+  else if (a === 'voltar') { S.panel = null; S.form = { cliente: '', serv: S.form.serv, prof: S.form.prof, d: S.agD, hora: null, editId: null }; }
   else if (a === 'fDiaPick') { S.form.d = Number(v); S.form.hora = null; }
   else if (a === 'agDia') { S.agD = Number(v); S.agView = 'dia'; S.confirmEx = null; if (S.form.editId == null) S.form.d = S.agD; }
   else if (a === 'agPrev') { if (S.agD > 0) S.agD--; S.confirmEx = null; }
