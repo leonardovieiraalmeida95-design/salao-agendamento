@@ -1,0 +1,139 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<title>Escala das profissionais</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+a{color:#CFC8D4;text-decoration:none}a:hover{color:#FFFFFF}
+button{font-family:inherit}
+</style>
+</helmet>
+<div style="min-height:100vh;display:flex;flex-wrap:wrap;background:#F6F4F1;font-family:'Plus Jakarta Sans',system-ui,sans-serif;color:#1E1A22">
+  <nav aria-label="Menu principal" style="flex:1 1 232px;box-sizing:border-box;background:#1E1A22;padding:24px 16px;display:flex;flex-direction:column;gap:4px">
+    <div style="display:flex;align-items:center;gap:10px;padding:0 8px 24px">
+      <div style="width:36px;height:36px;border-radius:10px;background:#6B2D5C;color:#FFFFFF;display:flex;align-items:center;justify-content:center;font-weight:700">A</div>
+      <div><div style="font-weight:700;font-size:15px;color:#FFFFFF">[Nome do App]</div><div style="font-size:12px;color:#B9B2BF">Seu Salão</div></div>
+    </div>
+    <a href="Main.dc.html" style="padding:12px 14px;border-radius:10px;font-size:14px">Agenda</a>
+    <a href="Escala.dc.html" style="padding:12px 14px;border-radius:10px;background:#3A2F40;color:#FFFFFF;font-weight:600;font-size:14px">Escala</a>
+    <a href="Servicos.dc.html" style="padding:12px 14px;border-radius:10px;font-size:14px">Serviços</a>
+    <a href="Dashboard.dc.html" style="padding:12px 14px;border-radius:10px;font-size:14px">Pagamentos</a>
+    <a href="Cliente.dc.html" style="padding:12px 14px;border-radius:10px;font-size:14px">Link de agendamento</a>
+    <div style="margin-top:16px;padding:0 14px 6px;font-size:11px;font-weight:600;letter-spacing:0.06em;text-transform:uppercase;color:#9C94A3">Gestão</div>
+    <a href="Gestora.dc.html" style="padding:12px 14px;border-radius:10px;font-size:14px;display:flex;align-items:center;gap:8px"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="11" width="16" height="10" rx="2"></rect><path d="M8 11V7a4 4 0 0 1 8 0v4"></path></svg>Painel da Gestora</a>
+  </nav>
+  <main style="flex:999 1 560px;min-width:0;box-sizing:border-box;padding:28px 32px;display:flex;flex-direction:column;gap:20px">
+    <header style="display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:12px">
+      <div>
+        <div style="font-size:13px;color:#6B6470">Semana de 23 a 29 de novembro</div>
+        <h1 style="margin:4px 0 0;font-size:26px;font-weight:700">Escala da equipe</h1>
+      </div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap">
+        <button style="height:44px;padding:0 16px;border-radius:10px;border:1px solid #DDD7D0;background:#FFFFFF;font-size:14px;color:#1E1A22">Copiar semana anterior</button>
+        <button style="height:44px;padding:0 18px;border-radius:10px;border:0;background:#6B2D5C;color:#FFFFFF;font-size:14px;font-weight:600">+ Profissional</button>
+      </div>
+    </header>
+
+    <p style="margin:0;font-size:13px;color:#4A4550">Clique num dia para alternar entre trabalho e folga. O link de agendamento só mostra horários de quem está escalado.</p>
+
+    <section aria-label="Escala semanal" style="background:#FFFFFF;border-radius:16px;border:1px solid #ECE7E1;overflow-x:auto">
+      <div style="min-width:900px">
+        <div style="display:grid;grid-template-columns:220px repeat(7,minmax(0,1fr)) 110px;border-bottom:1px solid #ECE7E1;font-size:12px;font-weight:600;color:#6B6470">
+          <div style="padding:14px 18px">Profissional</div>
+          <sc-for list="{{dias}}" as="d" hint-placeholder-count="7">
+            <div style="padding:14px 6px;text-align:center">{{d}}</div>
+          </sc-for>
+          <div style="padding:14px 12px;text-align:right">Horas/semana</div>
+        </div>
+        <sc-for list="{{rows}}" as="r" hint-placeholder-count="5">
+          <div style="display:grid;grid-template-columns:220px repeat(7,minmax(0,1fr)) 110px;border-bottom:1px solid #F0ECE7;align-items:center">
+            <div style="padding:12px 18px;display:flex;align-items:center;gap:10px">
+              <div style="width:36px;height:36px;border-radius:50%;background:#F1E6EE;color:#5A2450;font-size:13px;font-weight:700;display:flex;align-items:center;justify-content:center">{{r.ini}}</div>
+              <div><div style="font-size:14px;font-weight:600">{{r.nome}}</div><div style="font-size:12px;color:#6B6470">{{r.func}} · comissão {{r.com}}</div></div>
+            </div>
+            <sc-for list="{{r.cells}}" as="c" hint-placeholder-count="7">
+              <div style="padding:6px 4px">
+                <button onClick="{{c.toggle}}" aria-label="{{c.aria}}" style="width:100%;min-height:56px;border-radius:10px;cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;{{c.style}}">
+                  <span style="font-size:13px;font-weight:600">{{c.l1}}</span>
+                  <span style="font-size:11px">{{c.l2}}</span>
+                </button>
+              </div>
+            </sc-for>
+            <div style="padding:12px;text-align:right;font-size:14px;font-weight:600">{{r.horas}}</div>
+          </div>
+        </sc-for>
+        <div style="display:grid;grid-template-columns:220px repeat(7,minmax(0,1fr)) 110px;background:#FAF8F6;font-size:12px;color:#4A4550">
+          <div style="padding:14px 18px;font-weight:600">Na equipe no dia</div>
+          <sc-for list="{{totais}}" as="t" hint-placeholder-count="7">
+            <div style="padding:14px 6px;text-align:center;font-weight:600">{{t}}</div>
+          </sc-for>
+          <div></div>
+        </div>
+      </div>
+    </section>
+
+    <section style="display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px">
+      <div style="background:#FFFFFF;border-radius:14px;border:1px solid #ECE7E1;padding:16px 18px">
+        <div style="font-size:13px;font-weight:600">Horário padrão</div>
+        <div style="font-size:13px;color:#4A4550;margin-top:6px">Ter a sáb, 09:00–19:00 · intervalo de almoço de 1h</div>
+      </div>
+      <div style="background:#FFFFFF;border-radius:14px;border:1px solid #ECE7E1;padding:16px 18px">
+        <div style="font-size:13px;font-weight:600">Bloqueios e férias</div>
+        <div style="font-size:13px;color:#4A4550;margin-top:6px">Bloqueie horários avulsos (médico, curso) direto na agenda</div>
+      </div>
+      <div style="background:#FFFFFF;border-radius:14px;border:1px solid #ECE7E1;padding:16px 18px">
+        <div style="font-size:13px;font-weight:600">Comissão</div>
+        <div style="font-size:13px;color:#4A4550;margin-top:6px">Percentual por profissional, calculado no pagamento de cada serviço</div>
+      </div>
+    </section>
+  </main>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1360,"height":860}}'>
+const DIAS = ['Seg 23', 'Ter 24', 'Qua 25', 'Qui 26', 'Sex 27', 'Sáb 28', 'Dom 29'];
+const EQUIPE = [
+  { id: 'cam', nome: 'Camila', func: 'Cabeleireira', ini: 'CA', com: '40%', ini_h: '09–18', fim: 9, dias: [0, 1, 1, 1, 1, 1, 0] },
+  { id: 'jul', nome: 'Juliana', func: 'Manicure', ini: 'JU', com: '50%', ini_h: '09–18', fim: 9, dias: [0, 1, 1, 0, 1, 1, 0] },
+  { id: 'raf', nome: 'Rafael', func: 'Barbeiro', ini: 'RA', com: '45%', ini_h: '09–19', fim: 10, dias: [0, 1, 1, 1, 1, 1, 0] },
+  { id: 'bia', nome: 'Bianca', func: 'Esteticista', ini: 'BI', com: '40%', ini_h: '10–19', fim: 9, dias: [0, 0, 1, 1, 1, 1, 0] },
+  { id: 'thi', nome: 'Thiago', func: 'Cabeleireiro', ini: 'TH', com: '40%', ini_h: '10–19', fim: 9, dias: [0, 1, 0, 1, 1, 1, 0] }
+];
+class Component extends DCLogic {
+  renderVals() {
+    const s = this.state || {};
+    const grade = s.grade || EQUIPE.map((e) => e.dias.slice());
+    const toggle = (ri, di) => {
+      const g = grade.map((r) => r.slice());
+      g[ri][di] = g[ri][di] ? 0 : 1;
+      this.setState({ grade: g });
+    };
+    const rows = EQUIPE.map((e, ri) => {
+      const dias = grade[ri];
+      const n = dias.reduce((t, d) => t + d, 0);
+      return {
+        ...e,
+        horas: (n * (e.fim - 1)) + 'h',
+        cells: dias.map((on, di) => ({
+          l1: on ? e.ini_h : 'Folga',
+          l2: on ? 'almoço 12–13' : '—',
+          aria: e.nome + ', ' + DIAS[di] + ': ' + (on ? 'trabalha ' + e.ini_h : 'folga'),
+          style: on ? 'background:#F1E6EE;color:#4A1D42;border:1px solid #E2CCDC' : 'background:#FAF8F6;color:#6B6470;border:1px dashed #DDD7D0',
+          toggle: () => toggle(ri, di)
+        }))
+      };
+    });
+    const totais = DIAS.map((_, di) => grade.reduce((t, r) => t + r[di], 0) + ' de ' + EQUIPE.length);
+    return { dias: DIAS, rows, totais };
+  }
+}
+</script>
+</body>
+</html>

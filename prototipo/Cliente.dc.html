@@ -1,0 +1,158 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<title>Agendamento online</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+a{color:#6B2D5C}a:hover{color:#4A1D42}
+button{font-family:inherit}
+</style>
+</helmet>
+<div style="width:390px;height:844px;box-sizing:border-box;background:#F6F4F1;font-family:'Plus Jakarta Sans',system-ui,sans-serif;color:#1E1A22;display:flex;flex-direction:column;overflow:hidden">
+  <header style="background:#1E1A22;color:#FFFFFF;padding:28px 20px 20px;display:flex;flex-direction:column;gap:12px">
+    <div style="display:flex;align-items:center;gap:10px">
+      <sc-if value="{{podeVoltar}}" hint-placeholder-val="{{ false }}">
+        <button onClick="{{voltar}}" aria-label="Voltar" style="width:44px;height:44px;border-radius:10px;border:0;background:#3A2F40;color:#FFFFFF;display:flex;align-items:center;justify-content:center;cursor:pointer">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 18l-6-6 6-6"></path></svg>
+        </button>
+      </sc-if>
+      <div>
+        <div style="font-size:12px;color:#B9B2BF">Agende no</div>
+        <div style="font-size:18px;font-weight:700">Seu Salão</div>
+      </div>
+    </div>
+    <div style="display:flex;gap:6px" aria-hidden="true">
+      <sc-for list="{{barras}}" as="b" hint-placeholder-count="4">
+        <div style="flex:1;height:4px;border-radius:2px;{{b.style}}"></div>
+      </sc-for>
+    </div>
+    <div style="font-size:13px;color:#CFC8D4">{{etapaLabel}}</div>
+  </header>
+
+  <div style="flex:1;overflow-y:auto;padding:20px;display:flex;flex-direction:column;gap:10px">
+    <sc-if value="{{e1}}" hint-placeholder-val="{{ true }}">
+      <h2 style="margin:0 0 4px;font-size:20px">Qual serviço?</h2>
+      <sc-for list="{{servicos}}" as="sv" hint-placeholder-count="5">
+        <button onClick="{{sv.pick}}" style="min-height:64px;border-radius:12px;border:1px solid #ECE7E1;background:#FFFFFF;padding:12px 16px;display:flex;align-items:center;justify-content:space-between;gap:12px;text-align:left;cursor:pointer;color:#1E1A22">
+          <span><span style="display:block;font-size:15px;font-weight:600">{{sv.nome}}</span><span style="display:block;font-size:12px;color:#6B6470;margin-top:2px">{{sv.dur}}</span></span>
+          <span style="font-size:14px;font-weight:700">{{sv.preco}}</span>
+        </button>
+      </sc-for>
+    </sc-if>
+
+    <sc-if value="{{e2}}" hint-placeholder-val="{{ false }}">
+      <h2 style="margin:0 0 4px;font-size:20px">Com quem?</h2>
+      <sc-for list="{{profs}}" as="p" hint-placeholder-count="3">
+        <button onClick="{{p.pick}}" style="min-height:64px;border-radius:12px;border:1px solid #ECE7E1;background:#FFFFFF;padding:12px 16px;display:flex;align-items:center;gap:12px;text-align:left;cursor:pointer;color:#1E1A22">
+          <span style="width:40px;height:40px;border-radius:50%;background:#F1E6EE;color:#5A2450;font-size:13px;font-weight:700;display:flex;align-items:center;justify-content:center;flex:none">{{p.ini}}</span>
+          <span><span style="display:block;font-size:15px;font-weight:600">{{p.nome}}</span><span style="display:block;font-size:12px;color:#6B6470;margin-top:2px">{{p.info}}</span></span>
+        </button>
+      </sc-for>
+    </sc-if>
+
+    <sc-if value="{{e3}}" hint-placeholder-val="{{ false }}">
+      <h2 style="margin:0 0 4px;font-size:20px">Quando?</h2>
+      <div style="display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px">
+        <sc-for list="{{dias}}" as="d" hint-placeholder-count="4">
+          <button onClick="{{d.pick}}" style="min-height:60px;border-radius:12px;cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:center;{{d.style}}">
+            <span style="font-size:11px">{{d.sem}}</span><span style="font-size:17px;font-weight:700">{{d.num}}</span>
+          </button>
+        </sc-for>
+      </div>
+      <div style="font-size:13px;font-weight:600;margin-top:10px">Horários livres</div>
+      <div style="display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px">
+        <sc-for list="{{horarios}}" as="h" hint-placeholder-count="9">
+          <button onClick="{{h.pick}}" style="height:44px;border-radius:10px;border:1px solid #E2CCDC;background:#FFFFFF;color:#4A1D42;font-size:14px;font-weight:600;cursor:pointer">{{h.hora}}</button>
+        </sc-for>
+      </div>
+    </sc-if>
+
+    <sc-if value="{{e4}}" hint-placeholder-val="{{ false }}">
+      <h2 style="margin:0 0 4px;font-size:20px">Confirme seu horário</h2>
+      <div style="background:#FFFFFF;border-radius:14px;border:1px solid #ECE7E1;padding:16px;display:flex;flex-direction:column;gap:10px;font-size:14px">
+        <div style="display:flex;justify-content:space-between;gap:8px"><span style="color:#6B6470">Serviço</span><span style="font-weight:600;text-align:right">{{resumo.servico}}</span></div>
+        <div style="display:flex;justify-content:space-between;gap:8px"><span style="color:#6B6470">Profissional</span><span style="font-weight:600">{{resumo.prof}}</span></div>
+        <div style="display:flex;justify-content:space-between;gap:8px"><span style="color:#6B6470">Data</span><span style="font-weight:600">{{resumo.data}}</span></div>
+        <div style="display:flex;justify-content:space-between;gap:8px;border-top:1px solid #ECE7E1;padding-top:10px"><span style="color:#6B6470">Valor</span><span style="font-weight:700">{{resumo.preco}}</span></div>
+      </div>
+      <label style="display:flex;flex-direction:column;gap:6px;font-size:13px;font-weight:600">Seu nome
+        <input type="text" placeholder="Nome completo" style="height:44px;border-radius:10px;border:1px solid #DDD7D0;padding:0 12px;font-size:15px;font-family:inherit">
+      </label>
+      <label style="display:flex;flex-direction:column;gap:6px;font-size:13px;font-weight:600">WhatsApp
+        <input type="tel" placeholder="(00) 00000-0000" style="height:44px;border-radius:10px;border:1px solid #DDD7D0;padding:0 12px;font-size:15px;font-family:inherit">
+      </label>
+      <div style="background:#F1E6EE;border-radius:12px;padding:12px 14px;font-size:13px;color:#4A1D42">Para garantir o horário, o salão pede um sinal de <strong>{{resumo.sinal}}</strong> via Pix, descontado no dia.</div>
+      <button onClick="{{confirmar}}" style="height:52px;border-radius:12px;border:0;background:#6B2D5C;color:#FFFFFF;font-size:16px;font-weight:700;cursor:pointer">Pagar sinal e confirmar</button>
+    </sc-if>
+
+    <sc-if value="{{e5}}" hint-placeholder-val="{{ false }}">
+      <div style="display:flex;flex-direction:column;align-items:center;text-align:center;gap:12px;padding-top:40px">
+        <div style="width:72px;height:72px;border-radius:50%;background:#CFE8E1;color:#0F4A42;display:flex;align-items:center;justify-content:center">
+          <svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6L9 17l-5-5"></path></svg>
+        </div>
+        <h2 style="margin:0;font-size:22px">Horário confirmado!</h2>
+        <p style="margin:0;font-size:14px;color:#4A4550;max-width:280px">{{resumo.servico}} com {{resumo.prof}}, {{resumo.data}}. Você vai receber um lembrete no WhatsApp um dia antes.</p>
+        <button onClick="{{reiniciar}}" style="height:44px;padding:0 18px;border-radius:10px;border:1px solid #DDD7D0;background:#FFFFFF;font-size:14px;color:#1E1A22;cursor:pointer;margin-top:8px">Fazer outro agendamento</button>
+      </div>
+    </sc-if>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":844}}'>
+const SERV = [
+  { id: 's1', nome: 'Corte feminino', dur: '1h', preco: 90, profs: ['cam', 'thi'] },
+  { id: 's2', nome: 'Escova', dur: '1h', preco: 70, profs: ['cam', 'thi'] },
+  { id: 's3', nome: 'Coloração', dur: '2h', preco: 280, profs: ['cam'] },
+  { id: 's4', nome: 'Mão + pé', dur: '45 min', preco: 75, profs: ['jul'] },
+  { id: 's5', nome: 'Corte + barba', dur: '45 min', preco: 80, profs: ['raf'] },
+  { id: 's6', nome: 'Limpeza de pele', dur: '1h', preco: 180, profs: ['bia'] }
+];
+const PROF = { cam: ['Camila', 'CA', 'Cabeleireira'], thi: ['Thiago', 'TH', 'Cabeleireiro'], jul: ['Juliana', 'JU', 'Manicure'], raf: ['Rafael', 'RA', 'Barbeiro'], bia: ['Bianca', 'BI', 'Esteticista'] };
+const DIAS = [['Sáb', '28'], ['Ter', '1'], ['Qua', '2'], ['Qui', '3']];
+const HORAS = ['09:00', '10:00', '11:30', '13:00', '14:00', '15:30', '16:00', '17:00', '18:00'];
+const LABELS = ['Etapa 1 de 4 · Serviço', 'Etapa 2 de 4 · Profissional', 'Etapa 3 de 4 · Dia e horário', 'Etapa 4 de 4 · Confirmação', 'Pronto'];
+const brl = (v) => 'R$ ' + v.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+class Component extends DCLogic {
+  renderVals() {
+    const s = this.state || {};
+    const step = s.step || 1;
+    const sv = SERV.find((x) => x.id === s.serv) || SERV[0];
+    const dia = s.dia == null ? 0 : s.dia;
+    const go = (patch) => this.setState(patch);
+    return {
+      e1: step === 1, e2: step === 2, e3: step === 3, e4: step === 4, e5: step === 5,
+      podeVoltar: step > 1 && step < 5,
+      voltar: () => go({ step: step - 1 }),
+      etapaLabel: LABELS[step - 1],
+      barras: [1, 2, 3, 4].map((i) => ({ style: 'background:' + (i <= step ? '#C98DB8' : '#3A2F40') })),
+      servicos: SERV.map((x) => ({ nome: x.nome, dur: x.dur, preco: brl(x.preco), pick: () => go({ serv: x.id, step: 2 }) })),
+      profs: sv.profs.map((id) => ({ nome: PROF[id][0], ini: PROF[id][1], info: PROF[id][2] + ' · próximo horário amanhã', pick: () => go({ prof: id, step: 3 }) })),
+      dias: DIAS.map(([sem, num], i) => ({
+        sem, num,
+        style: i === dia ? 'background:#6B2D5C;color:#FFFFFF;border:1px solid #6B2D5C' : 'background:#FFFFFF;color:#1E1A22;border:1px solid #ECE7E1',
+        pick: () => go({ dia: i })
+      })),
+      horarios: HORAS.filter((_, i) => (i + dia) % 4 !== 0).map((h) => ({ hora: h, pick: () => go({ hora: h, step: 4 }) })),
+      resumo: {
+        servico: sv.nome,
+        prof: PROF[s.prof || sv.profs[0]][0],
+        data: DIAS[dia][0] + ' ' + DIAS[dia][1] + ', ' + (s.hora || '10:00'),
+        preco: brl(sv.preco),
+        sinal: brl(Math.round(sv.preco * 0.3))
+      },
+      confirmar: () => go({ step: 5 }),
+      reiniciar: () => this.setState({ step: 1, serv: null, prof: null, dia: 0, hora: null })
+    };
+  }
+}
+</script>
+</body>
+</html>

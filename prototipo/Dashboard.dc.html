@@ -1,0 +1,172 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<title>Dashboard de pagamentos</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+a{color:#CFC8D4;text-decoration:none}a:hover{color:#FFFFFF}
+button{font-family:inherit}
+</style>
+</helmet>
+<div style="min-height:100vh;display:flex;flex-wrap:wrap;background:#F6F4F1;font-family:'Plus Jakarta Sans',system-ui,sans-serif;color:#1E1A22">
+  <nav aria-label="Menu principal" style="flex:1 1 232px;box-sizing:border-box;background:#1E1A22;padding:24px 16px;display:flex;flex-direction:column;gap:4px">
+    <div style="display:flex;align-items:center;gap:10px;padding:0 8px 24px">
+      <div style="width:36px;height:36px;border-radius:10px;background:#6B2D5C;color:#FFFFFF;display:flex;align-items:center;justify-content:center;font-weight:700">A</div>
+      <div><div style="font-weight:700;font-size:15px;color:#FFFFFF">[Nome do App]</div><div style="font-size:12px;color:#B9B2BF">Seu Salão</div></div>
+    </div>
+    <a href="Main.dc.html" style="padding:12px 14px;border-radius:10px;font-size:14px">Agenda</a>
+    <a href="Escala.dc.html" style="padding:12px 14px;border-radius:10px;font-size:14px">Escala</a>
+    <a href="Servicos.dc.html" style="padding:12px 14px;border-radius:10px;font-size:14px">Serviços</a>
+    <a href="Dashboard.dc.html" style="padding:12px 14px;border-radius:10px;background:#3A2F40;color:#FFFFFF;font-weight:600;font-size:14px">Pagamentos</a>
+    <a href="Cliente.dc.html" style="padding:12px 14px;border-radius:10px;font-size:14px">Link de agendamento</a>
+    <div style="margin-top:16px;padding:0 14px 6px;font-size:11px;font-weight:600;letter-spacing:0.06em;text-transform:uppercase;color:#9C94A3">Gestão</div>
+    <a href="Gestora.dc.html" style="padding:12px 14px;border-radius:10px;font-size:14px;display:flex;align-items:center;gap:8px"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="11" width="16" height="10" rx="2"></rect><path d="M8 11V7a4 4 0 0 1 8 0v4"></path></svg>Painel da Gestora</a>
+  </nav>
+  <main style="flex:999 1 560px;min-width:0;box-sizing:border-box;padding:28px 32px;display:flex;flex-direction:column;gap:20px">
+    <header style="display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:12px">
+      <div>
+        <div style="font-size:13px;color:#6B6470">Dados de exemplo · {{periodoLabel}}</div>
+        <h1 style="margin:4px 0 0;font-size:26px;font-weight:700">Pagamentos</h1>
+      </div>
+      <div role="group" aria-label="Período" style="display:flex;background:#ECE7E1;border-radius:12px;padding:4px;gap:4px">
+        <button onClick="{{verSemana}}" style="height:40px;padding:0 18px;border-radius:9px;border:0;font-size:14px;cursor:pointer;{{btnSemana}}">Semana</button>
+        <button onClick="{{verMes}}" style="height:40px;padding:0 18px;border-radius:9px;border:0;font-size:14px;cursor:pointer;{{btnMes}}">Mês</button>
+      </div>
+    </header>
+
+    <section aria-label="Indicadores" style="display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:12px">
+      <sc-for list="{{kpis}}" as="k" hint-placeholder-count="5">
+        <div style="background:#FFFFFF;border-radius:14px;padding:16px 18px;border:1px solid #ECE7E1">
+          <div style="font-size:12px;color:#6B6470">{{k.label}}</div>
+          <div style="font-size:22px;font-weight:700;margin-top:4px;{{k.color}}">{{k.valor}}</div>
+          <div style="font-size:12px;color:#4A4550;margin-top:4px">{{k.sub}}</div>
+        </div>
+      </sc-for>
+    </section>
+
+    <div style="display:flex;flex-wrap:wrap;gap:16px">
+      <section aria-label="Faturamento por dia" style="flex:999 1 520px;min-width:0;background:#FFFFFF;border-radius:16px;border:1px solid #ECE7E1;padding:20px">
+        <div style="display:flex;justify-content:space-between;align-items:baseline;gap:8px;flex-wrap:wrap">
+          <h2 style="margin:0;font-size:16px">Faturamento por dia</h2>
+          <div style="display:flex;gap:14px;font-size:12px;color:#4A4550">
+            <span style="display:flex;align-items:center;gap:6px"><span style="width:10px;height:10px;border-radius:3px;background:#6B2D5C"></span>Recebido</span>
+            <span style="display:flex;align-items:center;gap:6px"><span style="width:10px;height:10px;border-radius:3px;background:#D9B9CF"></span>A receber</span>
+          </div>
+        </div>
+        <div style="display:flex;align-items:flex-end;gap:6px;height:220px;margin-top:20px;border-bottom:1px solid #ECE7E1">
+          <sc-for list="{{barras}}" as="b" hint-placeholder-count="7">
+            <div title="{{b.tip}}" style="flex:1;display:flex;flex-direction:column;justify-content:flex-end;height:100%">
+              <div style="background:#D9B9CF;border-radius:4px 4px 0 0;{{b.hPend}}"></div>
+              <div style="background:#6B2D5C;{{b.hRec}}"></div>
+            </div>
+          </sc-for>
+        </div>
+        <div style="display:flex;gap:6px;margin-top:6px">
+          <sc-for list="{{barras}}" as="b" hint-placeholder-count="7">
+            <div style="flex:1;text-align:center;font-size:11px;color:#6B6470">{{b.label}}</div>
+          </sc-for>
+        </div>
+      </section>
+
+      <section aria-label="Formas de pagamento" style="flex:1 1 300px;background:#FFFFFF;border-radius:16px;border:1px solid #ECE7E1;padding:20px;display:flex;flex-direction:column;gap:16px">
+        <h2 style="margin:0;font-size:16px">Formas de pagamento</h2>
+        <sc-for list="{{formas}}" as="f" hint-placeholder-count="3">
+          <div>
+            <div style="display:flex;justify-content:space-between;font-size:13px"><span style="font-weight:600">{{f.nome}}</span><span>{{f.valor}} · {{f.pct}}</span></div>
+            <div style="height:10px;border-radius:5px;background:#F0ECE7;margin-top:6px;overflow:hidden"><div style="height:100%;border-radius:5px;{{f.bar}}"></div></div>
+          </div>
+        </sc-for>
+        <div style="margin-top:auto;border-radius:12px;background:#F1E6EE;color:#4A1D42;padding:12px 14px;font-size:13px">Sinais via Pix recebidos: <strong>{{sinais}}</strong>. Eles reduziram as faltas no período.</div>
+      </section>
+    </div>
+
+    <div style="display:flex;flex-wrap:wrap;gap:16px">
+      <section aria-label="Comissões" style="flex:1 1 420px;min-width:0;background:#FFFFFF;border-radius:16px;border:1px solid #ECE7E1;padding:20px;overflow-x:auto">
+        <h2 style="margin:0 0 12px;font-size:16px">Comissões a pagar</h2>
+        <div style="min-width:420px">
+          <div style="display:grid;grid-template-columns:1.6fr 1fr 0.8fr 1fr;gap:8px;font-size:12px;color:#6B6470;font-weight:600;padding:8px 0;border-bottom:1px solid #ECE7E1">
+            <div>Profissional</div><div style="text-align:right">Produziu</div><div style="text-align:right">%</div><div style="text-align:right">Comissão</div>
+          </div>
+          <sc-for list="{{comissoes}}" as="c" hint-placeholder-count="5">
+            <div style="display:grid;grid-template-columns:1.6fr 1fr 0.8fr 1fr;gap:8px;font-size:14px;padding:10px 0;border-bottom:1px solid #F0ECE7;align-items:center">
+              <div style="font-weight:600">{{c.nome}}</div><div style="text-align:right">{{c.prod}}</div><div style="text-align:right;color:#4A4550">{{c.pct}}</div><div style="text-align:right;font-weight:600">{{c.com}}</div>
+            </div>
+          </sc-for>
+          <div style="display:grid;grid-template-columns:1.6fr 1fr 0.8fr 1fr;gap:8px;font-size:14px;padding:12px 0;font-weight:700">
+            <div>Total</div><div style="text-align:right">{{totProd}}</div><div></div><div style="text-align:right">{{totCom}}</div>
+          </div>
+        </div>
+      </section>
+
+      <section aria-label="Últimos pagamentos" style="flex:1 1 360px;min-width:0;background:#FFFFFF;border-radius:16px;border:1px solid #ECE7E1;padding:20px">
+        <h2 style="margin:0 0 12px;font-size:16px">Últimos pagamentos</h2>
+        <sc-for list="{{ultimos}}" as="u" hint-placeholder-count="6">
+          <div style="display:flex;justify-content:space-between;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid #F0ECE7">
+            <div style="min-width:0"><div style="font-size:14px;font-weight:600">{{u.cliente}}</div><div style="font-size:12px;color:#6B6470">{{u.info}}</div></div>
+            <div style="text-align:right;flex:none"><div style="font-size:14px;font-weight:700">{{u.valor}}</div><div style="font-size:11px;font-weight:600;{{u.cor}}">{{u.forma}}</div></div>
+          </div>
+        </sc-for>
+      </section>
+    </div>
+  </main>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1360,"height":1180}}'>
+const brl = (v) => 'R$ ' + Math.round(v).toLocaleString('pt-BR');
+const SEMANA = { label: 'Semana de 23 a 29 de novembro', dias: [['Seg', 0, 0], ['Ter', 1480, 0], ['Qua', 1720, 0], ['Qui', 1390, 0], ['Sex', 1170, 1795], ['Sáb', 0, 2860], ['Dom', 0, 0]], fat: 10415, rec: 5760, aRec: 4655, ticket: 112, faltas: '4%', fx: [0.48, 0.38, 0.14], sinais: 'R$ 640', mult: 1 };
+const MES = { label: 'Novembro de 2026', dias: [], fat: 41280, rec: 36625, aRec: 4655, ticket: 108, faltas: '6%', fx: [0.46, 0.40, 0.14], sinais: 'R$ 2.480', mult: 4 };
+const seed = [1120, 1540, 1310, 980, 1660, 2420, 0];
+for (let i = 1; i <= 27; i++) { const v = seed[(i + 6) % 7]; MES.dias.push([String(i), v, 0]); }
+MES.dias.push(['28', 0, 2860]);
+const EQ = [['Camila', 0.40, 0.31], ['Juliana', 0.50, 0.17], ['Rafael', 0.45, 0.16], ['Bianca', 0.40, 0.18], ['Thiago', 0.40, 0.18]];
+const ULT = [['Fernanda R.', 'Mechas · Camila · hoje 14:30', 350, 'Pix'], ['Pedro H.', 'Corte + barba · Rafael · hoje 10:45', 80, 'Pix'], ['Lucas M.', 'Corte masculino · Rafael · hoje 10:00', 50, 'Dinheiro'], ['Helena G.', 'Limpeza de pele · Bianca · hoje 10:00', 180, 'Pix'], ['Ana P.', 'Mão + pé · Juliana · hoje 09:45', 75, 'Cartão'], ['Marina S.', 'Corte + escova · Camila · hoje 10:00', 120, 'Pix']];
+const COR = { Pix: 'color:#0F4A42', 'Cartão': 'color:#4A1D42', Dinheiro: 'color:#7A3310' };
+class Component extends DCLogic {
+  renderVals() {
+    const s = this.state || {};
+    const mes = s.per === 'mes';
+    const P = mes ? MES : SEMANA;
+    const max = Math.max(...P.dias.map((d) => d[1] + d[2]));
+    const on = 'background:#FFFFFF;color:#1E1A22;font-weight:600;box-shadow:0 1px 2px rgba(0,0,0,0.08)';
+    const off = 'background:transparent;color:#4A4550';
+    const fNomes = ['Pix', 'Cartão', 'Dinheiro'];
+    const fCores = ['#1F7A6D', '#6B2D5C', '#C0703A'];
+    return {
+      periodoLabel: P.label,
+      verSemana: () => this.setState({ per: 'semana' }),
+      verMes: () => this.setState({ per: 'mes' }),
+      btnSemana: mes ? off : on,
+      btnMes: mes ? on : off,
+      kpis: [
+        { label: 'Faturamento', valor: brl(P.fat), sub: 'recebido + agendado', color: '' },
+        { label: 'Recebido', valor: brl(P.rec), sub: Math.round(P.rec / P.fat * 100) + '% do total', color: 'color:#145C52' },
+        { label: 'A receber', valor: brl(P.aRec), sub: 'horários futuros', color: '' },
+        { label: 'Ticket médio', valor: brl(P.ticket), sub: 'por atendimento', color: '' },
+        { label: 'Taxa de faltas', valor: P.faltas, sub: 'dos agendamentos', color: 'color:#8A3B12' }
+      ],
+      barras: P.dias.map(([label, rec, pend]) => ({
+        label: mes && Number(label) % 3 !== 1 ? '' : label,
+        tip: label + ': recebido ' + brl(rec) + ', a receber ' + brl(pend),
+        hRec: 'height:' + (max ? rec / max * 100 : 0) + '%',
+        hPend: 'height:' + (max ? pend / max * 100 : 0) + '%'
+      })),
+      formas: P.fx.map((p, i) => ({ nome: fNomes[i], valor: brl(P.rec * p), pct: Math.round(p * 100) + '%', bar: 'width:' + (p * 100) + '%;background:' + fCores[i] })),
+      sinais: P.sinais,
+      comissoes: EQ.map(([nome, pct, share]) => ({ nome, prod: brl(P.rec * share), pct: Math.round(pct * 100) + '%', com: brl(P.rec * share * pct) })),
+      totProd: brl(P.rec),
+      totCom: brl(EQ.reduce((t, e) => t + P.rec * e[2] * e[1], 0)),
+      ultimos: ULT.map(([cliente, info, v, forma]) => ({ cliente, info, valor: brl(v), forma, cor: COR[forma] }))
+    };
+  }
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,123 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<title>Serviços</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+a{color:#CFC8D4;text-decoration:none}a:hover{color:#FFFFFF}
+button{font-family:inherit}
+</style>
+</helmet>
+<div style="min-height:100vh;display:flex;flex-wrap:wrap;background:#F6F4F1;font-family:'Plus Jakarta Sans',system-ui,sans-serif;color:#1E1A22">
+  <nav aria-label="Menu principal" style="flex:1 1 232px;box-sizing:border-box;background:#1E1A22;padding:24px 16px;display:flex;flex-direction:column;gap:4px">
+    <div style="display:flex;align-items:center;gap:10px;padding:0 8px 24px">
+      <div style="width:36px;height:36px;border-radius:10px;background:#6B2D5C;color:#FFFFFF;display:flex;align-items:center;justify-content:center;font-weight:700">A</div>
+      <div><div style="font-weight:700;font-size:15px;color:#FFFFFF">[Nome do App]</div><div style="font-size:12px;color:#B9B2BF">Seu Salão</div></div>
+    </div>
+    <a href="Main.dc.html" style="padding:12px 14px;border-radius:10px;font-size:14px">Agenda</a>
+    <a href="Escala.dc.html" style="padding:12px 14px;border-radius:10px;font-size:14px">Escala</a>
+    <a href="Servicos.dc.html" style="padding:12px 14px;border-radius:10px;background:#3A2F40;color:#FFFFFF;font-weight:600;font-size:14px">Serviços</a>
+    <a href="Dashboard.dc.html" style="padding:12px 14px;border-radius:10px;font-size:14px">Pagamentos</a>
+    <a href="Cliente.dc.html" style="padding:12px 14px;border-radius:10px;font-size:14px">Link de agendamento</a>
+    <div style="margin-top:16px;padding:0 14px 6px;font-size:11px;font-weight:600;letter-spacing:0.06em;text-transform:uppercase;color:#9C94A3">Gestão</div>
+    <a href="Gestora.dc.html" style="padding:12px 14px;border-radius:10px;font-size:14px;display:flex;align-items:center;gap:8px"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="11" width="16" height="10" rx="2"></rect><path d="M8 11V7a4 4 0 0 1 8 0v4"></path></svg>Painel da Gestora</a>
+  </nav>
+  <main style="flex:999 1 560px;min-width:0;box-sizing:border-box;padding:28px 32px;display:flex;flex-direction:column;gap:20px">
+    <header style="display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:12px">
+      <div>
+        <div style="font-size:13px;color:#6B6470">{{contagem}}</div>
+        <h1 style="margin:4px 0 0;font-size:26px;font-weight:700">Serviços</h1>
+      </div>
+      <button style="height:44px;padding:0 18px;border-radius:10px;border:0;background:#6B2D5C;color:#FFFFFF;font-size:14px;font-weight:600">+ Novo serviço</button>
+    </header>
+
+    <div role="group" aria-label="Filtrar por categoria" style="display:flex;flex-wrap:wrap;gap:8px">
+      <sc-for list="{{cats}}" as="c" hint-placeholder-count="5">
+        <button onClick="{{c.pick}}" style="height:40px;padding:0 16px;border-radius:20px;font-size:14px;cursor:pointer;{{c.style}}">{{c.nome}}</button>
+      </sc-for>
+    </div>
+
+    <section aria-label="Lista de serviços" style="background:#FFFFFF;border-radius:16px;border:1px solid #ECE7E1;overflow-x:auto">
+      <div style="min-width:820px">
+        <div style="display:grid;grid-template-columns:2fr 1.1fr 0.8fr 0.9fr 0.9fr 1.6fr 0.8fr;gap:12px;padding:14px 20px;border-bottom:1px solid #ECE7E1;font-size:12px;font-weight:600;color:#6B6470">
+          <div>Serviço</div><div>Categoria</div><div>Duração</div><div style="text-align:right">Preço</div><div style="text-align:right">Sinal (Pix)</div><div>Quem faz</div><div style="text-align:right">Online</div>
+        </div>
+        <sc-for list="{{lista}}" as="s" hint-placeholder-count="8">
+          <div style="display:grid;grid-template-columns:2fr 1.1fr 0.8fr 0.9fr 0.9fr 1.6fr 0.8fr;gap:12px;padding:12px 20px;border-bottom:1px solid #F0ECE7;align-items:center;font-size:14px">
+            <div style="font-weight:600">{{s.nome}}</div>
+            <div><span style="display:inline-block;padding:4px 10px;border-radius:12px;background:#F1E6EE;color:#4A1D42;font-size:12px;font-weight:600">{{s.cat}}</span></div>
+            <div style="color:#4A4550">{{s.dur}}</div>
+            <div style="text-align:right;font-weight:600">{{s.preco}}</div>
+            <div style="text-align:right;color:#4A4550">{{s.sinal}}</div>
+            <div style="display:flex;gap:4px;flex-wrap:wrap">
+              <sc-for list="{{s.profs}}" as="p" hint-placeholder-count="2">
+                <span title="{{p.nome}}" style="width:30px;height:30px;border-radius:50%;background:#EDE9E4;color:#3A3540;font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center">{{p.ini}}</span>
+              </sc-for>
+            </div>
+            <div style="display:flex;justify-content:flex-end">
+              <button onClick="{{s.toggle}}" role="switch" aria-checked="{{s.online}}" aria-label="{{s.aria}}" style="width:48px;height:28px;border-radius:14px;border:0;padding:3px;cursor:pointer;display:flex;{{s.trilho}}">
+                <span style="width:22px;height:22px;border-radius:50%;background:#FFFFFF;display:block"></span>
+              </button>
+            </div>
+          </div>
+        </sc-for>
+      </div>
+    </section>
+    <p style="margin:0;font-size:13px;color:#4A4550">Serviços com "Online" desligado só podem ser marcados pela recepção. A duração define quanto espaço o serviço ocupa na agenda.</p>
+  </main>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1360,"height":900}}'>
+const P = { cam: ['Camila', 'CA'], thi: ['Thiago', 'TH'], jul: ['Juliana', 'JU'], raf: ['Rafael', 'RA'], bia: ['Bianca', 'BI'] };
+const SERV = [
+  ['Corte feminino', 'Cabelo', '1h', 90, ['cam', 'thi'], true],
+  ['Escova', 'Cabelo', '1h', 70, ['cam', 'thi'], true],
+  ['Coloração', 'Cabelo', '2h', 280, ['cam'], true],
+  ['Mechas', 'Cabelo', '1h30', 350, ['cam'], false],
+  ['Progressiva', 'Cabelo', '2h', 320, ['thi'], false],
+  ['Mão', 'Unhas', '45 min', 40, ['jul'], true],
+  ['Mão + pé', 'Unhas', '45 min', 75, ['jul'], true],
+  ['Alongamento em gel', 'Unhas', '1h', 160, ['jul'], true],
+  ['Corte masculino', 'Barbearia', '30 min', 50, ['raf', 'thi'], true],
+  ['Corte + barba', 'Barbearia', '45 min', 80, ['raf'], true],
+  ['Limpeza de pele', 'Estética', '1h', 180, ['bia'], true],
+  ['Design de sobrancelha', 'Estética', '1h', 60, ['bia'], true]
+];
+const CATS = ['Todos', 'Cabelo', 'Unhas', 'Barbearia', 'Estética'];
+const brl = (v) => 'R$ ' + v.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+class Component extends DCLogic {
+  renderVals() {
+    const s = this.state || {};
+    const cat = s.cat || 'Todos';
+    const on = s.on || SERV.map((x) => x[5]);
+    const rows = SERV.map((x, i) => ({ x, i })).filter(({ x }) => cat === 'Todos' || x[1] === cat);
+    return {
+      contagem: SERV.length + ' serviços · ' + on.filter(Boolean).length + ' disponíveis online',
+      cats: CATS.map((c) => ({
+        nome: c,
+        style: c === cat ? 'background:#1E1A22;color:#FFFFFF;border:1px solid #1E1A22;font-weight:600' : 'background:#FFFFFF;color:#1E1A22;border:1px solid #DDD7D0',
+        pick: () => this.setState({ cat: c })
+      })),
+      lista: rows.map(({ x, i }) => ({
+        nome: x[0], cat: x[1], dur: x[2], preco: brl(x[3]),
+        sinal: x[3] >= 150 ? brl(Math.round(x[3] * 0.3)) : '—',
+        profs: x[4].map((id) => ({ nome: P[id][0], ini: P[id][1] })),
+        online: on[i] ? 'true' : 'false',
+        aria: 'Disponível online: ' + x[0],
+        trilho: on[i] ? 'background:#1F7A6D;justify-content:flex-end' : 'background:#CFC8C2;justify-content:flex-start',
+        toggle: () => { const n = on.slice(); n[i] = !n[i]; this.setState({ on: n }); }
+      }))
+    };
+  }
+}
+</script>
+</body>
+</html>

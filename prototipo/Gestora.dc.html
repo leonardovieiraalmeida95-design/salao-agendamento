@@ -1,0 +1,233 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<title>Painel da Gestora</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+a{color:#CFC8D4;text-decoration:none}a:hover{color:#FFFFFF}
+button{font-family:inherit}
+</style>
+</helmet>
+<div style="min-height:100vh;display:flex;flex-wrap:wrap;background:#F6F4F1;font-family:'Plus Jakarta Sans',system-ui,sans-serif;color:#1E1A22">
+  <nav aria-label="Menu principal" style="flex:1 1 232px;box-sizing:border-box;background:#1E1A22;padding:24px 16px;display:flex;flex-direction:column;gap:4px">
+    <div style="display:flex;align-items:center;gap:10px;padding:0 8px 24px">
+      <div style="width:36px;height:36px;border-radius:10px;background:#6B2D5C;color:#FFFFFF;display:flex;align-items:center;justify-content:center;font-weight:700">A</div>
+      <div><div style="font-weight:700;font-size:15px;color:#FFFFFF">[Nome do App]</div><div style="font-size:12px;color:#B9B2BF">Seu Salão</div></div>
+    </div>
+    <a href="Main.dc.html" style="padding:12px 14px;border-radius:10px;font-size:14px">Agenda</a>
+    <a href="Escala.dc.html" style="padding:12px 14px;border-radius:10px;font-size:14px">Escala</a>
+    <a href="Servicos.dc.html" style="padding:12px 14px;border-radius:10px;font-size:14px">Serviços</a>
+    <a href="Dashboard.dc.html" style="padding:12px 14px;border-radius:10px;font-size:14px">Pagamentos</a>
+    <a href="Cliente.dc.html" style="padding:12px 14px;border-radius:10px;font-size:14px">Link de agendamento</a>
+    <div style="margin-top:16px;padding:0 14px 6px;font-size:11px;font-weight:600;letter-spacing:0.06em;text-transform:uppercase;color:#9C94A3">Gestão</div>
+    <a href="Gestora.dc.html" style="padding:12px 14px;border-radius:10px;font-size:14px;display:flex;align-items:center;gap:8px;background:#3A2F40;color:#FFFFFF;font-weight:600"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="11" width="16" height="10" rx="2"></rect><path d="M8 11V7a4 4 0 0 1 8 0v4"></path></svg>Painel da Gestora</a>
+  </nav>
+  <main style="flex:999 1 560px;min-width:0;box-sizing:border-box;padding:28px 32px;display:flex;flex-direction:column;gap:20px">
+    <header style="display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:12px">
+      <div>
+        <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+          <span style="font-size:13px;color:#6B6470">Dados de exemplo · {{periodoLabel}}</span>
+          <span style="display:inline-flex;align-items:center;gap:6px;padding:4px 10px;border-radius:12px;background:#1E1A22;color:#FFFFFF;font-size:11px;font-weight:600">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="11" width="16" height="10" rx="2"></rect><path d="M8 11V7a4 4 0 0 1 8 0v4"></path></svg>
+            Acesso restrito à gestora
+          </span>
+        </div>
+        <h1 style="margin:4px 0 0;font-size:26px;font-weight:700">Painel da Gestora</h1>
+      </div>
+      <div role="group" aria-label="Período" style="display:flex;background:#ECE7E1;border-radius:12px;padding:4px;gap:4px">
+        <button onClick="{{verSemana}}" style="height:40px;padding:0 18px;border-radius:9px;border:0;font-size:14px;cursor:pointer;{{btnSemana}}">Semana</button>
+        <button onClick="{{verMes}}" style="height:40px;padding:0 18px;border-radius:9px;border:0;font-size:14px;cursor:pointer;{{btnMes}}">Mês</button>
+      </div>
+    </header>
+
+    <section aria-label="Indicadores" style="display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px">
+      <sc-for list="{{kpis}}" as="k" hint-placeholder-count="4">
+        <div style="background:#FFFFFF;border-radius:14px;padding:16px 18px;border:1px solid #ECE7E1">
+          <div style="font-size:12px;color:#6B6470">{{k.label}}</div>
+          <div style="font-size:26px;font-weight:700;margin-top:4px;{{k.color}}">{{k.valor}}</div>
+          <div style="font-size:12px;color:#4A4550;margin-top:4px">{{k.sub}}</div>
+        </div>
+      </sc-for>
+    </section>
+
+    <div style="display:flex;flex-wrap:wrap;gap:16px">
+      <section aria-label="Serviços mais pedidos" style="flex:1 1 420px;min-width:0;background:#FFFFFF;border-radius:16px;border:1px solid #ECE7E1;padding:20px;display:flex;flex-direction:column;gap:14px">
+        <h2 style="margin:0;font-size:16px">Serviços mais pedidos</h2>
+        <div style="display:flex;align-items:center;gap:14px;background:#F1E6EE;border-radius:12px;padding:14px 16px">
+          <div style="width:44px;height:44px;border-radius:12px;background:#6B2D5C;color:#FFFFFF;display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:700;flex:none">1º</div>
+          <div style="min-width:0"><div style="font-size:17px;font-weight:700;color:#4A1D42">{{top.nome}}</div><div style="font-size:13px;color:#4A1D42">{{top.qtd}} pedidos · {{top.fat}} faturados</div></div>
+        </div>
+        <sc-for list="{{ranking}}" as="r" hint-placeholder-count="5">
+          <div>
+            <div style="display:flex;justify-content:space-between;gap:8px;font-size:13px"><span><span style="color:#6B6470">{{r.pos}}</span> <span style="font-weight:600">{{r.nome}}</span></span><span>{{r.qtd}}</span></div>
+            <div style="height:8px;border-radius:4px;background:#F0ECE7;margin-top:5px;overflow:hidden"><div style="height:100%;border-radius:4px;background:#C98DB8;{{r.bar}}"></div></div>
+          </div>
+        </sc-for>
+      </section>
+
+      <section aria-label="Desmarques" style="flex:1 1 420px;min-width:0;background:#FFFFFF;border-radius:16px;border:1px solid #ECE7E1;padding:20px;display:flex;flex-direction:column;gap:14px">
+        <div style="display:flex;justify-content:space-between;align-items:baseline;gap:8px">
+          <h2 style="margin:0;font-size:16px">Desmarques e faltas</h2>
+          <span style="font-size:13px;color:#4A4550">{{desmTotal}} no período</span>
+        </div>
+        <sc-for list="{{desm}}" as="d" hint-placeholder-count="3">
+          <div style="display:flex;align-items:center;gap:12px">
+            <div style="flex:1;min-width:0">
+              <div style="display:flex;justify-content:space-between;gap:8px;font-size:13px"><span style="font-weight:600">{{d.nome}}</span><span>{{d.qtd}}</span></div>
+              <div style="font-size:12px;color:#6B6470;margin-top:2px">{{d.desc}}</div>
+              <div style="height:8px;border-radius:4px;background:#F0ECE7;margin-top:6px;overflow:hidden"><div style="height:100%;border-radius:4px;{{d.bar}}"></div></div>
+            </div>
+          </div>
+        </sc-for>
+        <div style="margin-top:auto;border-radius:12px;background:#FBEFE6;color:#7A3310;padding:12px 14px;font-size:13px">Horas de agenda perdidas: <strong>{{horasPerdidas}}</strong> ({{valorPerdido}} que deixaram de entrar)</div>
+      </section>
+    </div>
+
+    <section aria-label="Desempenho por colaborador" style="background:#FFFFFF;border-radius:16px;border:1px solid #ECE7E1;padding:20px">
+      <div style="display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:12px">
+        <h2 style="margin:0;font-size:16px">Desempenho por colaborador</h2>
+        <div role="group" aria-label="Ordenar por" style="display:flex;gap:6px;flex-wrap:wrap;align-items:center">
+          <span style="font-size:12px;color:#6B6470">Ordenar por</span>
+          <sc-for list="{{ordens}}" as="o" hint-placeholder-count="3">
+            <button onClick="{{o.pick}}" style="height:36px;padding:0 14px;border-radius:18px;font-size:13px;cursor:pointer;{{o.style}}">{{o.nome}}</button>
+          </sc-for>
+        </div>
+      </div>
+      <div style="overflow-x:auto">
+        <div style="min-width:860px">
+          <div style="display:grid;grid-template-columns:1.6fr 0.9fr 1fr 0.9fr 1.6fr 0.9fr 0.9fr;gap:12px;padding:10px 0;border-bottom:1px solid #ECE7E1;font-size:12px;font-weight:600;color:#6B6470">
+            <div>Colaborador</div><div style="text-align:right">Atendimentos</div><div style="text-align:right">Faturamento</div><div style="text-align:right">Ticket médio</div><div>Ocupação da agenda</div><div style="text-align:right">Desmarques</div><div style="text-align:right">Clientes que voltam</div>
+          </div>
+          <sc-for list="{{equipe}}" as="e" hint-placeholder-count="5">
+            <div style="display:grid;grid-template-columns:1.6fr 0.9fr 1fr 0.9fr 1.6fr 0.9fr 0.9fr;gap:12px;padding:12px 0;border-bottom:1px solid #F0ECE7;align-items:center;font-size:14px">
+              <div style="display:flex;align-items:center;gap:10px">
+                <div style="width:34px;height:34px;border-radius:50%;background:#F1E6EE;color:#5A2450;font-size:12px;font-weight:700;display:flex;align-items:center;justify-content:center;flex:none">{{e.ini}}</div>
+                <div><div style="font-weight:600">{{e.nome}}</div><div style="font-size:12px;color:#6B6470">{{e.func}}</div></div>
+              </div>
+              <div style="text-align:right">{{e.atend}}</div>
+              <div style="text-align:right;font-weight:600">{{e.fat}}</div>
+              <div style="text-align:right">{{e.ticket}}</div>
+              <div style="display:flex;align-items:center;gap:8px">
+                <div style="flex:1;height:8px;border-radius:4px;background:#F0ECE7;overflow:hidden"><div style="height:100%;border-radius:4px;background:#1F7A6D;{{e.ocBar}}"></div></div>
+                <span style="font-size:13px;width:38px;text-align:right">{{e.oc}}</span>
+              </div>
+              <div style="text-align:right;{{e.desmCor}}">{{e.desm}}</div>
+              <div style="text-align:right">{{e.ret}}</div>
+            </div>
+          </sc-for>
+        </div>
+      </div>
+    </section>
+
+    <section aria-label="Inadimplências" style="background:#FFFFFF;border-radius:16px;border:1px solid #ECE7E1;padding:20px">
+      <div style="display:flex;justify-content:space-between;align-items:baseline;gap:8px;flex-wrap:wrap;margin-bottom:8px">
+        <h2 style="margin:0;font-size:16px">Inadimplências em aberto</h2>
+        <span style="font-size:13px;color:#4A4550">{{inadResumo}}</span>
+      </div>
+      <sc-for list="{{inad}}" as="i" hint-placeholder-count="4">
+        <div style="display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid #F0ECE7">
+          <div style="min-width:200px;flex:1"><div style="font-size:14px;font-weight:600">{{i.cliente}}</div><div style="font-size:12px;color:#6B6470">{{i.info}}</div></div>
+          <div style="font-size:12px;font-weight:600;padding:4px 10px;border-radius:12px;background:#FBEFE6;color:#7A3310">{{i.atraso}}</div>
+          <div style="font-size:15px;font-weight:700;width:110px;text-align:right">{{i.valor}}</div>
+          <sc-if value="{{i.aberto}}" hint-placeholder-val="{{ true }}">
+            <button onClick="{{i.cobrar}}" style="height:40px;padding:0 14px;border-radius:10px;border:1px solid #1F7A6D;background:#FFFFFF;color:#145C52;font-size:13px;font-weight:600;cursor:pointer">Cobrar no WhatsApp</button>
+          </sc-if>
+          <sc-if value="{{i.enviado}}" hint-placeholder-val="{{ false }}">
+            <span style="height:40px;padding:0 14px;border-radius:10px;background:#E3F2EE;color:#145C52;font-size:13px;font-weight:600;display:flex;align-items:center">Cobrança enviada</span>
+          </sc-if>
+        </div>
+      </sc-for>
+    </section>
+  </main>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1360,"height":1400}}'>
+const brl = (v) => 'R$ ' + Math.round(v).toLocaleString('pt-BR');
+const PER = {
+  semana: { label: 'Semana de 23 a 29 de novembro', total: 104, concl: 81, m: 1 },
+  mes: { label: 'Novembro de 2026', total: 412, concl: 349, m: 4 }
+};
+const SERV = [['Mão + pé', 31, 75], ['Corte masculino', 22, 50], ['Corte feminino', 15, 90], ['Escova', 12, 70], ['Corte + barba', 10, 80], ['Coloração', 6, 280]];
+const DESM = [['Desmarcou com antecedência', 'Avisou mais de 24h antes: dá para reaproveitar o horário', 5, '#C98DB8'], ['Desmarcou em cima da hora', 'Avisou menos de 24h antes', 3, '#E0995F'], ['Não compareceu', 'Faltou sem avisar', 4, '#B5532A']];
+const EQ = [
+  ['Camila', 'Cabeleireira', 'CA', 22, 3080, 0.86, 2, 0.72],
+  ['Juliana', 'Manicure', 'JU', 31, 2015, 0.91, 4, 0.81],
+  ['Rafael', 'Barbeiro', 'RA', 27, 1650, 0.78, 3, 0.85],
+  ['Bianca', 'Esteticista', 'BI', 11, 1720, 0.62, 1, 0.64],
+  ['Thiago', 'Cabeleireiro', 'TH', 13, 1950, 0.69, 2, 0.58]
+];
+const INAD = [['Fernanda R.', 'Mechas · Camila · 14/nov', 350, 13], ['Carla D.', 'Alongamento em gel · Juliana · 19/nov', 160, 8], ['Rodrigo B.', 'Corte + barba · Rafael · 21/nov', 80, 6], ['Paula E.', 'Sinal da progressiva · Thiago · 24/nov', 96, 3]];
+class Component extends DCLogic {
+  renderVals() {
+    const s = this.state || {};
+    const key = s.per || 'semana';
+    const P = PER[key];
+    const m = P.m;
+    const ord = s.ord || 'fat';
+    const sent = s.sent || {};
+    const on = 'background:#FFFFFF;color:#1E1A22;font-weight:600;box-shadow:0 1px 2px rgba(0,0,0,0.08)';
+    const off = 'background:transparent;color:#4A4550';
+    const desmQtd = DESM.reduce((t, d) => t + d[2] * m, 0);
+    const inadAbertas = INAD.filter((_, i) => !sent[i]);
+    const inadValor = INAD.reduce((t, x) => t + x[2], 0);
+    const maxServ = SERV[0][1];
+    const eq = EQ.map(([nome, func, ini, at, fat, oc, desm, ret]) => ({ nome, func, ini, at: at * m, fat: fat * m, oc, desm: desm * m, ret }));
+    const sorters = { fat: (a, b) => b.fat - a.fat, at: (a, b) => b.at - a.at, oc: (a, b) => b.oc - a.oc };
+    eq.sort(sorters[ord]);
+    return {
+      periodoLabel: P.label,
+      verSemana: () => this.setState({ per: 'semana' }),
+      verMes: () => this.setState({ per: 'mes' }),
+      btnSemana: key === 'semana' ? on : off,
+      btnMes: key === 'mes' ? on : off,
+      kpis: [
+        { label: 'Total de agendamentos', valor: String(P.total), sub: P.concl + ' concluídos', color: '' },
+        { label: 'Inadimplências', valor: String(INAD.length), sub: brl(inadValor) + ' em aberto', color: 'color:#8A3B12' },
+        { label: 'Desmarques e faltas', valor: String(desmQtd), sub: Math.round(desmQtd / P.total * 100) + '% dos agendamentos', color: 'color:#8A3B12' },
+        { label: 'Serviço mais pedido', valor: SERV[0][0], sub: SERV[0][1] * m + ' pedidos', color: 'color:#4A1D42' }
+      ],
+      top: { nome: SERV[0][0], qtd: SERV[0][1] * m, fat: brl(SERV[0][1] * m * SERV[0][2]) },
+      ranking: SERV.slice(1).map(([nome, q], i) => ({ pos: (i + 2) + 'º', nome, qtd: (q * m) + ' pedidos', bar: 'width:' + (q / maxServ * 100) + '%' })),
+      desm: DESM.map(([nome, desc, q, cor]) => ({ nome, desc, qtd: q * m, bar: 'width:' + (q * m / desmQtd * 100) + '%;background:' + cor })),
+      desmTotal: desmQtd,
+      horasPerdidas: (7 * m) + 'h',
+      valorPerdido: brl(640 * m),
+      ordens: [['fat', 'Faturamento'], ['at', 'Atendimentos'], ['oc', 'Ocupação']].map(([k, nome]) => ({
+        nome,
+        style: k === ord ? 'background:#1E1A22;color:#FFFFFF;border:1px solid #1E1A22;font-weight:600' : 'background:#FFFFFF;color:#1E1A22;border:1px solid #DDD7D0',
+        pick: () => this.setState({ ord: k })
+      })),
+      equipe: eq.map((e) => ({
+        ...e,
+        atend: e.at,
+        fat: brl(e.fat),
+        ticket: brl(e.fat / e.at),
+        oc: Math.round(e.oc * 100) + '%',
+        ocBar: 'width:' + (e.oc * 100) + '%',
+        desm: e.desm,
+        desmCor: e.desm >= 4 * m ? 'color:#8A3B12;font-weight:600' : '',
+        ret: Math.round(e.ret * 100) + '%'
+      })),
+      inadResumo: inadAbertas.length + ' sem cobrança · ' + brl(inadValor) + ' no total',
+      inad: INAD.map(([cliente, info, v, dias], i) => ({
+        cliente, info,
+        valor: brl(v),
+        atraso: dias + ' dias em atraso',
+        aberto: !sent[i],
+        enviado: !!sent[i],
+        cobrar: () => this.setState({ sent: { ...sent, [i]: true } })
+      }))
+    };
+  }
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,301 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<title>Agenda do dia</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+a{color:#CFC8D4;text-decoration:none}a:hover{color:#FFFFFF}
+button{font-family:inherit}
+</style>
+</helmet>
+<div style="min-height:100vh;display:flex;flex-wrap:wrap;background:#F6F4F1;font-family:'Plus Jakarta Sans',system-ui,sans-serif;color:#1E1A22">
+  <nav aria-label="Menu principal" style="flex:1 1 232px;box-sizing:border-box;background:#1E1A22;padding:24px 16px;display:flex;flex-direction:column;gap:4px">
+    <div style="display:flex;align-items:center;gap:10px;padding:0 8px 24px">
+      <div style="width:36px;height:36px;border-radius:10px;background:#6B2D5C;color:#FFFFFF;display:flex;align-items:center;justify-content:center;font-weight:700">A</div>
+      <div><div style="font-weight:700;font-size:15px;color:#FFFFFF">[Nome do App]</div><div style="font-size:12px;color:#B9B2BF">Seu Salão</div></div>
+    </div>
+    <a href="Main.dc.html" style="padding:12px 14px;border-radius:10px;background:#3A2F40;color:#FFFFFF;font-weight:600;font-size:14px">Agenda</a>
+    <a href="Escala.dc.html" style="padding:12px 14px;border-radius:10px;font-size:14px">Escala</a>
+    <a href="Servicos.dc.html" style="padding:12px 14px;border-radius:10px;font-size:14px">Serviços</a>
+    <a href="Dashboard.dc.html" style="padding:12px 14px;border-radius:10px;font-size:14px">Pagamentos</a>
+    <a href="Cliente.dc.html" style="padding:12px 14px;border-radius:10px;font-size:14px">Link de agendamento</a>
+    <div style="margin-top:16px;padding:0 14px 6px;font-size:11px;font-weight:600;letter-spacing:0.06em;text-transform:uppercase;color:#9C94A3">Gestão</div>
+    <a href="Gestora.dc.html" style="padding:12px 14px;border-radius:10px;font-size:14px;display:flex;align-items:center;gap:8px"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="11" width="16" height="10" rx="2"></rect><path d="M8 11V7a4 4 0 0 1 8 0v4"></path></svg>Painel da Gestora</a>
+  </nav>
+  <main style="flex:999 1 560px;min-width:0;box-sizing:border-box;padding:28px 32px;display:flex;flex-direction:column;gap:20px">
+    <header style="display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:12px">
+      <div>
+        <div style="font-size:13px;color:#6B6470">Sexta-feira, 27 de novembro</div>
+        <h1 style="margin:4px 0 0;font-size:26px;font-weight:700">Agenda do dia</h1>
+      </div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap">
+        <button onClick="{{abrirShare}}" style="height:44px;padding:0 16px;border-radius:10px;border:1px solid #1F7A6D;background:#FFFFFF;font-size:14px;font-weight:600;color:#145C52;display:flex;align-items:center;gap:8px;cursor:pointer">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 11.5a8.4 8.4 0 0 1-12.3 7.4L3 21l2.1-5.6A8.4 8.4 0 1 1 21 11.5z"></path></svg>
+          Enviar link pelo WhatsApp
+        </button>
+        <button onClick="{{abrirNovo}}" style="height:44px;padding:0 18px;border-radius:10px;border:0;background:#6B2D5C;color:#FFFFFF;font-size:14px;font-weight:600;cursor:pointer">+ Novo agendamento</button>
+      </div>
+    </header>
+
+    <section aria-label="Resumo do dia" style="display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px">
+      <div style="background:#FFFFFF;border-radius:14px;padding:16px 18px;border:1px solid #ECE7E1"><div style="font-size:12px;color:#6B6470">Agendamentos hoje</div><div style="font-size:24px;font-weight:700;margin-top:4px">{{total}}</div></div>
+      <div style="background:#FFFFFF;border-radius:14px;padding:16px 18px;border:1px solid #ECE7E1"><div style="font-size:12px;color:#6B6470">Recebido hoje</div><div style="font-size:24px;font-weight:700;margin-top:4px;color:#145C52">{{recebido}}</div></div>
+      <div style="background:#FFFFFF;border-radius:14px;padding:16px 18px;border:1px solid #ECE7E1"><div style="font-size:12px;color:#6B6470">A receber</div><div style="font-size:24px;font-weight:700;margin-top:4px">{{areceber}}</div></div>
+      <div style="background:#FFFFFF;border-radius:14px;padding:16px 18px;border:1px solid #ECE7E1"><div style="font-size:12px;color:#6B6470">Faltas</div><div style="font-size:24px;font-weight:700;margin-top:4px;color:#8A3B12">{{faltas}}</div></div>
+    </section>
+
+    <div style="display:flex;flex-wrap:wrap;gap:16px;align-items:flex-start">
+      <section aria-label="Agenda por profissional" style="flex:999 1 600px;min-width:0;background:#FFFFFF;border-radius:16px;border:1px solid #ECE7E1;overflow-x:auto">
+        <div style="min-width:820px">
+          <div style="display:flex;border-bottom:1px solid #ECE7E1">
+            <div style="width:56px;flex:none"></div>
+            <sc-for list="{{cols}}" as="c" hint-placeholder-count="5">
+              <div style="flex:1;padding:12px 8px;display:flex;align-items:center;gap:8px;border-left:1px solid #F0ECE7">
+                <div style="width:32px;height:32px;border-radius:50%;background:#F1E6EE;color:#5A2450;font-size:13px;font-weight:700;display:flex;align-items:center;justify-content:center">{{c.ini}}</div>
+                <div><div style="font-size:13px;font-weight:600">{{c.nome}}</div><div style="font-size:11px;color:#6B6470">{{c.func}}</div></div>
+              </div>
+            </sc-for>
+          </div>
+          <div style="display:flex">
+            <div style="width:56px;flex:none">
+              <sc-for list="{{hours}}" as="h" hint-placeholder-count="10">
+                <div style="height:64px;box-sizing:border-box;padding:4px 8px 0 0;text-align:right;font-size:11px;color:#6B6470">{{h}}</div>
+              </sc-for>
+            </div>
+            <sc-for list="{{cols}}" as="c" hint-placeholder-count="5">
+              <div style="flex:1;position:relative;height:640px;border-left:1px solid #F0ECE7;background-image:repeating-linear-gradient(to bottom,#EEEAE5 0,#EEEAE5 1px,transparent 1px,transparent 64px)">
+                <sc-for list="{{c.appts}}" as="a" hint-placeholder-count="3">
+                  <button onClick="{{a.pick}}" aria-label="{{a.aria}}" style="position:absolute;left:4px;right:4px;box-sizing:border-box;padding:4px 8px;border-radius:8px;text-align:left;cursor:pointer;overflow:hidden;{{a.style}}">
+                    <div style="font-size:12px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{a.cliente}}</div>
+                    <div style="font-size:11px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{a.hora}} · {{a.servico}}</div>
+                  </button>
+                </sc-for>
+              </div>
+            </sc-for>
+          </div>
+        </div>
+      </section>
+
+      <aside aria-label="Painel lateral" style="flex:1 1 300px;background:#FFFFFF;border-radius:16px;border:1px solid #ECE7E1;padding:20px;display:flex;flex-direction:column;gap:14px">
+        <sc-if value="{{pShare}}" hint-placeholder-val="{{ false }}">
+          <div style="display:flex;justify-content:space-between;align-items:center"><div style="font-size:12px;color:#6B6470;font-weight:600;letter-spacing:0.04em;text-transform:uppercase">Link pelo WhatsApp</div><button onClick="{{fechar}}" aria-label="Fechar" style="width:36px;height:36px;border-radius:8px;border:0;background:#F6F4F1;cursor:pointer;font-size:16px;color:#1E1A22">×</button></div>
+          <p style="margin:0;font-size:13px;color:#4A4550">A cliente recebe a mensagem no WhatsApp, toca no link e escolhe serviço, profissional e horário. Os horários que a recepção já marcou aparecem como ocupados.</p>
+          <label style="display:flex;flex-direction:column;gap:6px;font-size:13px;font-weight:600">WhatsApp da cliente
+            <input type="tel" value="{{fone}}" onChange="{{setFone}}" placeholder="(00) 00000-0000" style="height:44px;border-radius:10px;border:1px solid #DDD7D0;padding:0 12px;font-size:15px;font-family:inherit">
+          </label>
+          <div style="background:#E9F4EF;border-radius:12px;padding:12px 14px;font-size:13px;color:#1E3B35;white-space:pre-line">{{msg}}</div>
+          <a href="{{waHref}}" style="height:48px;border-radius:12px;background:#1F7A6D;color:#FFFFFF;font-size:15px;font-weight:700;display:flex;align-items:center;justify-content:center;gap:8px">Abrir no WhatsApp</a>
+          <div style="font-size:12px;color:#6B6470">Seu link fixo: <strong style="color:#1E1A22">{{link}}</strong>. Dá para colocar na bio do Instagram e na mensagem automática do WhatsApp Business.</div>
+          <a href="Cliente.dc.html" style="font-size:13px;font-weight:600;color:#6B2D5C">Ver o que a cliente vê →</a>
+        </sc-if>
+
+        <sc-if value="{{pNovo}}" hint-placeholder-val="{{ false }}">
+          <div style="display:flex;justify-content:space-between;align-items:center"><div style="font-size:12px;color:#6B6470;font-weight:600;letter-spacing:0.04em;text-transform:uppercase">Novo agendamento · recepção</div><button onClick="{{fechar}}" aria-label="Fechar" style="width:36px;height:36px;border-radius:8px;border:0;background:#F6F4F1;cursor:pointer;font-size:16px;color:#1E1A22">×</button></div>
+          <label style="display:flex;flex-direction:column;gap:6px;font-size:13px;font-weight:600">Cliente
+            <input type="text" value="{{form.cliente}}" onChange="{{setCliente}}" placeholder="Nome da cliente" style="height:44px;border-radius:10px;border:1px solid #DDD7D0;padding:0 12px;font-size:15px;font-family:inherit">
+          </label>
+          <label style="display:flex;flex-direction:column;gap:6px;font-size:13px;font-weight:600">Serviço
+            <select value="{{form.serv}}" onChange="{{setServ}}" style="height:44px;border-radius:10px;border:1px solid #DDD7D0;padding:0 10px;font-size:15px;font-family:inherit;background:#FFFFFF">
+              <sc-for list="{{servOpts}}" as="o" hint-placeholder-count="5"><option value="{{o.v}}">{{o.l}}</option></sc-for>
+            </select>
+          </label>
+          <label style="display:flex;flex-direction:column;gap:6px;font-size:13px;font-weight:600">Profissional
+            <select value="{{form.prof}}" onChange="{{setProf}}" style="height:44px;border-radius:10px;border:1px solid #DDD7D0;padding:0 10px;font-size:15px;font-family:inherit;background:#FFFFFF">
+              <sc-for list="{{profOpts}}" as="o" hint-placeholder-count="5"><option value="{{o.v}}">{{o.l}}</option></sc-for>
+            </select>
+          </label>
+          <div style="font-size:13px;font-weight:600">Horários livres hoje</div>
+          <div style="display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px">
+            <sc-for list="{{slots}}" as="h" hint-placeholder-count="8">
+              <button onClick="{{h.pick}}" style="height:40px;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;{{h.style}}">{{h.hora}}</button>
+            </sc-for>
+          </div>
+          <button onClick="{{salvar}}" style="height:48px;border-radius:12px;border:0;background:#6B2D5C;color:#FFFFFF;font-size:15px;font-weight:700;cursor:pointer">Salvar na agenda</button>
+          <div style="font-size:12px;color:#6B6470">Assim que salvar, o horário some do link de agendamento online.</div>
+        </sc-if>
+
+        <sc-if value="{{pDet}}" hint-placeholder-val="{{ true }}">
+        <div style="font-size:12px;color:#6B6470;font-weight:600;letter-spacing:0.04em;text-transform:uppercase">Agendamento</div>
+        <div>
+          <div style="font-size:20px;font-weight:700">{{sel.cliente}}</div>
+          <div style="font-size:14px;color:#4A4550;margin-top:2px">{{sel.servico}}</div>
+        </div>
+        <div style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;font-size:13px">
+          <div><div style="color:#6B6470;font-size:12px">Profissional</div><div style="font-weight:600">{{sel.prof}}</div></div>
+          <div><div style="color:#6B6470;font-size:12px">Horário</div><div style="font-weight:600">{{sel.faixa}}</div></div>
+          <div><div style="color:#6B6470;font-size:12px">Valor</div><div style="font-weight:600">{{sel.valorFmt}}</div></div>
+          <div><div style="color:#6B6470;font-size:12px">Status</div><div style="font-weight:600;{{sel.statusColor}}">{{sel.statusLabel}}</div></div>
+          <div style="grid-column:1 / -1"><div style="color:#6B6470;font-size:12px">Origem</div><div style="font-weight:600">{{sel.origem}}</div></div>
+        </div>
+        <sc-if value="{{sel.podePagar}}" hint-placeholder-val="{{ true }}">
+          <div style="border-top:1px solid #ECE7E1;padding-top:14px;display:flex;flex-direction:column;gap:8px">
+            <div style="font-size:13px;font-weight:600">Registrar pagamento</div>
+            <div style="display:flex;gap:8px;flex-wrap:wrap">
+              <button onClick="{{payPix}}" style="flex:1;min-width:72px;height:44px;border-radius:10px;border:0;background:#6B2D5C;color:#FFFFFF;font-size:14px;font-weight:600">Pix</button>
+              <button onClick="{{payCartao}}" style="flex:1;min-width:72px;height:44px;border-radius:10px;border:1px solid #DDD7D0;background:#FFFFFF;font-size:14px;color:#1E1A22">Cartão</button>
+              <button onClick="{{payDinheiro}}" style="flex:1;min-width:72px;height:44px;border-radius:10px;border:1px solid #DDD7D0;background:#FFFFFF;font-size:14px;color:#1E1A22">Dinheiro</button>
+            </div>
+            <button onClick="{{markFalta}}" style="height:44px;border-radius:10px;border:0;background:transparent;color:#8A3B12;font-size:13px;font-weight:600">Marcar como falta</button>
+          </div>
+        </sc-if>
+        <sc-if value="{{sel.pago}}" hint-placeholder-val="{{ false }}">
+          <div style="border-radius:10px;background:#E3F2EE;color:#145C52;padding:12px;font-size:13px;font-weight:600">Pago via {{sel.metodo}} · comissão de {{sel.prof}}: {{sel.comissao}}</div>
+        </sc-if>
+        <div style="display:flex;flex-wrap:wrap;gap:10px;font-size:11px;color:#4A4550;border-top:1px solid #ECE7E1;padding-top:12px">
+          <span style="display:flex;align-items:center;gap:4px"><span style="width:10px;height:10px;border-radius:3px;background:#CFE8E1"></span>Pago</span>
+          <span style="display:flex;align-items:center;gap:4px"><span style="width:10px;height:10px;border-radius:3px;background:#EBD9E6"></span>Confirmado</span>
+          <span style="display:flex;align-items:center;gap:4px"><span style="width:10px;height:10px;border-radius:3px;background:#E9E6E2"></span>Agendado</span>
+          <span style="display:flex;align-items:center;gap:4px"><span style="width:10px;height:10px;border-radius:3px;background:#F8DCC8"></span>Faltou</span>
+        </div>
+        </sc-if>
+      </aside>
+    </div>
+  </main>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1360,"height":1000}}'>
+const PROFS = [
+  { id: 'cam', nome: 'Camila', func: 'Cabeleireira', ini: 'CA' },
+  { id: 'jul', nome: 'Juliana', func: 'Manicure', ini: 'JU' },
+  { id: 'raf', nome: 'Rafael', func: 'Barbeiro', ini: 'RA' },
+  { id: 'bia', nome: 'Bianca', func: 'Esteticista', ini: 'BI' },
+  { id: 'thi', nome: 'Thiago', func: 'Cabeleireiro', ini: 'TH' }
+];
+const APPTS = [
+  ['a1','cam',9,60,'Marina S.','Corte + escova',120,'pago','Pix','link'],
+  ['a2','cam',10.5,120,'Patrícia L.','Coloração',280,'confirmado',null,'rec'],
+  ['a3','cam',13,90,'Fernanda R.','Mechas',350,'agendado',null,'link'],
+  ['a4','cam',15.5,60,'Lúcia M.','Escova',70,'agendado',null,'rec'],
+  ['a5','jul',9,45,'Ana P.','Mão + pé',75,'pago','Cartão','link'],
+  ['a6','jul',10,45,'Carla D.','Mão',40,'faltou',null,'link'],
+  ['a7','jul',11,60,'Beatriz T.','Alongamento em gel',160,'confirmado',null,'rec'],
+  ['a8','jul',14,45,'Renata F.','Mão + pé',75,'agendado',null,'link'],
+  ['a9','jul',16,60,'Sofia A.','Spa dos pés',90,'agendado',null,'rec'],
+  ['a10','raf',9.5,30,'Lucas M.','Corte masculino',50,'pago','Dinheiro','rec'],
+  ['a11','raf',10,45,'Pedro H.','Corte + barba',80,'pago','Pix','link'],
+  ['a12','raf',11.5,30,'João V.','Barba',40,'confirmado',null,'link'],
+  ['a13','raf',14.5,45,'André C.','Corte + barba',80,'agendado',null,'rec'],
+  ['a14','raf',17,30,'Diego S.','Corte masculino',50,'agendado',null,'link'],
+  ['a15','bia',9,60,'Helena G.','Limpeza de pele',180,'pago','Pix','link'],
+  ['a16','bia',11,60,'Larissa N.','Design de sobrancelha',60,'confirmado',null,'rec'],
+  ['a17','bia',15,90,'Vanessa K.','Drenagem',150,'agendado',null,'link'],
+  ['a18','thi',10,60,'Gabriela O.','Corte feminino',90,'confirmado',null,'link'],
+  ['a19','thi',13.5,120,'Paula E.','Progressiva',320,'agendado',null,'rec'],
+  ['a20','thi',16.5,60,'Rodrigo B.','Corte masculino',50,'agendado',null,'link']
+];
+const SERVS = [['Corte feminino', 60, 90], ['Escova', 60, 70], ['Mão + pé', 45, 75], ['Corte masculino', 30, 50], ['Corte + barba', 45, 80], ['Limpeza de pele', 60, 180]];
+const ST = {
+  pago: { label: 'Pago', bg: '#CFE8E1', fg: '#0F4A42' },
+  confirmado: { label: 'Confirmado', bg: '#EBD9E6', fg: '#4A1D42' },
+  agendado: { label: 'Agendado', bg: '#E9E6E2', fg: '#3A3540' },
+  faltou: { label: 'Faltou', bg: '#F8DCC8', fg: '#7A3310' }
+};
+const ORIG = { link: 'Cliente pelo link (WhatsApp)', rec: 'Recepção / gestora' };
+const LINK = 'seuapp.com.br/seu-salao';
+const brl = (v) => 'R$ ' + v.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+const hh = (h) => { const H = Math.floor(h), m = Math.round((h - H) * 60); return String(H).padStart(2, '0') + ':' + String(m).padStart(2, '0'); };
+
+class Component extends DCLogic {
+  renderVals() {
+    const s = this.state || {};
+    const selId = s.sel || 'a3';
+    const over = s.over || {};
+    const extra = s.extra || [];
+    const panel = s.panel || null;
+    const form = s.form || { cliente: '', serv: '0', prof: 'cam', hora: null };
+    const raw = APPTS.concat(extra);
+    const all = raw.map(([id, p, h, dur, cliente, servico, valor, status, metodo, orig]) => {
+      const o = over[id] || {};
+      const st = o.status || status;
+      const c = ST[st];
+      const prof = PROFS.find((x) => x.id === p);
+      return {
+        id, p, h, dur, cliente, servico, valor, status: st, metodo: o.metodo || metodo,
+        origem: ORIG[orig],
+        hora: hh(h), faixa: hh(h) + ' – ' + hh(h + dur / 60),
+        prof: prof.nome, statusLabel: c.label,
+        aria: cliente + ', ' + servico + ', ' + hh(h) + ', ' + c.label,
+        style: 'top:' + ((h - 9) * 64 + 2) + 'px;height:' + (dur / 60 * 64 - 4) + 'px;background:' + c.bg + ';color:' + c.fg + ';border:2px solid ' + (id === selId ? '#6B2D5C' : 'transparent'),
+        pick: () => this.setState({ sel: id, panel: null })
+      };
+    });
+    const setSt = (status, metodo) => this.setState({ over: { ...over, [selId]: { status, metodo } } });
+    const cur = all.find((a) => a.id === selId) || all[0];
+    const recebido = all.filter((a) => a.status === 'pago').reduce((t, a) => t + a.valor, 0);
+    const areceber = all.filter((a) => a.status === 'agendado' || a.status === 'confirmado').reduce((t, a) => t + a.valor, 0);
+
+    const sv = SERVS[Number(form.serv)];
+    const durH = sv[1] / 60;
+    const busy = all.filter((a) => a.p === form.prof && a.status !== 'faltou');
+    const slots = [];
+    for (let h = 9; h + durH <= 19; h += 0.5) {
+      const clash = busy.some((a) => h < a.h + a.dur / 60 && a.h < h + durH);
+      if (!clash) slots.push(h);
+    }
+    const setForm = (patch) => this.setState({ form: { ...form, ...patch } });
+
+    const digits = (s.fone || '').replace(/\D/g, '');
+    const msg = 'Olá! Para agendar seu horário no Seu Salão, é só tocar no link e escolher o serviço, a profissional e o horário:\n' + LINK;
+    const waHref = 'https://wa.me/' + (digits ? '55' + digits : '') + '?text=' + encodeURIComponent(msg.replace('\n', ' https://'));
+
+    return {
+      cols: PROFS.map((p) => ({ ...p, appts: all.filter((a) => a.p === p.id) })),
+      hours: [9, 10, 11, 12, 13, 14, 15, 16, 17, 18].map((h) => hh(h)),
+      total: all.length,
+      recebido: brl(recebido),
+      areceber: brl(areceber),
+      faltas: all.filter((a) => a.status === 'faltou').length,
+      pShare: panel === 'share',
+      pNovo: panel === 'novo',
+      pDet: !panel,
+      abrirShare: () => this.setState({ panel: 'share' }),
+      abrirNovo: () => this.setState({ panel: 'novo' }),
+      fechar: () => this.setState({ panel: null }),
+      fone: s.fone || '',
+      setFone: (e) => this.setState({ fone: e.target.value }),
+      msg,
+      waHref,
+      link: LINK,
+      form,
+      setCliente: (e) => setForm({ cliente: e.target.value }),
+      setServ: (e) => setForm({ serv: e.target.value, hora: null }),
+      setProf: (e) => setForm({ prof: e.target.value, hora: null }),
+      servOpts: SERVS.map((x, i) => ({ v: String(i), l: x[0] + ' · ' + x[1] + ' min' })),
+      profOpts: PROFS.map((p) => ({ v: p.id, l: p.nome + ' · ' + p.func })),
+      slots: slots.map((h) => ({
+        hora: hh(h),
+        style: form.hora === h ? 'background:#6B2D5C;color:#FFFFFF;border:1px solid #6B2D5C' : 'background:#FFFFFF;color:#4A1D42;border:1px solid #E2CCDC',
+        pick: () => setForm({ hora: h })
+      })),
+      salvar: () => {
+        if (form.hora == null) return;
+        const id = 'n' + (extra.length + 1);
+        const novo = [id, form.prof, form.hora, sv[1], form.cliente || 'Nova cliente', sv[0], sv[2], 'agendado', null, 'rec'];
+        this.setState({ extra: extra.concat([novo]), sel: id, panel: null, form: { cliente: '', serv: form.serv, prof: form.prof, hora: null } });
+      },
+      sel: {
+        ...cur,
+        valorFmt: brl(cur.valor),
+        statusColor: 'color:' + ST[cur.status].fg,
+        podePagar: cur.status === 'agendado' || cur.status === 'confirmado',
+        pago: cur.status === 'pago',
+        comissao: brl(cur.valor * 0.4)
+      },
+      payPix: () => setSt('pago', 'Pix'),
+      payCartao: () => setSt('pago', 'Cartão'),
+      payDinheiro: () => setSt('pago', 'Dinheiro'),
+      markFalta: () => setSt('faltou')
+    };
+  }
+}
+</script>
+</body>
+</html>
