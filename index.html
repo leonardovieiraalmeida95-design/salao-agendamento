@@ -3,20 +3,20 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>App de Agendamento para Salão — Protótipo</title>
+<title>Salão da Cristina — Agendamento</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
 *{box-sizing:border-box}
 body{margin:0;font-family:'Plus Jakarta Sans',system-ui,sans-serif;background:#F6F4F1;color:#1E1A22}
 button,input,select{font-family:inherit}
-.wrap{min-height:100vh;display:flex;flex-wrap:wrap}
-.side{flex:1 1 232px;background:#1E1A22;padding:24px 16px;display:flex;flex-direction:column;gap:4px}
+.wrap{min-height:100vh;display:flex;flex-wrap:wrap;align-content:flex-start}
+.side{flex:1 1 232px;background:#1E1A22;padding:24px 16px;display:flex;flex-direction:column;gap:4px;min-height:100vh}
 .side a{padding:12px 14px;border-radius:10px;font-size:14px;color:#CFC8D4;text-decoration:none;display:flex;align-items:center;gap:8px}
 .side a:hover{color:#fff}
 .side a.on{background:#3A2F40;color:#fff;font-weight:600}
 .brand{display:flex;align-items:center;gap:10px;padding:0 8px 24px}
-.logo{width:36px;height:36px;border-radius:10px;background:#6B2D5C;color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700}
+.logo{width:36px;height:36px;border-radius:10px;background:#6B2D5C;color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700;flex:none}
 .sec{margin-top:16px;padding:0 14px 6px;font-size:11px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:#9C94A3}
 main{flex:999 1 560px;min-width:0;padding:28px 32px;display:flex;flex-direction:column;gap:20px}
 .top{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:12px}
@@ -24,16 +24,17 @@ h1{margin:4px 0 0;font-size:26px}
 h2{margin:0;font-size:16px}
 .sub{font-size:13px;color:#6B6470}
 .card{background:#fff;border:1px solid #ECE7E1;border-radius:16px;padding:20px}
-.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:12px}
-.kpi{background:#fff;border:1px solid #ECE7E1;border-radius:14px;padding:16px 18px}
-.kl{font-size:12px;color:#6B6470}.kv{font-size:24px;font-weight:700;margin-top:4px}.ks{font-size:12px;color:#4A4550;margin-top:4px}
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:12px}
+.kpi{background:#fff;border:1px solid #ECE7E1;border-radius:14px;padding:16px 18px;min-width:0}
+.kl{font-size:12px;color:#6B6470}.kv{font-size:24px;font-weight:700;margin-top:4px;overflow-wrap:anywhere}.ks{font-size:12px;color:#4A4550;margin-top:4px}
 .btn{height:44px;padding:0 18px;border-radius:10px;border:0;background:#6B2D5C;color:#fff;font-size:14px;font-weight:600;cursor:pointer}
+.btn:disabled{opacity:.5;cursor:not-allowed}
 .btn2{height:44px;padding:0 16px;border-radius:10px;border:1px solid #DDD7D0;background:#fff;color:#1E1A22;font-size:14px;cursor:pointer}
 .btnwa{height:44px;padding:0 16px;border-radius:10px;border:1px solid #1F7A6D;background:#fff;color:#145C52;font-size:14px;font-weight:600;cursor:pointer;display:flex;align-items:center;gap:8px}
 .seg{display:flex;background:#ECE7E1;border-radius:12px;padding:4px;gap:4px}
 .seg button{height:40px;padding:0 18px;border-radius:9px;border:0;background:transparent;color:#4A4550;font-size:14px;cursor:pointer}
 .seg button.on{background:#fff;color:#1E1A22;font-weight:600;box-shadow:0 1px 2px rgba(0,0,0,.08)}
-.pill{height:38px;padding:0 14px;border-radius:19px;border:1px solid #DDD7D0;background:#fff;color:#1E1A22;font-size:13px;cursor:pointer}
+.pill{height:38px;padding:0 14px;border-radius:19px;border:1px solid #DDD7D0;background:#fff;color:#1E1A22;font-size:13px;cursor:pointer;white-space:nowrap}
 .pill.on{background:#1E1A22;color:#fff;border-color:#1E1A22;font-weight:600}
 .bar{height:8px;border-radius:4px;background:#F0ECE7;overflow:hidden}.bar>i{display:block;height:100%;border-radius:4px}
 .av{width:34px;height:34px;border-radius:50%;background:#F1E6EE;color:#5A2450;font-size:12px;font-weight:700;display:flex;align-items:center;justify-content:center;flex:none}
@@ -43,60 +44,110 @@ h2{margin:0;font-size:16px}
 .r{text-align:right}
 .scroll{overflow-x:auto}
 input,select{height:44px;border-radius:10px;border:1px solid #DDD7D0;padding:0 12px;font-size:15px;background:#fff;color:#1E1A22;width:100%}
+input[type=checkbox]{width:20px;height:20px;accent-color:#6B2D5C;flex:none}
 label.f{display:flex;flex-direction:column;gap:6px;font-size:13px;font-weight:600}
 .tag{display:inline-block;padding:4px 10px;border-radius:12px;font-size:12px;font-weight:600}
 .flexrow{display:flex;flex-wrap:wrap;gap:16px;align-items:flex-start}
 .cap{font-size:12px;color:#6B6470;font-weight:600;letter-spacing:.04em;text-transform:uppercase}
 .x{width:36px;height:36px;border-radius:8px;border:0;background:#F6F4F1;cursor:pointer;font-size:18px;color:#1E1A22}
-.appt{position:absolute;left:4px;right:4px;padding:4px 8px;border-radius:8px;text-align:left;cursor:pointer;overflow:hidden;border:2px solid transparent}
+.appt{position:absolute;left:4px;right:4px;padding:4px 8px;border-radius:8px;text-align:left;cursor:pointer;overflow:hidden;border:2px solid transparent;font-family:inherit}
 .appt div{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.phonewrap{flex:999 1 560px;display:flex;justify-content:center;align-items:flex-start;padding:28px 16px}
-.phone{width:390px;max-width:100%;height:844px;max-height:calc(100vh - 56px);min-height:640px;background:#F6F4F1;border-radius:28px;border:1px solid #DDD7D0;overflow:hidden;display:flex;flex-direction:column;box-shadow:0 8px 30px rgba(30,26,34,.12)}
+.blk{position:absolute;left:0;right:0;background:repeating-linear-gradient(45deg,#F3F0EC 0,#F3F0EC 6px,#ECE8E3 6px,#ECE8E3 12px);font-size:11px;color:#6B6470;display:flex;align-items:center;justify-content:center}
 .opt{min-height:64px;border-radius:12px;border:1px solid #ECE7E1;background:#fff;padding:12px 16px;display:flex;align-items:center;justify-content:space-between;gap:12px;text-align:left;cursor:pointer;color:#1E1A22;width:100%}
-.note{font-size:12px;color:#6B6470;padding:8px 14px}
+.toast{background:#E3F2EE;color:#145C52;border-radius:12px;padding:12px 16px;font-size:14px;font-weight:600;display:flex;justify-content:space-between;gap:12px;align-items:center}
+.err{color:#9A2D0F;font-size:12px;font-weight:600}
+.chips{display:flex;gap:6px;overflow-x:auto;padding-bottom:4px}
+.mcard{border:1px solid #ECE7E1;border-radius:14px;padding:14px;display:flex;flex-direction:column;gap:10px;background:#fff}
+.preview{flex:999 1 560px;min-width:0;display:flex;flex-wrap:wrap;gap:24px;justify-content:center;align-items:flex-start;padding:28px 16px}
+.phone{width:390px;max-width:100%;height:780px;background:#F6F4F1;border-radius:28px;border:1px solid #DDD7D0;overflow:hidden;display:flex;flex-direction:column;box-shadow:0 8px 30px rgba(30,26,34,.12)}
+.pub{min-height:100vh;display:flex;justify-content:center;background:#ECE7E1}
+.pub .book{width:100%;max-width:560px;background:#F6F4F1;min-height:100vh;display:flex;flex-direction:column}
+@media (min-width:760px){.pub{padding:32px 16px}.pub .book{min-height:0;border-radius:24px;overflow:hidden;box-shadow:0 8px 30px rgba(30,26,34,.12)}}
+@media (max-width:759px){
+  .side{flex:1 1 100%;min-height:0;flex-direction:row;flex-wrap:nowrap;overflow-x:auto;padding:10px 12px;gap:4px;align-items:center;position:sticky;top:0;z-index:5}
+  .brand{padding:0 8px 0 0}.brand .bt{display:none}
+  .side a{flex:none;padding:10px 12px;white-space:nowrap;font-size:13px}
+  .sec,.note{display:none}
+  main{padding:16px;gap:16px}
+  h1{font-size:22px}
+  .card{padding:16px}
+  .kpis{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .kv{font-size:20px}
+  .preview{padding:0}
+}
 </style>
 </head>
 <body>
 <div id="app"></div>
 <script>
-const brl2 = (v) => 'R$ ' + v.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+const SALAO = 'Salão da Cristina';
+const brl2 = (v) => 'R$ ' + Number(v).toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 const brl = (v) => 'R$ ' + Math.round(v).toLocaleString('pt-BR');
 const hh = (h) => { const H = Math.floor(h), m = Math.round((h - H) * 60); return String(H).padStart(2, '0') + ':' + String(m).padStart(2, '0'); };
 const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+const durTxt = (m) => m < 60 ? m + ' min' : (m % 60 ? Math.floor(m / 60) + 'h' + String(m % 60).padStart(2, '0') : (m / 60) + 'h');
 const LOCK = '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="11" width="16" height="10" rx="2"></rect><path d="M8 11V7a4 4 0 0 1 8 0v4"></path></svg>';
 const WA = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 11.5a8.4 8.4 0 0 1-12.3 7.4L3 21l2.1-5.6A8.4 8.4 0 1 1 21 11.5z"></path></svg>';
+const BACK = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 18l-6-6 6-6"></path></svg>';
+const isM = () => window.innerWidth < 760;
 
-/* ---------- dados de exemplo ---------- */
+/* ================= DADOS (exemplo) ================= */
+// Escala: início, fim (horas), dias Seg..Dom. Almoço 12–13 para todos.
 const PROFS = [
-  { id: 'cam', nome: 'Camila', func: 'Cabeleireira', ini: 'CA', com: 0.40 },
-  { id: 'jul', nome: 'Juliana', func: 'Manicure', ini: 'JU', com: 0.50 },
-  { id: 'raf', nome: 'Rafael', func: 'Barbeiro', ini: 'RA', com: 0.45 },
-  { id: 'bia', nome: 'Bianca', func: 'Esteticista', ini: 'BI', com: 0.40 },
-  { id: 'thi', nome: 'Thiago', func: 'Cabeleireiro', ini: 'TH', com: 0.40 }
+  { id: 'cam', nome: 'Camila', func: 'Cabeleireira', ini: 'CA', com: 0.40, h0: 9, h1: 18, dias: [0,1,1,1,1,1,0] },
+  { id: 'jul', nome: 'Juliana', func: 'Manicure', ini: 'JU', com: 0.50, h0: 9, h1: 18, dias: [0,1,1,0,1,1,0] },
+  { id: 'raf', nome: 'Rafael', func: 'Barbeiro', ini: 'RA', com: 0.45, h0: 9, h1: 19, dias: [0,1,1,1,1,1,0] },
+  { id: 'bia', nome: 'Bianca', func: 'Esteticista', ini: 'BI', com: 0.40, h0: 10, h1: 19, dias: [0,0,1,1,1,1,0] },
+  { id: 'thi', nome: 'Thiago', func: 'Cabeleireiro', ini: 'TH', com: 0.40, h0: 10, h1: 19, dias: [0,1,0,1,1,1,0] }
 ];
 const PF = Object.fromEntries(PROFS.map((p) => [p.id, p]));
-const APPTS = [
-  ['a1','cam',9,60,'Marina S.','Corte + escova',120,'pago','Pix','link'],
-  ['a2','cam',10.5,120,'Patrícia L.','Coloração',280,'confirmado',null,'rec'],
-  ['a3','cam',13,90,'Fernanda R.','Mechas',350,'agendado',null,'link'],
-  ['a4','cam',15.5,60,'Lúcia M.','Escova',70,'agendado',null,'rec'],
-  ['a5','jul',9,45,'Ana P.','Mão + pé',75,'pago','Cartão','link'],
-  ['a6','jul',10,45,'Carla D.','Mão',40,'faltou',null,'link'],
-  ['a7','jul',11,60,'Beatriz T.','Alongamento em gel',160,'confirmado',null,'rec'],
-  ['a8','jul',14,45,'Renata F.','Mão + pé',75,'agendado',null,'link'],
-  ['a9','jul',16,60,'Sofia A.','Spa dos pés',90,'agendado',null,'rec'],
-  ['a10','raf',9.5,30,'Lucas M.','Corte masculino',50,'pago','Dinheiro','rec'],
-  ['a11','raf',10,45,'Pedro H.','Corte + barba',80,'pago','Pix','link'],
-  ['a12','raf',11.5,30,'João V.','Barba',40,'confirmado',null,'link'],
-  ['a13','raf',14.5,45,'André C.','Corte + barba',80,'agendado',null,'rec'],
-  ['a14','raf',17,30,'Diego S.','Corte masculino',50,'agendado',null,'link'],
-  ['a15','bia',9,60,'Helena G.','Limpeza de pele',180,'pago','Pix','link'],
-  ['a16','bia',11,60,'Larissa N.','Design de sobrancelha',60,'confirmado',null,'rec'],
-  ['a17','bia',15,90,'Vanessa K.','Drenagem',150,'agendado',null,'link'],
-  ['a18','thi',10,60,'Gabriela O.','Corte feminino',90,'confirmado',null,'link'],
-  ['a19','thi',13.5,120,'Paula E.','Progressiva',320,'agendado',null,'rec'],
-  ['a20','thi',16.5,60,'Rodrigo B.','Corte masculino',50,'agendado',null,'link']
+const PI = Object.fromEntries(PROFS.map((p, i) => [p.id, i]));
+const ALMOCO = [12, 13];
+const AG_INI = 9, AG_FIM = 19;
+const svc = (id, nome, cat, dur, preco, profs, online, sinal) => ({ id, nome, cat, dur, preco, profs, online, sinal: sinal == null ? (preco >= 150 ? 30 : 0) : sinal, com: null });
+const SERV0 = [
+  svc('cfem', 'Corte feminino', 'Cabelo', 60, 90, ['cam', 'thi'], true),
+  svc('escova', 'Escova', 'Cabelo', 60, 70, ['cam', 'thi'], true),
+  svc('color', 'Coloração', 'Cabelo', 120, 280, ['cam'], true),
+  svc('mechas', 'Mechas', 'Cabelo', 90, 350, ['cam'], false),
+  svc('prog', 'Progressiva', 'Cabelo', 120, 320, ['thi'], false),
+  svc('mao', 'Mão', 'Unhas', 45, 40, ['jul'], true),
+  svc('maope', 'Mão + pé', 'Unhas', 45, 75, ['jul'], true),
+  svc('gel', 'Alongamento em gel', 'Unhas', 60, 160, ['jul'], true),
+  svc('spa', 'Spa dos pés', 'Unhas', 60, 90, ['jul'], true),
+  svc('cmasc', 'Corte masculino', 'Barbearia', 30, 50, ['raf', 'thi'], true),
+  svc('cbarba', 'Corte + barba', 'Barbearia', 45, 80, ['raf'], true),
+  svc('barba', 'Barba', 'Barbearia', 30, 40, ['raf'], true),
+  svc('limp', 'Limpeza de pele', 'Estética', 60, 180, ['bia'], true),
+  svc('sobr', 'Design de sobrancelha', 'Estética', 30, 60, ['bia'], true),
+  svc('dren', 'Drenagem', 'Estética', 90, 150, ['bia'], true)
 ];
+// [id, profissional, dia(0=hoje), hora, serviço, cliente, status, forma, origem]
+const APPT0 = [
+  ['a1','cam',0,9,'escova','Marina S.','pago','Pix','link'],
+  ['a2','cam',0,10,'color','Patrícia L.','confirmado',null,'rec'],
+  ['a3','cam',0,13,'mechas','Fernanda R.','agendado',null,'rec'],
+  ['a4','cam',0,15.5,'escova','Lúcia M.','agendado',null,'rec'],
+  ['a5','jul',0,9,'maope','Ana P.','pago','Cartão','link'],
+  ['a6','jul',0,10,'mao','Carla D.','faltou',null,'link'],
+  ['a7','jul',0,11,'gel','Beatriz T.','confirmado',null,'rec'],
+  ['a8','jul',0,14,'maope','Renata F.','agendado',null,'link'],
+  ['a9','jul',0,16,'spa','Sofia A.','agendado',null,'rec'],
+  ['a10','raf',0,9.5,'cmasc','Lucas M.','pago','Dinheiro','rec'],
+  ['a11','raf',0,10,'cbarba','Pedro H.','pago','Pix','link'],
+  ['a12','raf',0,11.5,'barba','João V.','confirmado',null,'link'],
+  ['a13','raf',0,14.5,'cbarba','André C.','agendado',null,'rec'],
+  ['a14','raf',0,17,'cmasc','Diego S.','agendado',null,'link'],
+  ['a15','bia',0,10,'limp','Helena G.','pago','Pix','link'],
+  ['a16','bia',0,11,'sobr','Larissa N.','confirmado',null,'rec'],
+  ['a17','bia',0,15,'dren','Vanessa K.','agendado',null,'link'],
+  ['a18','thi',0,10,'cfem','Gabriela O.','confirmado',null,'link'],
+  ['a19','thi',0,13.5,'prog','Paula E.','agendado',null,'rec'],
+  ['a20','thi',0,16.5,'cmasc','Rodrigo B.','agendado',null,'link']
+];
+// Dias de agendamento: w = índice do dia na escala (Seg=0 … Dom=6)
+const DIAS = [{ l: 'Hoje', n: '27/11', w: 4 }, { l: 'Sáb', n: '28/11', w: 5 }, { l: 'Ter', n: '01/12', w: 1 }, { l: 'Qua', n: '02/12', w: 2 }, { l: 'Qui', n: '03/12', w: 3 }];
+const DIAS_ESC = ['Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb', 'Dom'];
 const ST = {
   pago: { label: 'Pago', bg: '#CFE8E1', fg: '#0F4A42' },
   confirmado: { label: 'Confirmado', bg: '#EBD9E6', fg: '#4A1D42' },
@@ -104,76 +155,109 @@ const ST = {
   faltou: { label: 'Faltou', bg: '#F8DCC8', fg: '#7A3310' }
 };
 const ORIG = { link: 'Cliente pelo link (WhatsApp)', rec: 'Recepção / gestora' };
-const SERV = [
-  ['Corte feminino', 'Cabelo', 60, 90, ['cam', 'thi'], true],
-  ['Escova', 'Cabelo', 60, 70, ['cam', 'thi'], true],
-  ['Coloração', 'Cabelo', 120, 280, ['cam'], true],
-  ['Mechas', 'Cabelo', 90, 350, ['cam'], false],
-  ['Progressiva', 'Cabelo', 120, 320, ['thi'], false],
-  ['Mão', 'Unhas', 45, 40, ['jul'], true],
-  ['Mão + pé', 'Unhas', 45, 75, ['jul'], true],
-  ['Alongamento em gel', 'Unhas', 60, 160, ['jul'], true],
-  ['Corte masculino', 'Barbearia', 30, 50, ['raf', 'thi'], true],
-  ['Corte + barba', 'Barbearia', 45, 80, ['raf'], true],
-  ['Limpeza de pele', 'Estética', 60, 180, ['bia'], true],
-  ['Design de sobrancelha', 'Estética', 60, 60, ['bia'], true]
-];
-const durTxt = (m) => m < 60 ? m + ' min' : (m % 60 ? Math.floor(m / 60) + 'h' + (m % 60) : (m / 60) + 'h');
-const LINK = location.origin + location.pathname + '#cliente';
-const DIAS_ESC = ['Seg 23', 'Ter 24', 'Qua 25', 'Qui 26', 'Sex 27', 'Sáb 28', 'Dom 29'];
-const ESC = [
-  ['09–18', 9, [0,1,1,1,1,1,0]], ['09–18', 9, [0,1,1,0,1,1,0]], ['09–19', 10, [0,1,1,1,1,1,0]], ['10–19', 9, [0,0,1,1,1,1,0]], ['10–19', 9, [0,1,0,1,1,1,0]]
-];
+const BASE_PEDIDOS = { maope: 31, cmasc: 22, cfem: 15, escova: 12, cbarba: 10, color: 6, mao: 5, limp: 5, barba: 4, gel: 4, sobr: 3, spa: 2, dren: 2, mechas: 2, prog: 1 };
 
-/* ---------- estado ---------- */
+/* ================= ESTADO ================= */
 const S = {
-  sel: 'a3', over: {}, extra: [], panel: null, fone: '',
-  form: { cliente: '', serv: 0, prof: 'cam', hora: null },
-  grade: ESC.map((e) => e[2].slice()),
-  cat: 'Todos', on: SERV.map((s) => s[5]),
+  servs: SERV0.map((s) => ({ ...s, profs: s.profs.slice() })),
+  appts: APPT0.map(([id, p, d, h, s, cliente, status, metodo, orig]) => ({ id, p, d, h, s, cliente, status, metodo, orig })),
+  grade: PROFS.map((p) => p.dias.slice()),
+  sel: 'a3', panel: null, fone: '', toast: null, agProf: 'cam',
+  form: { cliente: '', serv: 'cfem', prof: 'cam', d: 0, hora: null },
+  cat: 'Todos', servTab: 'lista', ns: null, nsErr: {},
   perD: 'semana', perG: 'semana', ord: 'fat', sent: {},
-  cli: { step: 1, serv: 0, prof: null, dia: 0, hora: null }
+  cli: { step: 1, serv: null, prof: null, d: 0, hora: null, nome: '', fone: '' }
 };
+const SV = (id) => S.servs.find((s) => s.id === id);
 const route = () => (location.hash.replace('#', '') || 'agenda');
+const LINK = location.origin + location.pathname + '#agendar';
 
-function allAppts() {
-  return APPTS.concat(S.extra).map(([id, p, h, dur, cliente, servico, valor, status, metodo, orig]) => {
-    const o = S.over[id] || {};
-    return { id, p, h, dur, cliente, servico, valor, status: o.status || status, metodo: o.metodo || metodo, orig };
-  });
+/* ================= REGRAS ================= */
+const ativo = (a) => a.status !== 'faltou';
+const fim = (a) => a.h + SV(a.s).dur / 60;
+function trabalha(pid, d) { return !!S.grade[PI[pid]][DIAS[d].w]; }
+// Motivo pelo qual o horário NÃO serve (ou null se está livre)
+function conflito(pid, sid, d, h, ignoreId) {
+  const p = PF[pid], s = SV(sid);
+  if (!s) return 'serviço inexistente';
+  if (!s.profs.includes(pid)) return p.nome + ' não faz ' + s.nome;
+  if (!trabalha(pid, d)) return p.nome + ' está de folga';
+  const e = h + s.dur / 60;
+  if (h < p.h0 || e > p.h1) return 'fora do expediente de ' + p.nome;
+  if (h < ALMOCO[1] && ALMOCO[0] < e) return 'horário de almoço';
+  const c = S.appts.find((a) => a.id !== ignoreId && a.p === pid && a.d === d && ativo(a) && h < fim(a) && a.h < e);
+  if (c) return 'choca com ' + c.cliente + ' (' + hh(c.h) + ')';
+  return null;
 }
+function livres(pid, sid, d) {
+  const s = SV(sid), out = [];
+  if (!s) return out;
+  for (let h = AG_INI; h + s.dur / 60 <= AG_FIM; h += 0.5) if (!conflito(pid, sid, d, h)) out.push(h);
+  return out;
+}
+function auditoria() {
+  const erros = [];
+  S.appts.filter(ativo).forEach((a) => { const c = conflito(a.p, a.s, a.d, a.h, a.id); if (c) erros.push(a.cliente + ': ' + c); });
+  return erros;
+}
+const valor = (a) => SV(a.s).preco;
+const comissao = (a) => valor(a) * (SV(a.s).com != null ? SV(a.s).com : PF[a.p].com);
 
+/* ================= NAV ================= */
 function nav(r) {
   const L = (h, t, extra) => `<a href="#${h}" class="${r === h ? 'on' : ''}">${extra || ''}${t}</a>`;
   return `<nav class="side" aria-label="Menu principal">
-    <div class="brand"><div class="logo">A</div><div><div style="font-weight:700;font-size:15px;color:#fff">[Nome do App]</div><div style="font-size:12px;color:#B9B2BF">Seu Salão</div></div></div>
+    <div class="brand"><div class="logo">C</div><div class="bt"><div style="font-weight:700;font-size:15px;color:#fff">${SALAO}</div><div style="font-size:12px;color:#B9B2BF">Gestão e agendamento</div></div></div>
     ${L('agenda', 'Agenda')}${L('escala', 'Escala')}${L('servicos', 'Serviços')}${L('pagamentos', 'Pagamentos')}${L('cliente', 'Link de agendamento')}
     <div class="sec">Gestão</div>${L('gestora', 'Painel da Gestora', LOCK)}
-    <div class="note" style="margin-top:auto">Protótipo · dados de exemplo</div>
+    <div class="note" style="margin-top:auto;font-size:12px;color:#9C94A3;padding:8px 14px">Protótipo · dados de exemplo</div>
   </nav>`;
 }
+function toastHtml() { return S.toast ? `<div class="toast" role="status"><span>${esc(S.toast)}</span><button class="x" style="background:transparent" data-a="toastX" aria-label="Fechar aviso">×</button></div>` : ''; }
 
-/* ---------- AGENDA ---------- */
+/* ================= AGENDA ================= */
+function colunaProf(p, cur) {
+  const top = (h) => (h - AG_INI) * 64;
+  let blocos = '';
+  if (!trabalha(p.id, 0)) blocos = `<div class="blk" style="top:0;height:640px">Folga</div>`;
+  else {
+    if (p.h0 > AG_INI) blocos += `<div class="blk" style="top:0;height:${top(p.h0)}px">Fora do expediente</div>`;
+    if (p.h1 < AG_FIM) blocos += `<div class="blk" style="top:${top(p.h1)}px;height:${top(AG_FIM) - top(p.h1)}px">Fora do expediente</div>`;
+    blocos += `<div class="blk" style="top:${top(ALMOCO[0])}px;height:64px">Almoço</div>`;
+  }
+  const ap = S.appts.filter((a) => a.p === p.id && a.d === 0).map((a) => {
+    const c = ST[a.status], s = SV(a.s);
+    return `<button class="appt" data-a="sel" data-v="${a.id}" style="top:${top(a.h) + 2}px;height:${s.dur / 60 * 64 - 4}px;background:${c.bg};color:${c.fg};${a.id === cur.id ? 'border-color:#6B2D5C' : ''}" aria-label="${esc(a.cliente)}, ${esc(s.nome)}, ${hh(a.h)}, ${c.label}"><div style="font-size:12px;font-weight:600">${esc(a.cliente)}</div><div style="font-size:11px">${hh(a.h)} · ${esc(s.nome)}</div></button>`;
+  }).join('');
+  return `<div style="flex:1;position:relative;height:640px;border-left:1px solid #F0ECE7;background-image:repeating-linear-gradient(to bottom,#EEEAE5 0,#EEEAE5 1px,transparent 1px,transparent 64px)">${blocos}${ap}</div>`;
+}
 function vAgenda() {
-  const all = allAppts();
-  const cur = all.find((a) => a.id === S.sel) || all[0];
-  const rec = all.filter((a) => a.status === 'pago').reduce((t, a) => t + a.valor, 0);
-  const arec = all.filter((a) => a.status === 'agendado' || a.status === 'confirmado').reduce((t, a) => t + a.valor, 0);
-  const cols = PROFS.map((p) => `<div style="flex:1;position:relative;height:640px;border-left:1px solid #F0ECE7;background-image:repeating-linear-gradient(to bottom,#EEEAE5 0,#EEEAE5 1px,transparent 1px,transparent 64px)">
-    ${all.filter((a) => a.p === p.id).map((a) => { const c = ST[a.status]; return `<button class="appt" data-a="sel" data-v="${a.id}" style="top:${(a.h - 9) * 64 + 2}px;height:${a.dur / 60 * 64 - 4}px;background:${c.bg};color:${c.fg};${a.id === cur.id ? 'border-color:#6B2D5C' : ''}" aria-label="${esc(a.cliente)}, ${esc(a.servico)}, ${hh(a.h)}, ${c.label}"><div style="font-size:12px;font-weight:600">${esc(a.cliente)}</div><div style="font-size:11px">${hh(a.h)} · ${esc(a.servico)}</div></button>`; }).join('')}
-  </div>`).join('');
+  const hoje = S.appts.filter((a) => a.d === 0);
+  const cur = S.appts.find((a) => a.id === S.sel) || hoje[0];
+  const rec = hoje.filter((a) => a.status === 'pago').reduce((t, a) => t + valor(a), 0);
+  const arec = hoje.filter((a) => a.status === 'agendado' || a.status === 'confirmado').reduce((t, a) => t + valor(a), 0);
+  const horas = [9,10,11,12,13,14,15,16,17,18].map((h) => `<div style="height:64px;padding:4px 8px 0 0;text-align:right;font-size:11px;color:#6B6470">${hh(h)}</div>`).join('');
+  const m = isM();
+  const mostrar = m ? [PF[S.agProf]] : PROFS;
+  const grade = `<section class="card ${m ? '' : 'scroll'}" style="flex:999 1 600px;min-width:0;padding:0">
+    ${m ? `<div class="chips" style="padding:12px">${PROFS.map((p) => `<button class="pill ${p.id === S.agProf ? 'on' : ''}" data-a="agProf" data-v="${p.id}">${p.nome}</button>`).join('')}</div>` : ''}
+    <div style="${m ? '' : 'min-width:820px'}">
+      <div style="display:flex;border-bottom:1px solid #ECE7E1"><div style="width:56px;flex:none"></div>${mostrar.map((p) => `<div style="flex:1;padding:12px 8px;display:flex;align-items:center;gap:8px;border-left:1px solid #F0ECE7"><div class="av" style="width:32px;height:32px">${p.ini}</div><div><div style="font-size:13px;font-weight:600">${p.nome}</div><div style="font-size:11px;color:#6B6470">${p.func} · ${trabalha(p.id, 0) ? hh(p.h0) + '–' + hh(p.h1) : 'folga'}</div></div></div>`).join('')}</div>
+      <div style="display:flex"><div style="width:56px;flex:none">${horas}</div>${mostrar.map((p) => colunaProf(p, cur || {})).join('')}</div>
+    </div></section>`;
   let side;
   if (S.panel === 'share') side = pShare();
-  else if (S.panel === 'novo') side = pNovo(all);
+  else if (S.panel === 'novo') side = pNovo();
+  else if (!cur) side = '<div class="sub">Nenhum agendamento hoje.</div>';
   else {
-    const c = ST[cur.status];
+    const c = ST[cur.status], s = SV(cur.s);
     const pode = cur.status === 'agendado' || cur.status === 'confirmado';
     side = `<div class="cap">Agendamento</div>
-      <div><div style="font-size:20px;font-weight:700">${esc(cur.cliente)}</div><div style="font-size:14px;color:#4A4550;margin-top:2px">${esc(cur.servico)}</div></div>
+      <div><div style="font-size:20px;font-weight:700">${esc(cur.cliente)}</div><div style="font-size:14px;color:#4A4550;margin-top:2px">${esc(s.nome)}</div></div>
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;font-size:13px">
         <div><div class="kl">Profissional</div><b>${PF[cur.p].nome}</b></div>
-        <div><div class="kl">Horário</div><b>${hh(cur.h)} – ${hh(cur.h + cur.dur / 60)}</b></div>
-        <div><div class="kl">Valor</div><b>${brl2(cur.valor)}</b></div>
+        <div><div class="kl">Horário</div><b>${hh(cur.h)} – ${hh(fim(cur))}</b></div>
+        <div><div class="kl">Valor</div><b>${brl2(s.preco)}</b></div>
         <div><div class="kl">Status</div><b style="color:${c.fg}">${c.label}</b></div>
         <div style="grid-column:1/-1"><div class="kl">Origem</div><b>${ORIG[cur.orig]}</b></div>
       </div>
@@ -185,148 +269,198 @@ function vAgenda() {
           <button class="btn2" style="flex:1" data-a="pay" data-v="Dinheiro">Dinheiro</button>
         </div>
         <button data-a="falta" style="height:44px;border:0;background:transparent;color:#8A3B12;font-size:13px;font-weight:600;cursor:pointer">Marcar como falta</button></div>` : ''}
-      ${cur.status === 'pago' ? `<div style="border-radius:10px;background:#E3F2EE;color:#145C52;padding:12px;font-size:13px;font-weight:600">Pago via ${cur.metodo} · comissão de ${PF[cur.p].nome}: ${brl2(cur.valor * PF[cur.p].com)}</div>` : ''}
-      <div style="display:flex;flex-wrap:wrap;gap:10px;font-size:11px;color:#4A4550;border-top:1px solid #ECE7E1;padding-top:12px">${Object.values(ST).map((s) => `<span style="display:flex;align-items:center;gap:4px"><span style="width:10px;height:10px;border-radius:3px;background:${s.bg}"></span>${s.label}</span>`).join('')}</div>`;
+      ${cur.status === 'pago' ? `<div style="border-radius:10px;background:#E3F2EE;color:#145C52;padding:12px;font-size:13px;font-weight:600">Pago via ${cur.metodo} · comissão de ${PF[cur.p].nome}: ${brl2(comissao(cur))}</div>` : ''}
+      <div style="display:flex;flex-wrap:wrap;gap:10px;font-size:11px;color:#4A4550;border-top:1px solid #ECE7E1;padding-top:12px">${Object.values(ST).map((x) => `<span style="display:flex;align-items:center;gap:4px"><span style="width:10px;height:10px;border-radius:3px;background:${x.bg}"></span>${x.label}</span>`).join('')}</div>`;
   }
   return `<main>
     <header class="top"><div><div class="sub">Sexta-feira, 27 de novembro</div><h1>Agenda do dia</h1></div>
       <div style="display:flex;gap:8px;flex-wrap:wrap"><button class="btnwa" data-a="panel" data-v="share">${WA}Enviar link pelo WhatsApp</button><button class="btn" data-a="panel" data-v="novo">+ Novo agendamento</button></div></header>
+    ${toastHtml()}
     <section class="kpis">
-      <div class="kpi"><div class="kl">Agendamentos hoje</div><div class="kv">${all.length}</div></div>
+      <div class="kpi"><div class="kl">Agendamentos hoje</div><div class="kv">${hoje.length}</div></div>
       <div class="kpi"><div class="kl">Recebido hoje</div><div class="kv" style="color:#145C52">${brl2(rec)}</div></div>
       <div class="kpi"><div class="kl">A receber</div><div class="kv">${brl2(arec)}</div></div>
-      <div class="kpi"><div class="kl">Faltas</div><div class="kv" style="color:#8A3B12">${all.filter((a) => a.status === 'faltou').length}</div></div>
+      <div class="kpi"><div class="kl">Faltas</div><div class="kv" style="color:#8A3B12">${hoje.filter((a) => a.status === 'faltou').length}</div></div>
     </section>
-    <div class="flexrow">
-      <section class="card scroll" style="flex:999 1 600px;min-width:0;padding:0"><div style="min-width:820px">
-        <div style="display:flex;border-bottom:1px solid #ECE7E1"><div style="width:56px;flex:none"></div>${PROFS.map((p) => `<div style="flex:1;padding:12px 8px;display:flex;align-items:center;gap:8px;border-left:1px solid #F0ECE7"><div class="av" style="width:32px;height:32px">${p.ini}</div><div><div style="font-size:13px;font-weight:600">${p.nome}</div><div style="font-size:11px;color:#6B6470">${p.func}</div></div></div>`).join('')}</div>
-        <div style="display:flex"><div style="width:56px;flex:none">${[9,10,11,12,13,14,15,16,17,18].map((h) => `<div style="height:64px;padding:4px 8px 0 0;text-align:right;font-size:11px;color:#6B6470">${hh(h)}</div>`).join('')}</div>${cols}</div>
-      </div></section>
-      <aside class="card" style="flex:1 1 300px;display:flex;flex-direction:column;gap:14px">${side}</aside>
+    <div class="flexrow" style="${m ? 'flex-direction:column-reverse;align-items:stretch' : ''}">
+      ${grade}
+      <aside id="painel" class="card" style="flex:1 1 300px;display:flex;flex-direction:column;gap:14px">${side}</aside>
     </div></main>`;
 }
-function waMsg() { return 'Olá! Para agendar seu horário no Seu Salão, é só tocar no link e escolher o serviço, a profissional e o horário: ' + LINK; }
+function waMsg() { return 'Olá! Para agendar seu horário no ' + SALAO + ', é só tocar no link e escolher o serviço, a profissional e o horário: ' + LINK; }
 function waHref() { const d = S.fone.replace(/\D/g, ''); return 'https://wa.me/' + (d ? '55' + d : '') + '?text=' + encodeURIComponent(waMsg()); }
 function pShare() {
   return `<div style="display:flex;justify-content:space-between;align-items:center"><div class="cap">Link pelo WhatsApp</div><button class="x" data-a="panel" data-v="" aria-label="Fechar">×</button></div>
-    <p style="margin:0;font-size:13px;color:#4A4550">A cliente recebe a mensagem no WhatsApp, toca no link e escolhe serviço, profissional e horário. Os horários que a recepção já marcou aparecem como ocupados.</p>
-    <label class="f">WhatsApp da cliente<input type="tel" id="fone" value="${esc(S.fone)}" placeholder="(00) 00000-0000"></label>
-    <div style="background:#E9F4EF;border-radius:12px;padding:12px 14px;font-size:13px;color:#1E3B35;word-break:break-word">${esc(waMsg())}</div>
+    <p style="margin:0;font-size:13px;color:#4A4550">A cliente recebe a mensagem, toca no link e escolhe serviço, profissional e horário. Só aparecem horários livres, de quem faz o serviço e está escalado.</p>
+    <label class="f">WhatsApp da cliente<input type="tel" id="fone" inputmode="tel" value="${esc(S.fone)}" placeholder="(00) 00000-0000"></label>
+    <div style="background:#E9F4EF;border-radius:12px;padding:12px 14px;font-size:13px;color:#1E3B35;overflow-wrap:anywhere">${esc(waMsg())}</div>
     <a id="walink" href="${waHref()}" target="_blank" rel="noopener" style="height:48px;border-radius:12px;background:#1F7A6D;color:#fff;font-size:15px;font-weight:700;display:flex;align-items:center;justify-content:center;text-decoration:none">Abrir no WhatsApp</a>
-    <div style="font-size:12px;color:#6B6470">Link fixo do salão: <b style="color:#1E1A22;word-break:break-all">${esc(LINK)}</b></div>
-    <a href="#cliente" style="font-size:13px;font-weight:600;color:#6B2D5C">Ver o que a cliente vê →</a>`;
+    <div style="font-size:12px;color:#6B6470">Link fixo do salão: <b style="color:#1E1A22;overflow-wrap:anywhere">${esc(LINK)}</b></div>
+    <a href="#agendar" target="_blank" rel="noopener" style="font-size:13px;font-weight:600;color:#6B2D5C">Abrir o link como a cliente vê →</a>`;
 }
-function freeSlots(all, prof, durMin) {
-  const d = durMin / 60, busy = all.filter((a) => a.p === prof && a.status !== 'faltou'), out = [];
-  for (let h = 9; h + d <= 19; h += 0.5) if (!busy.some((a) => h < a.h + a.dur / 60 && a.h < h + d)) out.push(h);
-  return out;
-}
-function pNovo(all) {
-  const f = S.form, sv = SERV[f.serv];
-  const profs = sv[4];
-  if (!profs.includes(f.prof)) f.prof = profs[0];
-  const slots = freeSlots(all, f.prof, sv[2]);
+function pNovo() {
+  const f = S.form, s = SV(f.serv) || S.servs[0];
+  f.serv = s.id;
+  if (!s.profs.includes(f.prof)) f.prof = s.profs[0];
+  const sl = livres(f.prof, f.serv, f.d);
+  if (f.hora != null && !sl.includes(f.hora)) f.hora = null;
+  const motivo = !trabalha(f.prof, f.d) ? PF[f.prof].nome + ' está de folga neste dia.' : 'Sem horários livres para este serviço neste dia.';
   return `<div style="display:flex;justify-content:space-between;align-items:center"><div class="cap">Novo agendamento · recepção</div><button class="x" data-a="panel" data-v="" aria-label="Fechar">×</button></div>
     <label class="f">Cliente<input type="text" id="cliNome" value="${esc(f.cliente)}" placeholder="Nome da cliente"></label>
-    <label class="f">Serviço<select id="fServ">${SERV.map((s, i) => `<option value="${i}" ${i === f.serv ? 'selected' : ''}>${s[0]} · ${durTxt(s[2])}</option>`).join('')}</select></label>
-    <label class="f">Profissional<select id="fProf">${profs.map((id) => `<option value="${id}" ${id === f.prof ? 'selected' : ''}>${PF[id].nome} · ${PF[id].func}</option>`).join('')}</select></label>
-    <div style="font-size:13px;font-weight:600">Horários livres hoje</div>
-    <div style="display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px">${slots.map((h) => `<button data-a="slot" data-v="${h}" style="height:40px;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;${f.hora === h ? 'background:#6B2D5C;color:#fff;border:1px solid #6B2D5C' : 'background:#fff;color:#4A1D42;border:1px solid #E2CCDC'}">${hh(h)}</button>`).join('') || '<div class="sub" style="grid-column:1/-1">Sem horários livres hoje.</div>'}</div>
-    <button class="btn" data-a="salvar" style="height:48px;${f.hora == null ? 'opacity:.5' : ''}" ${f.hora == null ? 'disabled' : ''}>Salvar na agenda</button>
+    <label class="f">Serviço<select id="fServ">${S.servs.map((x) => `<option value="${x.id}" ${x.id === s.id ? 'selected' : ''}>${esc(x.nome)} · ${durTxt(x.dur)} · ${brl(x.preco)}</option>`).join('')}</select></label>
+    <label class="f">Profissional <span class="sub" style="font-weight:400">(só quem faz este serviço)</span><select id="fProf">${s.profs.map((id) => `<option value="${id}" ${id === f.prof ? 'selected' : ''}>${PF[id].nome} · ${PF[id].func}</option>`).join('')}</select></label>
+    <label class="f">Dia<select id="fDia">${DIAS.map((d, i) => `<option value="${i}" ${i === f.d ? 'selected' : ''}>${d.l} · ${d.n}</option>`).join('')}</select></label>
+    <div style="font-size:13px;font-weight:600">Horários livres</div>
+    <div style="display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px">${sl.map((h) => `<button data-a="slot" data-v="${h}" style="height:40px;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;${f.hora === h ? 'background:#6B2D5C;color:#fff;border:1px solid #6B2D5C' : 'background:#fff;color:#4A1D42;border:1px solid #E2CCDC'}">${hh(h)}</button>`).join('') || `<div class="sub" style="grid-column:1/-1">${motivo}</div>`}</div>
+    <button class="btn" data-a="salvar" style="height:48px" ${f.hora == null ? 'disabled' : ''}>Salvar na agenda</button>
     <div style="font-size:12px;color:#6B6470">Assim que salvar, o horário some do link de agendamento online.</div>`;
 }
 
-/* ---------- ESCALA ---------- */
+/* ================= ESCALA ================= */
 function vEscala() {
-  const cols = 'grid-template-columns:220px repeat(7,minmax(0,1fr)) 110px';
-  const rows = PROFS.map((p, ri) => {
-    const [faixa, hrs] = ESC[ri], g = S.grade[ri], n = g.reduce((t, x) => t + x, 0);
-    return `<div style="display:grid;${cols};border-bottom:1px solid #F0ECE7;align-items:center">
-      <div style="padding:12px 18px;display:flex;align-items:center;gap:10px"><div class="av">${p.ini}</div><div><div style="font-size:14px;font-weight:600">${p.nome}</div><div style="font-size:12px;color:#6B6470">${p.func} · comissão ${Math.round(p.com * 100)}%</div></div></div>
-      ${g.map((on, di) => `<div style="padding:6px 4px"><button data-a="esc" data-v="${ri},${di}" aria-label="${p.nome}, ${DIAS_ESC[di]}: ${on ? 'trabalha ' + faixa : 'folga'}" style="width:100%;min-height:56px;border-radius:10px;cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;${on ? 'background:#F1E6EE;color:#4A1D42;border:1px solid #E2CCDC' : 'background:#FAF8F6;color:#6B6470;border:1px dashed #DDD7D0'}"><span style="font-size:13px;font-weight:600">${on ? faixa : 'Folga'}</span><span style="font-size:11px">${on ? 'almoço 12–13' : '—'}</span></button></div>`).join('')}
-      <div style="padding:12px;text-align:right;font-size:14px;font-weight:600">${n * (hrs - 1)}h</div></div>`;
-  }).join('');
-  return `<main>
-    <header class="top"><div><div class="sub">Semana de 23 a 29 de novembro</div><h1>Escala da equipe</h1></div>
-      <div style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn2">Copiar semana anterior</button><button class="btn">+ Profissional</button></div></header>
-    <p style="margin:0;font-size:13px;color:#4A4550">Clique num dia para alternar entre trabalho e folga. O link de agendamento só mostra horários de quem está escalado.</p>
-    <section class="card scroll" style="padding:0"><div style="min-width:900px">
+  const m = isM();
+  const cell = (p, ri, di) => { const on = S.grade[ri][di]; return `<button data-a="esc" data-v="${ri},${di}" aria-label="${p.nome}, ${DIAS_ESC[di]}: ${on ? 'trabalha' : 'folga'}" style="width:100%;min-height:${m ? 48 : 56}px;border-radius:10px;cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;padding:2px;${on ? 'background:#F1E6EE;color:#4A1D42;border:1px solid #E2CCDC' : 'background:#FAF8F6;color:#6B6470;border:1px dashed #DDD7D0'}">${m ? `<span style="font-size:11px;font-weight:600">${DIAS_ESC[di]}</span><span style="font-size:10px">${on ? 'trab.' : 'folga'}</span>` : `<span style="font-size:13px;font-weight:600">${on ? hh(p.h0).slice(0, 2) + '–' + hh(p.h1).slice(0, 2) : 'Folga'}</span><span style="font-size:11px">${on ? 'almoço 12–13' : '—'}</span>`}</button>`; };
+  const horas = (p, ri) => S.grade[ri].reduce((t, x) => t + x, 0) * (p.h1 - p.h0 - 1);
+  let corpo;
+  if (m) {
+    corpo = PROFS.map((p, ri) => `<div class="mcard"><div style="display:flex;align-items:center;gap:10px"><div class="av">${p.ini}</div><div style="flex:1"><b>${p.nome}</b><div class="sub">${p.func} · ${hh(p.h0)}–${hh(p.h1)} · ${horas(p, ri)}h/semana</div></div></div>
+      <div style="display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:4px">${DIAS_ESC.map((_, di) => cell(p, ri, di)).join('')}</div></div>`).join('');
+    corpo = `<div style="display:flex;flex-direction:column;gap:12px">${corpo}</div>`;
+  } else {
+    const cols = 'grid-template-columns:220px repeat(7,minmax(0,1fr)) 110px';
+    corpo = `<section class="card scroll" style="padding:0"><div style="min-width:900px">
       <div style="display:grid;${cols};border-bottom:1px solid #ECE7E1;font-size:12px;font-weight:600;color:#6B6470"><div style="padding:14px 18px">Profissional</div>${DIAS_ESC.map((d) => `<div style="padding:14px 6px;text-align:center">${d}</div>`).join('')}<div style="padding:14px 12px;text-align:right">Horas/semana</div></div>
-      ${rows}
+      ${PROFS.map((p, ri) => `<div style="display:grid;${cols};border-bottom:1px solid #F0ECE7;align-items:center"><div style="padding:12px 18px;display:flex;align-items:center;gap:10px"><div class="av">${p.ini}</div><div><div style="font-size:14px;font-weight:600">${p.nome}</div><div style="font-size:12px;color:#6B6470">${p.func} · comissão ${Math.round(p.com * 100)}%</div></div></div>${DIAS_ESC.map((_, di) => `<div style="padding:6px 4px">${cell(p, ri, di)}</div>`).join('')}<div style="padding:12px;text-align:right;font-size:14px;font-weight:600">${horas(p, ri)}h</div></div>`).join('')}
       <div style="display:grid;${cols};background:#FAF8F6;font-size:12px;color:#4A4550"><div style="padding:14px 18px;font-weight:600">Na equipe no dia</div>${DIAS_ESC.map((_, di) => `<div style="padding:14px 6px;text-align:center;font-weight:600">${S.grade.reduce((t, r) => t + r[di], 0)} de ${PROFS.length}</div>`).join('')}<div></div></div>
-    </div></section></main>`;
-}
-
-/* ---------- SERVIÇOS ---------- */
-function vServicos() {
-  const cats = ['Todos', 'Cabelo', 'Unhas', 'Barbearia', 'Estética'];
-  const cols = 'grid-template-columns:2fr 1.1fr .8fr .9fr .9fr 1.6fr .8fr;padding-left:20px;padding-right:20px';
-  const rows = SERV.map((s, i) => ({ s, i })).filter(({ s }) => S.cat === 'Todos' || s[1] === S.cat).map(({ s, i }) => `<div class="tr" style="${cols}">
-    <div style="font-weight:600">${s[0]}</div><div><span class="tag" style="background:#F1E6EE;color:#4A1D42">${s[1]}</span></div><div style="color:#4A4550">${durTxt(s[2])}</div>
-    <div class="r" style="font-weight:600">${brl2(s[3])}</div><div class="r" style="color:#4A4550">${s[3] >= 150 ? brl2(Math.round(s[3] * 0.3)) : '—'}</div>
-    <div style="display:flex;gap:4px">${s[4].map((id) => `<span class="av" title="${PF[id].nome}" style="width:30px;height:30px;background:#EDE9E4;color:#3A3540;font-size:11px">${PF[id].ini}</span>`).join('')}</div>
-    <div style="display:flex;justify-content:flex-end"><button data-a="online" data-v="${i}" role="switch" aria-checked="${S.on[i]}" aria-label="Disponível online: ${s[0]}" style="width:48px;height:28px;border-radius:14px;border:0;padding:3px;cursor:pointer;display:flex;${S.on[i] ? 'background:#1F7A6D;justify-content:flex-end' : 'background:#CFC8C2;justify-content:flex-start'}"><span style="width:22px;height:22px;border-radius:50%;background:#fff;display:block"></span></button></div></div>`).join('');
+    </div></section>`;
+  }
   return `<main>
-    <header class="top"><div><div class="sub">${SERV.length} serviços · ${S.on.filter(Boolean).length} disponíveis online</div><h1>Serviços</h1></div><button class="btn">+ Novo serviço</button></header>
-    <div style="display:flex;flex-wrap:wrap;gap:8px">${cats.map((c) => `<button class="pill ${c === S.cat ? 'on' : ''}" data-a="cat" data-v="${c}">${c}</button>`).join('')}</div>
-    <section class="card scroll" style="padding:0"><div style="min-width:820px">
-      <div class="th" style="${cols};padding-top:14px;padding-bottom:14px"><div>Serviço</div><div>Categoria</div><div>Duração</div><div class="r">Preço</div><div class="r">Sinal (Pix)</div><div>Quem faz</div><div class="r">Online</div></div>${rows}
-    </div></section>
-    <p style="margin:0;font-size:13px;color:#4A4550">Serviços com "Online" desligado só podem ser marcados pela recepção. A duração define quanto espaço o serviço ocupa na agenda.</p></main>`;
+    <header class="top"><div><div class="sub">Escala semanal</div><h1>Escala da equipe</h1></div></header>
+    ${toastHtml()}
+    <p style="margin:0;font-size:13px;color:#4A4550">Toque num dia para alternar entre trabalho e folga. A agenda e o link de agendamento obedecem a escala na hora. Se já houver cliente marcada no dia, a folga não é aplicada.</p>
+    ${corpo}</main>`;
 }
 
-/* ---------- PAGAMENTOS ---------- */
+/* ================= SERVIÇOS ================= */
+function nsVazio() { return { nome: '', cat: 'Cabelo', catNova: '', dur: 60, preco: '', sinal: 'auto', com: '', profs: [], online: true }; }
+function cats() { return [...new Set(S.servs.map((s) => s.cat))]; }
+function vServicos() {
+  const tab = S.servTab;
+  const abas = `<div class="seg" role="tablist" style="align-self:flex-start"><button role="tab" class="${tab === 'lista' ? 'on' : ''}" data-a="servTab" data-v="lista">Serviços cadastrados</button><button role="tab" class="${tab === 'novo' ? 'on' : ''}" data-a="servTab" data-v="novo">+ Novo serviço</button></div>`;
+  return `<main>
+    <header class="top"><div><div class="sub">${S.servs.length} serviços · ${S.servs.filter((s) => s.online).length} no link online</div><h1>Serviços</h1></div></header>
+    ${toastHtml()}${abas}
+    ${tab === 'lista' ? servLista() : servNovo()}</main>`;
+}
+function servLista() {
+  const lista = ['Todos', ...cats()];
+  const rows = S.servs.filter((s) => S.cat === 'Todos' || s.cat === S.cat);
+  const tog = (s) => `<button data-a="online" data-v="${s.id}" role="switch" aria-checked="${s.online}" aria-label="No link online: ${esc(s.nome)}" style="width:48px;height:28px;border-radius:14px;border:0;padding:3px;cursor:pointer;display:flex;flex:none;${s.online ? 'background:#1F7A6D;justify-content:flex-end' : 'background:#CFC8C2;justify-content:flex-start'}"><span style="width:22px;height:22px;border-radius:50%;background:#fff;display:block"></span></button>`;
+  const avs = (s) => s.profs.map((id) => `<span class="av" title="${PF[id].nome}" style="width:30px;height:30px;background:#EDE9E4;color:#3A3540;font-size:11px">${PF[id].ini}</span>`).join('');
+  const sinal = (s) => s.sinal ? brl2(Math.round(s.preco * s.sinal / 100)) + ' (' + s.sinal + '%)' : '—';
+  let corpo;
+  if (isM()) {
+    corpo = `<div style="display:flex;flex-direction:column;gap:10px">${rows.map((s) => `<div class="mcard"><div style="display:flex;justify-content:space-between;gap:10px;align-items:flex-start"><div><b style="font-size:15px">${esc(s.nome)}</b><div class="sub">${esc(s.cat)} · ${durTxt(s.dur)}</div></div><b>${brl2(s.preco)}</b></div>
+      <div style="display:flex;justify-content:space-between;align-items:center;gap:10px"><div style="display:flex;gap:4px">${avs(s)}</div><div style="display:flex;align-items:center;gap:8px;font-size:12px;color:#4A4550">No link ${tog(s)}</div></div>
+      <div class="sub">Sinal: ${sinal(s)}</div></div>`).join('')}</div>`;
+  } else {
+    const cols = 'grid-template-columns:2fr 1.1fr .8fr .9fr 1.1fr 1.4fr .9fr;padding-left:20px;padding-right:20px';
+    corpo = `<section class="card scroll" style="padding:0"><div style="min-width:860px">
+      <div class="th" style="${cols};padding-top:14px;padding-bottom:14px"><div>Serviço</div><div>Categoria</div><div>Duração</div><div class="r">Preço</div><div class="r">Sinal (Pix)</div><div>Quem faz</div><div class="r">No link online</div></div>
+      ${rows.map((s) => `<div class="tr" style="${cols}"><div style="font-weight:600">${esc(s.nome)}</div><div><span class="tag" style="background:#F1E6EE;color:#4A1D42">${esc(s.cat)}</span></div><div style="color:#4A4550">${durTxt(s.dur)}</div><div class="r" style="font-weight:600">${brl2(s.preco)}</div><div class="r" style="color:#4A4550">${sinal(s)}</div><div style="display:flex;gap:4px">${avs(s)}</div><div style="display:flex;justify-content:flex-end">${tog(s)}</div></div>`).join('')}
+    </div></section>`;
+  }
+  return `<div class="chips">${lista.map((c) => `<button class="pill ${c === S.cat ? 'on' : ''}" data-a="cat" data-v="${esc(c)}">${esc(c)}</button>`).join('')}</div>${corpo}
+    <p style="margin:0;font-size:13px;color:#4A4550">Serviços fora do link só podem ser marcados pela recepção. A duração define quanto espaço o serviço ocupa na agenda.</p>`;
+}
+function servNovo() {
+  const n = S.ns || (S.ns = nsVazio()), E = S.nsErr;
+  const durs = [15, 30, 45, 60, 75, 90, 105, 120, 150, 180, 210, 240];
+  const err = (k) => E[k] ? `<span class="err">${E[k]}</span>` : '';
+  return `<section class="card" style="display:flex;flex-direction:column;gap:16px;max-width:760px">
+    <h2>Novo serviço</h2>
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:14px">
+      <label class="f">Nome do serviço *<input id="nsNome" type="text" value="${esc(n.nome)}" placeholder="Ex.: Hidratação">${err('nome')}</label>
+      <label class="f">Categoria *<select id="nsCat">${cats().map((c) => `<option ${c === n.cat ? 'selected' : ''}>${esc(c)}</option>`).join('')}<option value="__nova" ${n.cat === '__nova' ? 'selected' : ''}>+ Nova categoria…</option></select></label>
+      ${n.cat === '__nova' ? `<label class="f">Nome da nova categoria *<input id="nsCatNova" type="text" value="${esc(n.catNova)}" placeholder="Ex.: Maquiagem">${err('cat')}</label>` : ''}
+      <label class="f">Duração *<select id="nsDur">${durs.map((d) => `<option value="${d}" ${d === n.dur ? 'selected' : ''}>${durTxt(d)}</option>`).join('')}</select></label>
+      <label class="f">Preço (R$) *<input id="nsPreco" type="number" inputmode="decimal" min="0" step="0.01" value="${esc(n.preco)}" placeholder="0,00">${err('preco')}</label>
+      <label class="f">Sinal via Pix no link<select id="nsSinal">${[['auto', 'Automático (30% se ≥ R$ 150)'], ['0', 'Sem sinal'], ['20', '20%'], ['30', '30%'], ['50', '50%']].map(([v, l]) => `<option value="${v}" ${String(n.sinal) === v ? 'selected' : ''}>${l}</option>`).join('')}</select></label>
+      <label class="f">Comissão<select id="nsCom"><option value="" ${n.com === '' ? 'selected' : ''}>Padrão de cada profissional</option>${[30, 35, 40, 45, 50, 55, 60].map((v) => `<option value="${v}" ${String(n.com) === String(v) ? 'selected' : ''}>${v}% para todos</option>`).join('')}</select></label>
+    </div>
+    <fieldset style="border:1px solid #ECE7E1;border-radius:12px;padding:14px;margin:0"><legend style="font-size:13px;font-weight:600;padding:0 6px">Quem faz este serviço? *</legend>
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:8px">${PROFS.map((p) => `<label style="display:flex;align-items:center;gap:10px;min-height:44px;font-size:14px;cursor:pointer"><input type="checkbox" class="nsProf" value="${p.id}" ${n.profs.includes(p.id) ? 'checked' : ''}>${p.nome} <span class="sub">${p.func}</span></label>`).join('')}</div>
+      ${err('profs')}
+      <div class="sub" style="margin-top:6px">Só os marcados aparecem para este serviço na agenda e no link.</div></fieldset>
+    <label style="display:flex;align-items:center;gap:10px;min-height:44px;font-size:14px;font-weight:600;cursor:pointer"><input type="checkbox" id="nsOnline" ${n.online ? 'checked' : ''}>Disponível no link de agendamento online</label>
+    <div style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn" data-a="nsSalvar">Salvar serviço</button><button class="btn2" data-a="nsLimpar">Limpar</button></div>
+  </section>`;
+}
+
+/* ================= PAGAMENTOS ================= */
 function vPagamentos() {
-  const mes = S.perD === 'mes';
+  const mes = S.perD === 'mes', m = isM();
   const seed = [1120, 1540, 1310, 980, 1660, 2420, 0];
-  const dias = mes ? [...Array(27)].map((_, i) => [String(i + 1), seed[(i + 7) % 7], 0]).concat([['28', 0, 2860]]) : [['Seg', 0, 0], ['Ter', 1480, 0], ['Qua', 1720, 0], ['Qui', 1390, 0], ['Sex', 1170, 1795], ['Sáb', 0, 2860], ['Dom', 0, 0]];
-  const P = mes ? { label: 'Novembro de 2026', fat: 41280, rec: 36625, aRec: 4655, ticket: 108, faltas: '6%', fx: [.46, .40, .14], sinais: 'R$ 2.480' } : { label: 'Semana de 23 a 29 de novembro', fat: 10415, rec: 5760, aRec: 4655, ticket: 112, faltas: '4%', fx: [.48, .38, .14], sinais: 'R$ 640' };
-  const max = Math.max(...dias.map((d) => d[1] + d[2]));
+  const hojeRec = S.appts.filter((a) => a.d === 0 && a.status === 'pago').reduce((t, a) => t + valor(a), 0);
+  const hojePend = S.appts.filter((a) => a.d === 0 && (a.status === 'agendado' || a.status === 'confirmado')).reduce((t, a) => t + valor(a), 0);
+  const dias = mes ? [...Array(26)].map((_, i) => [String(i + 1), seed[i % 7], 0]).concat([['27', hojeRec, hojePend], ['28', 0, 1420]]) : [['Seg', 0, 0], ['Ter', 1480, 0], ['Qua', 1720, 0], ['Qui', 1390, 0], ['Sex', hojeRec, hojePend], ['Sáb', 0, 1420], ['Dom', 0, 0]];
+  const rec = dias.reduce((t, d) => t + d[1], 0), pend = dias.reduce((t, d) => t + d[2], 0), fat = rec + pend;
+  const P = mes ? { label: 'Novembro de 2026', ticket: 108, faltas: '6%', fx: [.46, .40, .14], sinais: 'R$ 2.480' } : { label: 'Semana de 23 a 29 de novembro', ticket: 112, faltas: '4%', fx: [.48, .38, .14], sinais: 'R$ 640' };
+  const max = Math.max(...dias.map((d) => d[1] + d[2]), 1);
   const share = [.31, .17, .16, .18, .18];
   const fx = [['Pix', '#1F7A6D'], ['Cartão', '#6B2D5C'], ['Dinheiro', '#C0703A']];
-  const ult = [['Fernanda R.', 'Mechas · Camila · hoje 14:30', 350, 'Pix'], ['Pedro H.', 'Corte + barba · Rafael · hoje 10:45', 80, 'Pix'], ['Lucas M.', 'Corte masculino · Rafael · hoje 10:00', 50, 'Dinheiro'], ['Helena G.', 'Limpeza de pele · Bianca · hoje 10:00', 180, 'Pix'], ['Ana P.', 'Mão + pé · Juliana · hoje 09:45', 75, 'Cartão']];
+  const pagos = S.appts.filter((a) => a.d === 0 && a.status === 'pago').sort((a, b) => b.h - a.h);
   const cor = { Pix: '#0F4A42', 'Cartão': '#4A1D42', Dinheiro: '#7A3310' };
-  const ccols = 'grid-template-columns:1.6fr 1fr .8fr 1fr';
+  const ccols = 'grid-template-columns:1.4fr 1fr .6fr 1fr';
   return `<main>
     <header class="top"><div><div class="sub">Dados de exemplo · ${P.label}</div><h1>Pagamentos</h1></div>
       <div class="seg"><button class="${mes ? '' : 'on'}" data-a="perD" data-v="semana">Semana</button><button class="${mes ? 'on' : ''}" data-a="perD" data-v="mes">Mês</button></div></header>
     <section class="kpis">
-      ${[['Faturamento', brl(P.fat), 'recebido + agendado', ''], ['Recebido', brl(P.rec), Math.round(P.rec / P.fat * 100) + '% do total', '#145C52'], ['A receber', brl(P.aRec), 'horários futuros', ''], ['Ticket médio', brl(P.ticket), 'por atendimento', ''], ['Taxa de faltas', P.faltas, 'dos agendamentos', '#8A3B12']].map(([l, v, s, c]) => `<div class="kpi"><div class="kl">${l}</div><div class="kv" style="color:${c || 'inherit'}">${v}</div><div class="ks">${s}</div></div>`).join('')}
+      ${[['Faturamento', brl(fat), 'recebido + agendado', ''], ['Recebido', brl(rec), Math.round(rec / fat * 100) + '% do total', '#145C52'], ['A receber', brl(pend), 'horários marcados', ''], ['Ticket médio', brl(P.ticket), 'por atendimento', ''], ['Taxa de faltas', P.faltas, 'dos agendamentos', '#8A3B12']].map(([l, v, s, c]) => `<div class="kpi"><div class="kl">${l}</div><div class="kv" style="color:${c || 'inherit'}">${v}</div><div class="ks">${s}</div></div>`).join('')}
     </section>
     <div class="flexrow">
-      <section class="card" style="flex:999 1 520px;min-width:0">
+      <section class="card" style="flex:999 1 480px;min-width:0">
         <div style="display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap"><h2>Faturamento por dia</h2><div style="display:flex;gap:14px;font-size:12px;color:#4A4550"><span style="display:flex;align-items:center;gap:6px"><span style="width:10px;height:10px;border-radius:3px;background:#6B2D5C"></span>Recebido</span><span style="display:flex;align-items:center;gap:6px"><span style="width:10px;height:10px;border-radius:3px;background:#D9B9CF"></span>A receber</span></div></div>
-        <div style="display:flex;align-items:flex-end;gap:6px;height:220px;margin-top:20px;border-bottom:1px solid #ECE7E1">${dias.map(([l, r, p]) => `<div title="${l}: recebido ${brl(r)}, a receber ${brl(p)}" style="flex:1;display:flex;flex-direction:column;justify-content:flex-end;height:100%"><div style="background:#D9B9CF;border-radius:4px 4px 0 0;height:${p / max * 100}%"></div><div style="background:#6B2D5C;height:${r / max * 100}%"></div></div>`).join('')}</div>
-        <div style="display:flex;gap:6px;margin-top:6px">${dias.map(([l]) => `<div style="flex:1;text-align:center;font-size:11px;color:#6B6470">${mes && Number(l) % 3 !== 1 ? '' : l}</div>`).join('')}</div>
+        <div style="display:flex;align-items:flex-end;gap:${mes && m ? 2 : 6}px;height:${m ? 160 : 220}px;margin-top:20px;border-bottom:1px solid #ECE7E1">${dias.map(([l, r, p]) => `<div title="${l}: recebido ${brl(r)}, a receber ${brl(p)}" style="flex:1;min-width:0;display:flex;flex-direction:column;justify-content:flex-end;height:100%"><div style="background:#D9B9CF;border-radius:4px 4px 0 0;height:${p / max * 100}%"></div><div style="background:#6B2D5C;height:${r / max * 100}%"></div></div>`).join('')}</div>
+        <div style="display:flex;gap:${mes && m ? 2 : 6}px;margin-top:6px">${dias.map(([l]) => `<div style="flex:1;min-width:0;text-align:center;font-size:11px;color:#6B6470">${mes && Number(l) % (m ? 7 : 3) !== 1 ? '' : l}</div>`).join('')}</div>
       </section>
-      <section class="card" style="flex:1 1 300px;display:flex;flex-direction:column;gap:16px"><h2>Formas de pagamento</h2>
-        ${P.fx.map((p, i) => `<div><div style="display:flex;justify-content:space-between;font-size:13px"><b>${fx[i][0]}</b><span>${brl(P.rec * p)} · ${Math.round(p * 100)}%</span></div><div class="bar" style="height:10px;margin-top:6px"><i style="width:${p * 100}%;background:${fx[i][1]}"></i></div></div>`).join('')}
+      <section class="card" style="flex:1 1 280px;min-width:0;display:flex;flex-direction:column;gap:16px"><h2>Formas de pagamento</h2>
+        ${P.fx.map((p, i) => `<div><div style="display:flex;justify-content:space-between;gap:8px;font-size:13px"><b>${fx[i][0]}</b><span>${brl(rec * p)} · ${Math.round(p * 100)}%</span></div><div class="bar" style="height:10px;margin-top:6px"><i style="width:${p * 100}%;background:${fx[i][1]}"></i></div></div>`).join('')}
         <div style="margin-top:auto;border-radius:12px;background:#F1E6EE;color:#4A1D42;padding:12px 14px;font-size:13px">Sinais via Pix recebidos: <b>${P.sinais}</b>.</div></section>
     </div>
     <div class="flexrow">
-      <section class="card scroll" style="flex:1 1 420px;min-width:0"><h2 style="margin-bottom:12px">Comissões a pagar</h2><div style="min-width:400px">
+      <section class="card" style="flex:1 1 380px;min-width:0"><h2 style="margin-bottom:12px">Comissões a pagar</h2>
         <div class="th" style="${ccols}"><div>Profissional</div><div class="r">Produziu</div><div class="r">%</div><div class="r">Comissão</div></div>
-        ${PROFS.map((p, i) => `<div class="tr" style="${ccols}"><b>${p.nome}</b><div class="r">${brl(P.rec * share[i])}</div><div class="r" style="color:#4A4550">${Math.round(p.com * 100)}%</div><div class="r"><b>${brl(P.rec * share[i] * p.com)}</b></div></div>`).join('')}
-        <div class="tr" style="${ccols};font-weight:700;border:0"><div>Total</div><div class="r">${brl(P.rec)}</div><div></div><div class="r">${brl(PROFS.reduce((t, p, i) => t + P.rec * share[i] * p.com, 0))}</div></div>
-      </div></section>
-      <section class="card" style="flex:1 1 360px;min-width:0"><h2 style="margin-bottom:12px">Últimos pagamentos</h2>
-        ${ult.map(([c, info, v, f]) => `<div style="display:flex;justify-content:space-between;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid #F0ECE7"><div style="min-width:0"><div style="font-size:14px;font-weight:600">${c}</div><div style="font-size:12px;color:#6B6470">${info}</div></div><div class="r" style="flex:none"><div style="font-size:14px;font-weight:700">${brl(v)}</div><div style="font-size:11px;font-weight:600;color:${cor[f]}">${f}</div></div></div>`).join('')}
+        ${PROFS.map((p, i) => `<div class="tr" style="${ccols}"><b>${p.nome}</b><div class="r">${brl(rec * share[i])}</div><div class="r" style="color:#4A4550">${Math.round(p.com * 100)}%</div><div class="r"><b>${brl(rec * share[i] * p.com)}</b></div></div>`).join('')}
+        <div class="tr" style="${ccols};font-weight:700;border:0"><div>Total</div><div class="r">${brl(rec)}</div><div></div><div class="r">${brl(PROFS.reduce((t, p, i) => t + rec * share[i] * p.com, 0))}</div></div>
+      </section>
+      <section class="card" style="flex:1 1 320px;min-width:0"><h2 style="margin-bottom:12px">Pagamentos de hoje</h2>
+        ${pagos.map((a) => `<div style="display:flex;justify-content:space-between;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid #F0ECE7"><div style="min-width:0"><div style="font-size:14px;font-weight:600">${esc(a.cliente)}</div><div style="font-size:12px;color:#6B6470">${esc(SV(a.s).nome)} · ${PF[a.p].nome} · ${hh(a.h)}</div></div><div class="r" style="flex:none"><div style="font-size:14px;font-weight:700">${brl(valor(a))}</div><div style="font-size:11px;font-weight:600;color:${cor[a.metodo] || '#3A3540'}">${a.metodo}</div></div></div>`).join('') || '<div class="sub">Nenhum pagamento registrado hoje.</div>'}
       </section>
     </div></main>`;
 }
 
-/* ---------- GESTORA ---------- */
+/* ================= GESTORA ================= */
 function vGestora() {
-  const mes = S.perG === 'mes', m = mes ? 4 : 1;
-  const P = mes ? { label: 'Novembro de 2026', total: 412, concl: 349 } : { label: 'Semana de 23 a 29 de novembro', total: 104, concl: 81 };
-  const SV = [['Mão + pé', 31, 75], ['Corte masculino', 22, 50], ['Corte feminino', 15, 90], ['Escova', 12, 70], ['Corte + barba', 10, 80], ['Coloração', 6, 280]];
-  const DS = [['Desmarcou com antecedência', 'Avisou mais de 24h antes: dá para reaproveitar o horário', 5, '#C98DB8'], ['Desmarcou em cima da hora', 'Avisou menos de 24h antes', 3, '#E0995F'], ['Não compareceu', 'Faltou sem avisar', 4, '#B5532A']];
-  const EQ = [[22, 3080, .86, 2, .72], [31, 2015, .91, 4, .81], [27, 1650, .78, 3, .85], [11, 1720, .62, 1, .64], [13, 1950, .69, 2, .58]];
+  const mes = S.perG === 'mes', mult = mes ? 4 : 1, m = isM();
+  const hojeAtivos = S.appts.filter((a) => a.d === 0);
+  const P = mes ? { label: 'Novembro de 2026', total: 392 + hojeAtivos.length, concl: 349 } : { label: 'Semana de 23 a 29 de novembro', total: 84 + hojeAtivos.length, concl: 81 };
+  const cont = S.servs.map((s) => ({ s, q: (BASE_PEDIDOS[s.id] || 0) * mult + S.appts.filter((a) => a.s === s.id && ativo(a)).length })).sort((a, b) => b.q - a.q);
+  const top = cont[0], rank = cont.slice(1, 6);
+  const DS = [['Desmarcou com antecedência', 'Avisou mais de 24h antes: dá para reaproveitar o horário', 5, '#C98DB8'], ['Desmarcou em cima da hora', 'Avisou menos de 24h antes', 3, '#E0995F'], ['Não compareceu', 'Faltou sem avisar', 3 + S.appts.filter((a) => a.status === 'faltou').length, '#B5532A']];
+  const EQ = { cam: [22, 3080, .86, 2, .72], jul: [31, 2015, .91, 4, .81], raf: [27, 1650, .78, 3, .85], bia: [11, 1720, .62, 1, .64], thi: [13, 1950, .69, 2, .58] };
   const IN = [['Fernanda R.', 'Mechas · Camila · 14/nov', 350, 13], ['Carla D.', 'Alongamento em gel · Juliana · 19/nov', 160, 8], ['Rodrigo B.', 'Corte + barba · Rafael · 21/nov', 80, 6], ['Paula E.', 'Sinal da progressiva · Thiago · 24/nov', 96, 3]];
-  const dq = DS.reduce((t, d) => t + d[2] * m, 0), inV = IN.reduce((t, x) => t + x[2], 0);
-  const eq = PROFS.map((p, i) => ({ p, at: EQ[i][0] * m, fat: EQ[i][1] * m, oc: EQ[i][2], de: EQ[i][3] * m, ret: EQ[i][4] }));
+  const dq = DS.reduce((t, d) => t + d[2] * (d[0] === 'Não compareceu' ? 1 : mult), 0), inV = IN.reduce((t, x) => t + x[2], 0);
+  const eq = PROFS.map((p) => { const e = EQ[p.id]; return { p, at: e[0] * mult, fat: e[1] * mult, oc: e[2], de: e[3] * mult, ret: e[4] }; });
   eq.sort({ fat: (a, b) => b.fat - a.fat, at: (a, b) => b.at - a.at, oc: (a, b) => b.oc - a.oc }[S.ord]);
   const cols = 'grid-template-columns:1.6fr .9fr 1fr .9fr 1.6fr .9fr .9fr';
+  const ocBar = (e) => `<div style="display:flex;align-items:center;gap:8px"><div class="bar" style="flex:1"><i style="width:${e.oc * 100}%;background:#1F7A6D"></i></div><span style="font-size:13px;width:38px;text-align:right">${Math.round(e.oc * 100)}%</span></div>`;
+  const desemp = m
+    ? `<div style="display:flex;flex-direction:column;gap:10px">${eq.map((e) => `<div class="mcard"><div style="display:flex;align-items:center;gap:10px"><div class="av">${e.p.ini}</div><div style="flex:1"><b>${e.p.nome}</b><div class="sub">${e.p.func}</div></div><b>${brl(e.fat)}</b></div>
+        <div style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;font-size:13px"><div><div class="kl">Atendimentos</div><b>${e.at}</b></div><div><div class="kl">Ticket médio</div><b>${brl(e.fat / e.at)}</b></div><div><div class="kl">Desmarques</div><b style="${e.de >= 4 * mult ? 'color:#8A3B12' : ''}">${e.de}</b></div><div><div class="kl">Clientes que voltam</div><b>${Math.round(e.ret * 100)}%</b></div></div>
+        <div><div class="kl" style="margin-bottom:4px">Ocupação da agenda</div>${ocBar(e)}</div></div>`).join('')}</div>`
+    : `<div class="scroll"><div style="min-width:860px"><div class="th" style="${cols}"><div>Colaborador</div><div class="r">Atendimentos</div><div class="r">Faturamento</div><div class="r">Ticket médio</div><div>Ocupação da agenda</div><div class="r">Desmarques</div><div class="r">Clientes que voltam</div></div>
+        ${eq.map((e) => `<div class="tr" style="${cols}"><div style="display:flex;align-items:center;gap:10px"><div class="av">${e.p.ini}</div><div><b>${e.p.nome}</b><div style="font-size:12px;color:#6B6470">${e.p.func}</div></div></div><div class="r">${e.at}</div><div class="r"><b>${brl(e.fat)}</b></div><div class="r">${brl(e.fat / e.at)}</div>${ocBar(e)}<div class="r" style="${e.de >= 4 * mult ? 'color:#8A3B12;font-weight:600' : ''}">${e.de}</div><div class="r">${Math.round(e.ret * 100)}%</div></div>`).join('')}</div></div>`;
   return `<main>
     <header class="top"><div><div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap"><span class="sub">Dados de exemplo · ${P.label}</span><span class="tag" style="background:#1E1A22;color:#fff;display:inline-flex;gap:6px;align-items:center">${LOCK}Acesso restrito à gestora</span></div><h1>Painel da Gestora</h1></div>
       <div class="seg"><button class="${mes ? '' : 'on'}" data-a="perG" data-v="semana">Semana</button><button class="${mes ? 'on' : ''}" data-a="perG" data-v="mes">Mês</button></div></header>
@@ -334,126 +468,207 @@ function vGestora() {
       <div class="kpi"><div class="kl">Total de agendamentos</div><div class="kv">${P.total}</div><div class="ks">${P.concl} concluídos</div></div>
       <div class="kpi"><div class="kl">Inadimplências</div><div class="kv" style="color:#8A3B12">${IN.length}</div><div class="ks">${brl(inV)} em aberto</div></div>
       <div class="kpi"><div class="kl">Desmarques e faltas</div><div class="kv" style="color:#8A3B12">${dq}</div><div class="ks">${Math.round(dq / P.total * 100)}% dos agendamentos</div></div>
-      <div class="kpi"><div class="kl">Serviço mais pedido</div><div class="kv" style="color:#4A1D42">${SV[0][0]}</div><div class="ks">${SV[0][1] * m} pedidos</div></div>
+      <div class="kpi"><div class="kl">Serviço mais pedido</div><div class="kv" style="color:#4A1D42;font-size:20px">${esc(top.s.nome)}</div><div class="ks">${top.q} pedidos</div></div>
     </section>
     <div class="flexrow">
-      <section class="card" style="flex:1 1 420px;min-width:0;display:flex;flex-direction:column;gap:14px"><h2>Serviços mais pedidos</h2>
-        <div style="display:flex;align-items:center;gap:14px;background:#F1E6EE;border-radius:12px;padding:14px 16px"><div style="width:44px;height:44px;border-radius:12px;background:#6B2D5C;color:#fff;display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:700;flex:none">1º</div><div><div style="font-size:17px;font-weight:700;color:#4A1D42">${SV[0][0]}</div><div style="font-size:13px;color:#4A1D42">${SV[0][1] * m} pedidos · ${brl(SV[0][1] * m * SV[0][2])} faturados</div></div></div>
-        ${SV.slice(1).map(([n, q], i) => `<div><div style="display:flex;justify-content:space-between;font-size:13px"><span><span style="color:#6B6470">${i + 2}º</span> <b>${n}</b></span><span>${q * m} pedidos</span></div><div class="bar" style="margin-top:5px"><i style="width:${q / SV[0][1] * 100}%;background:#C98DB8"></i></div></div>`).join('')}
+      <section class="card" style="flex:1 1 380px;min-width:0;display:flex;flex-direction:column;gap:14px"><h2>Serviços mais pedidos</h2>
+        <div style="display:flex;align-items:center;gap:14px;background:#F1E6EE;border-radius:12px;padding:14px 16px"><div style="width:44px;height:44px;border-radius:12px;background:#6B2D5C;color:#fff;display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:700;flex:none">1º</div><div style="min-width:0"><div style="font-size:17px;font-weight:700;color:#4A1D42">${esc(top.s.nome)}</div><div style="font-size:13px;color:#4A1D42">${top.q} pedidos · ${brl(top.q * top.s.preco)} faturados</div></div></div>
+        ${rank.map((x, i) => `<div><div style="display:flex;justify-content:space-between;gap:8px;font-size:13px"><span><span style="color:#6B6470">${i + 2}º</span> <b>${esc(x.s.nome)}</b></span><span>${x.q} pedidos</span></div><div class="bar" style="margin-top:5px"><i style="width:${x.q / top.q * 100}%;background:#C98DB8"></i></div></div>`).join('')}
       </section>
-      <section class="card" style="flex:1 1 420px;min-width:0;display:flex;flex-direction:column;gap:14px"><div style="display:flex;justify-content:space-between;gap:8px"><h2>Desmarques e faltas</h2><span style="font-size:13px;color:#4A4550">${dq} no período</span></div>
-        ${DS.map(([n, d, q, c]) => `<div><div style="display:flex;justify-content:space-between;font-size:13px"><b>${n}</b><span>${q * m}</span></div><div style="font-size:12px;color:#6B6470;margin-top:2px">${d}</div><div class="bar" style="margin-top:6px"><i style="width:${q * m / dq * 100}%;background:${c}"></i></div></div>`).join('')}
-        <div style="margin-top:auto;border-radius:12px;background:#FBEFE6;color:#7A3310;padding:12px 14px;font-size:13px">Horas de agenda perdidas: <b>${7 * m}h</b> (${brl(640 * m)} que deixaram de entrar)</div>
+      <section class="card" style="flex:1 1 380px;min-width:0;display:flex;flex-direction:column;gap:14px"><div style="display:flex;justify-content:space-between;gap:8px"><h2>Desmarques e faltas</h2><span style="font-size:13px;color:#4A4550">${dq} no período</span></div>
+        ${DS.map(([n, d, q, c]) => { const qq = n === 'Não compareceu' ? q : q * mult; return `<div><div style="display:flex;justify-content:space-between;font-size:13px"><b>${n}</b><span>${qq}</span></div><div style="font-size:12px;color:#6B6470;margin-top:2px">${d}</div><div class="bar" style="margin-top:6px"><i style="width:${qq / dq * 100}%;background:${c}"></i></div></div>`; }).join('')}
+        <div style="margin-top:auto;border-radius:12px;background:#FBEFE6;color:#7A3310;padding:12px 14px;font-size:13px">Horas de agenda perdidas: <b>${7 * mult}h</b> (${brl(640 * mult)} que deixaram de entrar)</div>
       </section>
     </div>
     <section class="card"><div style="display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:12px"><h2>Desempenho por colaborador</h2>
       <div style="display:flex;gap:6px;flex-wrap:wrap;align-items:center"><span style="font-size:12px;color:#6B6470">Ordenar por</span>${[['fat', 'Faturamento'], ['at', 'Atendimentos'], ['oc', 'Ocupação']].map(([k, n]) => `<button class="pill ${S.ord === k ? 'on' : ''}" data-a="ord" data-v="${k}">${n}</button>`).join('')}</div></div>
-      <div class="scroll"><div style="min-width:860px">
-        <div class="th" style="${cols}"><div>Colaborador</div><div class="r">Atendimentos</div><div class="r">Faturamento</div><div class="r">Ticket médio</div><div>Ocupação da agenda</div><div class="r">Desmarques</div><div class="r">Clientes que voltam</div></div>
-        ${eq.map((e) => `<div class="tr" style="${cols}"><div style="display:flex;align-items:center;gap:10px"><div class="av">${e.p.ini}</div><div><b>${e.p.nome}</b><div style="font-size:12px;color:#6B6470">${e.p.func}</div></div></div><div class="r">${e.at}</div><div class="r"><b>${brl(e.fat)}</b></div><div class="r">${brl(e.fat / e.at)}</div><div style="display:flex;align-items:center;gap:8px"><div class="bar" style="flex:1"><i style="width:${e.oc * 100}%;background:#1F7A6D"></i></div><span style="font-size:13px;width:38px;text-align:right">${Math.round(e.oc * 100)}%</span></div><div class="r" style="${e.de >= 4 * m ? 'color:#8A3B12;font-weight:600' : ''}">${e.de}</div><div class="r">${Math.round(e.ret * 100)}%</div></div>`).join('')}
-      </div></div></section>
+      ${desemp}</section>
     <section class="card"><div style="display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap;margin-bottom:8px"><h2>Inadimplências em aberto</h2><span style="font-size:13px;color:#4A4550">${IN.filter((_, i) => !S.sent[i]).length} sem cobrança · ${brl(inV)} no total</span></div>
-      ${IN.map(([c, info, v, d], i) => `<div style="display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid #F0ECE7"><div style="min-width:200px;flex:1"><div style="font-size:14px;font-weight:600">${c}</div><div style="font-size:12px;color:#6B6470">${info}</div></div><span class="tag" style="background:#FBEFE6;color:#7A3310">${d} dias em atraso</span><div style="font-size:15px;font-weight:700;width:110px;text-align:right">${brl(v)}</div>${S.sent[i] ? '<span class="tag" style="background:#E3F2EE;color:#145C52;padding:11px 14px">Cobrança enviada</span>' : `<button data-a="cobrar" data-v="${i}" style="height:40px;padding:0 14px;border-radius:10px;border:1px solid #1F7A6D;background:#fff;color:#145C52;font-size:13px;font-weight:600;cursor:pointer">Cobrar no WhatsApp</button>`}</div>`).join('')}
+      ${IN.map(([c, info, v, d], i) => `<div style="display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:10px;padding:12px 0;border-bottom:1px solid #F0ECE7"><div style="min-width:180px;flex:1"><div style="font-size:14px;font-weight:600">${c}</div><div style="font-size:12px;color:#6B6470">${info}</div></div><span class="tag" style="background:#FBEFE6;color:#7A3310">${d} dias em atraso</span><div style="font-size:15px;font-weight:700;min-width:80px;text-align:right">${brl(v)}</div>${S.sent[i] ? '<span class="tag" style="background:#E3F2EE;color:#145C52;padding:11px 14px">Cobrança enviada</span>' : `<button data-a="cobrar" data-v="${i}" style="height:40px;padding:0 14px;border-radius:10px;border:1px solid #1F7A6D;background:#fff;color:#145C52;font-size:13px;font-weight:600;cursor:pointer">Cobrar no WhatsApp</button>`}</div>`).join('')}
     </section></main>`;
 }
 
-/* ---------- CLIENTE (link) ---------- */
-function vCliente() {
+/* ================= LINK DE AGENDAMENTO ================= */
+function booking() {
   const c = S.cli;
-  const online = SERV.map((s, i) => ({ s, i })).filter(({ i }) => S.on[i]);
-  const sv = SERV[c.serv];
-  const DIAS = [['Sáb', '28'], ['Ter', '1'], ['Qua', '2'], ['Qui', '3']];
+  const online = S.servs.filter((s) => s.online && s.profs.length);
+  const sv = c.serv ? SV(c.serv) : null;
   const labels = ['Etapa 1 de 4 · Serviço', 'Etapa 2 de 4 · Profissional', 'Etapa 3 de 4 · Dia e horário', 'Etapa 4 de 4 · Confirmação', 'Pronto'];
-  const prof = c.prof || sv[4][0];
   let body = '';
-  if (c.step === 1) body = `<h2 style="font-size:20px;margin-bottom:4px">Qual serviço?</h2>${online.map(({ s, i }) => `<button class="opt" data-a="cServ" data-v="${i}"><span><span style="display:block;font-size:15px;font-weight:600">${s[0]}</span><span style="display:block;font-size:12px;color:#6B6470;margin-top:2px">${durTxt(s[2])}</span></span><b style="font-size:14px">${brl2(s[3])}</b></button>`).join('')}`;
-  if (c.step === 2) body = `<h2 style="font-size:20px;margin-bottom:4px">Com quem?</h2>${sv[4].map((id) => `<button class="opt" style="justify-content:flex-start" data-a="cProf" data-v="${id}"><span class="av" style="width:40px;height:40px">${PF[id].ini}</span><span><span style="display:block;font-size:15px;font-weight:600">${PF[id].nome}</span><span style="display:block;font-size:12px;color:#6B6470;margin-top:2px">${PF[id].func}</span></span></button>`).join('')}`;
-  if (c.step === 3) {
-    const slots = c.dia === 0 ? freeSlots(allAppts(), prof, sv[2]).filter((h) => h >= 9.5).slice(0, 12) : [9, 10, 11.5, 13, 14, 15.5, 16, 17, 18].filter((_, i) => (i + c.dia) % 4 !== 0);
-    body = `<h2 style="font-size:20px;margin-bottom:4px">Quando?</h2>
-      <div style="display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px">${DIAS.map(([s, n], i) => `<button data-a="cDia" data-v="${i}" style="min-height:60px;border-radius:12px;cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:center;${i === c.dia ? 'background:#6B2D5C;color:#fff;border:1px solid #6B2D5C' : 'background:#fff;color:#1E1A22;border:1px solid #ECE7E1'}"><span style="font-size:11px">${s}</span><span style="font-size:17px;font-weight:700">${n}</span></button>`).join('')}</div>
-      <div style="font-size:13px;font-weight:600;margin-top:10px">Horários livres</div>
-      <div style="display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px">${slots.map((h) => `<button data-a="cHora" data-v="${h}" style="height:44px;border-radius:10px;border:1px solid #E2CCDC;background:#fff;color:#4A1D42;font-size:14px;font-weight:600;cursor:pointer">${hh(h)}</button>`).join('')}</div>
-      ${c.dia === 0 ? '<div style="font-size:12px;color:#6B6470">Horários marcados pela recepção na Agenda já não aparecem aqui.</div>' : ''}`;
+  if (c.step === 1) {
+    const grupos = [...new Set(online.map((s) => s.cat))];
+    body = `<h2 style="font-size:20px">Qual serviço?</h2>${grupos.map((g) => `<div class="cap" style="margin-top:6px">${esc(g)}</div>${online.filter((s) => s.cat === g).map((s) => `<button class="opt" data-a="cServ" data-v="${s.id}"><span><span style="display:block;font-size:15px;font-weight:600">${esc(s.nome)}</span><span style="display:block;font-size:12px;color:#6B6470;margin-top:2px">${durTxt(s.dur)}</span></span><b style="font-size:14px;flex:none">${brl2(s.preco)}</b></button>`).join('')}`).join('')}`;
   }
-  const data = DIAS[c.dia][0] + ' ' + DIAS[c.dia][1] + ', ' + hh(c.hora || 10);
-  if (c.step === 4) body = `<h2 style="font-size:20px;margin-bottom:4px">Confirme seu horário</h2>
+  if (c.step === 2) body = `<h2 style="font-size:20px">Com quem?</h2>
+    ${sv.profs.length > 1 ? `<button class="opt" style="justify-content:flex-start" data-a="cProf" data-v="__any"><span class="av" style="width:40px;height:40px;background:#E9F4EF;color:#145C52">✓</span><span><span style="display:block;font-size:15px;font-weight:600">Qualquer profissional</span><span style="display:block;font-size:12px;color:#6B6470;margin-top:2px">Mostra o primeiro horário livre</span></span></button>` : ''}
+    ${sv.profs.map((id) => `<button class="opt" style="justify-content:flex-start" data-a="cProf" data-v="${id}"><span class="av" style="width:40px;height:40px">${PF[id].ini}</span><span><span style="display:block;font-size:15px;font-weight:600">${PF[id].nome}</span><span style="display:block;font-size:12px;color:#6B6470;margin-top:2px">${PF[id].func}</span></span></button>`).join('')}`;
+  if (c.step === 3) {
+    const profs = c.prof === '__any' ? sv.profs : [c.prof];
+    const mapa = {};
+    profs.forEach((pid) => livres(pid, sv.id, c.d).forEach((h) => { if (!(h in mapa)) mapa[h] = pid; }));
+    const hs = Object.keys(mapa).map(Number).sort((a, b) => a - b);
+    const folga = profs.every((pid) => !trabalha(pid, c.d));
+    body = `<h2 style="font-size:20px">Quando?</h2>
+      ${c.err ? `<div class="err">${esc(c.err)}</div>` : ''}
+      <div style="display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:6px">${DIAS.map((d, i) => `<button data-a="cDia" data-v="${i}" style="min-height:60px;border-radius:12px;cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:2px;${i === c.d ? 'background:#6B2D5C;color:#fff;border:1px solid #6B2D5C' : 'background:#fff;color:#1E1A22;border:1px solid #ECE7E1'}"><span style="font-size:11px">${d.l}</span><span style="font-size:14px;font-weight:700">${d.n.slice(0, 2)}</span></button>`).join('')}</div>
+      <div style="font-size:13px;font-weight:600;margin-top:10px">Horários livres</div>
+      <div style="display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px">${hs.map((h) => `<button data-a="cHora" data-v="${h}|${mapa[h]}" style="height:44px;border-radius:10px;border:1px solid #E2CCDC;background:#fff;color:#4A1D42;font-size:14px;font-weight:600;cursor:pointer">${hh(h)}</button>`).join('') || `<div class="sub" style="grid-column:1/-1">${folga ? 'Sem atendimento neste dia. Escolha outro dia.' : 'Todos os horários deste dia já estão ocupados. Escolha outro dia.'}</div>`}</div>`;
+  }
+  if (c.step === 4) {
+    const d = DIAS[c.d];
+    body = `<h2 style="font-size:20px">Confirme seu horário</h2>
     <div class="card" style="padding:16px;display:flex;flex-direction:column;gap:10px;font-size:14px">
-      <div style="display:flex;justify-content:space-between"><span style="color:#6B6470">Serviço</span><b>${sv[0]}</b></div>
-      <div style="display:flex;justify-content:space-between"><span style="color:#6B6470">Profissional</span><b>${PF[prof].nome}</b></div>
-      <div style="display:flex;justify-content:space-between"><span style="color:#6B6470">Data</span><b>${data}</b></div>
-      <div style="display:flex;justify-content:space-between;border-top:1px solid #ECE7E1;padding-top:10px"><span style="color:#6B6470">Valor</span><b>${brl2(sv[3])}</b></div></div>
-    <label class="f">Seu nome<input type="text" id="cNome" placeholder="Nome completo"></label>
-    <label class="f">WhatsApp<input type="tel" placeholder="(00) 00000-0000"></label>
-    ${sv[3] >= 150 ? `<div style="background:#F1E6EE;border-radius:12px;padding:12px 14px;font-size:13px;color:#4A1D42">Para garantir o horário, o salão pede um sinal de <b>${brl2(Math.round(sv[3] * 0.3))}</b> via Pix, descontado no dia.</div>` : ''}
-    <button class="btn" data-a="cConf" style="height:52px;font-size:16px">${sv[3] >= 150 ? 'Pagar sinal e confirmar' : 'Confirmar horário'}</button>`;
-  if (c.step === 5) body = `<div style="display:flex;flex-direction:column;align-items:center;text-align:center;gap:12px;padding-top:40px">
+      <div style="display:flex;justify-content:space-between;gap:8px"><span style="color:#6B6470">Serviço</span><b style="text-align:right">${esc(sv.nome)}</b></div>
+      <div style="display:flex;justify-content:space-between;gap:8px"><span style="color:#6B6470">Profissional</span><b>${PF[c.pFinal].nome}</b></div>
+      <div style="display:flex;justify-content:space-between;gap:8px"><span style="color:#6B6470">Data</span><b>${d.l} ${d.n}, ${hh(c.hora)}</b></div>
+      <div style="display:flex;justify-content:space-between;gap:8px;border-top:1px solid #ECE7E1;padding-top:10px"><span style="color:#6B6470">Valor</span><b>${brl2(sv.preco)}</b></div></div>
+    <label class="f">Seu nome *<input type="text" id="cNome" value="${esc(c.nome)}" placeholder="Nome completo" autocomplete="name"></label>
+    <label class="f">WhatsApp *<input type="tel" id="cFone" value="${esc(c.fone)}" placeholder="(00) 00000-0000" inputmode="tel" autocomplete="tel"></label>
+    ${c.err ? `<div class="err">${esc(c.err)}</div>` : ''}
+    ${sv.sinal ? `<div style="background:#F1E6EE;border-radius:12px;padding:12px 14px;font-size:13px;color:#4A1D42">Para garantir o horário, o salão pede um sinal de <b>${brl2(Math.round(sv.preco * sv.sinal / 100))}</b> via Pix, descontado no dia.</div>` : ''}
+    <button class="btn" data-a="cConf" style="height:52px;font-size:16px;flex:none">${sv.sinal ? 'Pagar sinal e confirmar' : 'Confirmar horário'}</button>`;
+  }
+  if (c.step === 5) {
+    const d = DIAS[c.d];
+    body = `<div style="display:flex;flex-direction:column;align-items:center;text-align:center;gap:12px;padding-top:32px">
     <div style="width:72px;height:72px;border-radius:50%;background:#CFE8E1;color:#0F4A42;display:flex;align-items:center;justify-content:center"><svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6L9 17l-5-5"></path></svg></div>
-    <h2 style="font-size:22px">Horário confirmado!</h2><p style="margin:0;font-size:14px;color:#4A4550;max-width:280px">${sv[0]} com ${PF[prof].nome}, ${data}. Você vai receber um lembrete no WhatsApp um dia antes.</p>
-    ${c.dia === 0 ? '<a href="#agenda" style="font-size:13px;font-weight:600;color:#6B2D5C">Ver na agenda do salão →</a>' : ''}
+    <h2 style="font-size:22px">Horário confirmado!</h2><p style="margin:0;font-size:14px;color:#4A4550;max-width:300px">${esc(sv.nome)} com ${PF[c.pFinal].nome}, ${d.l} ${d.n} às ${hh(c.hora)}. Você vai receber um lembrete no WhatsApp um dia antes.</p>
     <button class="btn2" data-a="cReset" style="margin-top:8px">Fazer outro agendamento</button></div>`;
-  return `<div class="phonewrap"><div class="phone">
-    <header style="background:#1E1A22;color:#fff;padding:28px 20px 20px;display:flex;flex-direction:column;gap:12px">
-      <div style="display:flex;align-items:center;gap:10px">${c.step > 1 && c.step < 5 ? `<button data-a="cBack" aria-label="Voltar" style="width:44px;height:44px;border-radius:10px;border:0;background:#3A2F40;color:#fff;cursor:pointer;display:flex;align-items:center;justify-content:center"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 18l-6-6 6-6"></path></svg></button>` : ''}<div><div style="font-size:12px;color:#B9B2BF">Agende no</div><div style="font-size:18px;font-weight:700">Seu Salão</div></div></div>
+  }
+  return `<header style="background:#1E1A22;color:#fff;padding:24px 20px 18px;display:flex;flex-direction:column;gap:12px;flex:none">
+      <div style="display:flex;align-items:center;gap:10px">${c.step > 1 && c.step < 5 ? `<button data-a="cBack" aria-label="Voltar" style="width:44px;height:44px;border-radius:10px;border:0;background:#3A2F40;color:#fff;cursor:pointer;display:flex;align-items:center;justify-content:center;flex:none">${BACK}</button>` : `<div class="logo">C</div>`}<div><div style="font-size:12px;color:#B9B2BF">Agende no</div><div style="font-size:18px;font-weight:700">${SALAO}</div></div></div>
       <div style="display:flex;gap:6px">${[1, 2, 3, 4].map((i) => `<div style="flex:1;height:4px;border-radius:2px;background:${i <= c.step ? '#C98DB8' : '#3A2F40'}"></div>`).join('')}</div>
       <div style="font-size:13px;color:#CFC8D4">${labels[c.step - 1]}</div></header>
-    <div style="flex:1;overflow-y:auto;padding:20px;display:flex;flex-direction:column;gap:10px">${body}</div>
-  </div></div>`;
+    <div class="bookbody" style="flex:1;overflow-y:auto;padding:20px;display:flex;flex-direction:column;gap:10px">${body}</div>`;
 }
+function vCliente() {
+  if (isM()) return `<main style="padding:0;gap:0"><div style="padding:10px 16px;font-size:12px;color:#4A4550;background:#ECE7E1">Prévia do link · <a href="#agendar" target="_blank" rel="noopener" style="color:#6B2D5C;font-weight:600">abrir como a cliente vê</a></div><div style="display:flex;flex-direction:column;min-height:80vh">${booking()}</div></main>`;
+  return `<div class="preview"><div class="phone">${booking()}</div>
+    <div style="max-width:320px;display:flex;flex-direction:column;gap:12px;padding-top:12px">
+      <h1 style="font-size:22px">Link de agendamento</h1>
+      <p style="margin:0;font-size:14px;color:#4A4550">Esta é a tela que a cliente vê ao tocar no link enviado pelo WhatsApp. Funciona no celular e no computador, sem o menu interno do salão.</p>
+      <ul style="margin:0;padding-left:18px;font-size:13px;color:#4A4550;display:flex;flex-direction:column;gap:6px"><li>Só aparecem serviços marcados como "No link online".</li><li>Só aparecem profissionais que fazem o serviço.</li><li>Só aparecem horários livres, dentro da escala e fora do almoço.</li><li>O que a cliente marca entra na hora na Agenda.</li></ul>
+      <a class="btn" href="#agendar" target="_blank" rel="noopener" style="display:flex;align-items:center;justify-content:center;text-decoration:none">Abrir o link público</a>
+    </div></div>`;
+}
+function vPublico() { return `<div class="pub"><div class="book">${booking()}</div></div>`; }
 
-/* ---------- render + eventos ---------- */
+/* ================= RENDER + EVENTOS ================= */
 const VIEWS = { agenda: vAgenda, escala: vEscala, servicos: vServicos, pagamentos: vPagamentos, gestora: vGestora, cliente: vCliente };
+let lastM = isM();
 function render() {
-  const r = VIEWS[route()] ? route() : 'agenda';
-  document.getElementById('app').innerHTML = `<div class="wrap">${nav(r)}${VIEWS[r]()}</div>`;
+  const r = route();
+  const app = document.getElementById('app');
+  if (r === 'agendar') { document.title = 'Agende no ' + SALAO; app.innerHTML = vPublico(); return; }
+  document.title = SALAO + ' — Gestão e agendamento';
+  const v = VIEWS[r] ? r : 'agenda';
+  app.innerHTML = `<div class="wrap">${nav(v)}${VIEWS[v]()}</div>`;
+}
+function salvarAgendamento(pid, sid, d, h, cliente, orig) {
+  const c = conflito(pid, sid, d, h);
+  if (c) return c;
+  const id = 'n' + Date.now().toString(36) + Math.random().toString(36).slice(2, 5);
+  S.appts.push({ id, p: pid, d, h, s: sid, cliente, status: 'agendado', metodo: null, orig });
+  return id;
 }
 document.addEventListener('click', (e) => {
   const b = e.target.closest('[data-a]'); if (!b) return;
   const a = b.dataset.a, v = b.dataset.v;
-  if (a === 'sel') { S.sel = v; S.panel = null; }
-  else if (a === 'pay') S.over[S.sel] = { status: 'pago', metodo: v };
-  else if (a === 'falta') S.over[S.sel] = { status: 'faltou' };
-  else if (a === 'panel') S.panel = v || null;
+  if (a !== 'toastX' && !['nsSalvar', 'salvar', 'esc'].includes(a)) S.toast = null;
+  if (a === 'toastX') S.toast = null;
+  else if (a === 'sel') { S.sel = v; S.panel = null; }
+  else if (a === 'agProf') S.agProf = v;
+  else if (a === 'pay') { const x = S.appts.find((q) => q.id === S.sel); x.status = 'pago'; x.metodo = v; }
+  else if (a === 'falta') { const x = S.appts.find((q) => q.id === S.sel); x.status = 'faltou'; }
+  else if (a === 'panel') { S.panel = v || null; if (isM() && v) setTimeout(() => { const p = document.getElementById('painel'); if (p && p.scrollIntoView) p.scrollIntoView({ behavior: 'smooth' }); }, 0); }
   else if (a === 'slot') S.form.hora = Number(v);
   else if (a === 'salvar') {
     const f = S.form; if (f.hora == null) return;
-    const sv = SERV[f.serv], id = 'n' + (S.extra.length + 1);
-    S.extra.push([id, f.prof, f.hora, sv[2], f.cliente || 'Nova cliente', sv[0], sv[3], 'agendado', null, 'rec']);
-    S.sel = id; S.panel = null; f.cliente = ''; f.hora = null;
+    const r = salvarAgendamento(f.prof, f.serv, f.d, f.hora, f.cliente.trim() || 'Nova cliente', 'rec');
+    if (r.startsWith('n')) {
+      S.toast = 'Agendado: ' + (f.cliente.trim() || 'Nova cliente') + ' · ' + SV(f.serv).nome + ' com ' + PF[f.prof].nome + ' · ' + DIAS[f.d].l + ' ' + DIAS[f.d].n + ' às ' + hh(f.hora);
+      if (f.d === 0) S.sel = r;
+      S.panel = null; f.cliente = ''; f.hora = null;
+    } else S.toast = 'Não foi possível agendar: ' + r;
   }
-  else if (a === 'esc') { const [ri, di] = v.split(',').map(Number); S.grade[ri][di] = S.grade[ri][di] ? 0 : 1; }
+  else if (a === 'esc') {
+    const [ri, di] = v.split(',').map(Number);
+    if (S.grade[ri][di]) {
+      const di2 = DIAS.findIndex((d) => d.w === di);
+      const tem = di2 >= 0 && S.appts.some((q) => q.p === PROFS[ri].id && q.d === di2 && ativo(q));
+      if (tem) { S.toast = PROFS[ri].nome + ' tem clientes marcadas na ' + DIAS_ESC[di] + '. Remarque antes de dar folga.'; render(); return; }
+    }
+    S.grade[ri][di] = S.grade[ri][di] ? 0 : 1; S.toast = null;
+  }
   else if (a === 'cat') S.cat = v;
-  else if (a === 'online') S.on[v] = !S.on[v];
+  else if (a === 'online') { const s = SV(v); s.online = !s.online; }
+  else if (a === 'servTab') { S.servTab = v; S.nsErr = {}; }
+  else if (a === 'nsLimpar') { S.ns = nsVazio(); S.nsErr = {}; }
+  else if (a === 'nsSalvar') {
+    const n = S.ns, E = {};
+    const nome = n.nome.trim();
+    if (!nome) E.nome = 'Informe o nome.';
+    else if (S.servs.some((s) => s.nome.toLowerCase() === nome.toLowerCase())) E.nome = 'Já existe um serviço com esse nome.';
+    const cat = n.cat === '__nova' ? n.catNova.trim() : n.cat;
+    if (!cat) E.cat = 'Informe a categoria.';
+    const preco = parseFloat(String(n.preco).replace(',', '.'));
+    if (!(preco > 0)) E.preco = 'Informe um preço maior que zero.';
+    if (!n.profs.length) E.profs = 'Marque pelo menos um profissional.';
+    S.nsErr = E;
+    if (Object.keys(E).length) { S.toast = null; render(); return; }
+    const id = 's' + Date.now().toString(36);
+    const sinal = n.sinal === 'auto' ? (preco >= 150 ? 30 : 0) : Number(n.sinal);
+    S.servs.push({ id, nome, cat, dur: Number(n.dur), preco, profs: n.profs.slice(), online: n.online, sinal, com: n.com === '' ? null : Number(n.com) / 100 });
+    S.toast = 'Serviço "' + nome + '" adicionado. Já aparece na agenda' + (n.online ? ', no link de agendamento' : '') + ' e no Painel da Gestora.';
+    S.ns = nsVazio(); S.servTab = 'lista'; S.cat = 'Todos';
+  }
   else if (a === 'perD') S.perD = v;
   else if (a === 'perG') S.perG = v;
   else if (a === 'ord') S.ord = v;
   else if (a === 'cobrar') S.sent[v] = true;
-  else if (a === 'cServ') { S.cli.serv = Number(v); S.cli.prof = null; S.cli.step = 2; }
-  else if (a === 'cProf') { S.cli.prof = v; S.cli.step = 3; }
-  else if (a === 'cDia') S.cli.dia = Number(v);
-  else if (a === 'cHora') { S.cli.hora = Number(v); S.cli.step = 4; }
-  else if (a === 'cBack') S.cli.step--;
+  else if (a === 'cServ') { S.cli.serv = v; S.cli.prof = null; S.cli.step = 2; }
+  else if (a === 'cProf') { S.cli.prof = v; S.cli.step = 3; S.cli.err = null; }
+  else if (a === 'cDia') { S.cli.d = Number(v); S.cli.err = null; }
+  else if (a === 'cHora') { const [h, pid] = v.split('|'); S.cli.hora = Number(h); S.cli.pFinal = pid; S.cli.step = 4; S.cli.err = null; }
+  else if (a === 'cBack') { S.cli.step--; S.cli.err = null; }
   else if (a === 'cConf') {
-    const c = S.cli, sv = SERV[c.serv], prof = c.prof || sv[4][0];
-    if (c.dia === 0) {
-      const nm = (document.getElementById('cNome') || {}).value || 'Cliente do link';
-      S.extra.push(['n' + (S.extra.length + 1), prof, c.hora, sv[2], nm, sv[0], sv[3], 'agendado', null, 'link']);
-    }
-    c.step = 5;
+    const c = S.cli;
+    if (!c.nome.trim() || c.fone.replace(/\D/g, '').length < 10) { c.err = 'Preencha seu nome e um WhatsApp com DDD.'; render(); return; }
+    const r = salvarAgendamento(c.pFinal, c.serv, c.d, c.hora, c.nome.trim(), 'link');
+    if (!r.startsWith('n')) { c.err = 'Esse horário acabou de ser ocupado. Escolha outro.'; c.step = 3; render(); return; }
+    c.step = 5; c.err = null;
   }
-  else if (a === 'cReset') S.cli = { step: 1, serv: 0, prof: null, dia: 0, hora: null };
+  else if (a === 'cReset') S.cli = { step: 1, serv: null, prof: null, d: 0, hora: null, nome: S.cli.nome, fone: S.cli.fone };
   else return;
   render();
+  if (/^c[A-Z]/.test(a)) { const bb = document.querySelector('.bookbody'); if (bb) bb.scrollTop = 0; }
 });
 document.addEventListener('input', (e) => {
-  if (e.target.id === 'fone') { S.fone = e.target.value; const l = document.getElementById('walink'); if (l) l.href = waHref(); }
-  if (e.target.id === 'cliNome') S.form.cliente = e.target.value;
+  const t = e.target, id = t.id;
+  if (id === 'fone') { S.fone = t.value; const l = document.getElementById('walink'); if (l) l.href = waHref(); }
+  else if (id === 'cliNome') S.form.cliente = t.value;
+  else if (id === 'cNome') S.cli.nome = t.value;
+  else if (id === 'cFone') S.cli.fone = t.value;
+  else if (id === 'nsNome') S.ns.nome = t.value;
+  else if (id === 'nsCatNova') S.ns.catNova = t.value;
+  else if (id === 'nsPreco') S.ns.preco = t.value;
 });
 document.addEventListener('change', (e) => {
-  if (e.target.id === 'fServ') { S.form.serv = Number(e.target.value); S.form.hora = null; render(); }
-  if (e.target.id === 'fProf') { S.form.prof = e.target.value; S.form.hora = null; render(); }
+  const t = e.target, id = t.id;
+  if (id === 'fServ') { S.form.serv = t.value; S.form.hora = null; render(); }
+  else if (id === 'fProf') { S.form.prof = t.value; S.form.hora = null; render(); }
+  else if (id === 'fDia') { S.form.d = Number(t.value); S.form.hora = null; render(); }
+  else if (id === 'nsCat') { S.ns.cat = t.value; render(); }
+  else if (id === 'nsDur') S.ns.dur = Number(t.value);
+  else if (id === 'nsSinal') S.ns.sinal = t.value;
+  else if (id === 'nsCom') S.ns.com = t.value;
+  else if (id === 'nsOnline') S.ns.online = t.checked;
+  else if (t.classList.contains('nsProf')) { const p = S.ns.profs; if (t.checked) { if (!p.includes(t.value)) p.push(t.value); } else if (p.includes(t.value)) p.splice(p.indexOf(t.value), 1); }
 });
-window.addEventListener('hashchange', () => { render(); window.scrollTo(0, 0); });
+window.addEventListener('hashchange', () => { S.toast = null; render(); window.scrollTo(0, 0); });
+window.addEventListener('resize', () => { if (isM() !== lastM) { lastM = isM(); render(); } });
+window.__auditoria = auditoria;
+window.__S = S;
 render();
 </script>
 </body>

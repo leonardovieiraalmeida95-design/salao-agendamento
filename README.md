@@ -1,4 +1,4 @@
-# App de Agendamento para Salão
+# Salão da Cristina — App de Agendamento
 
 Sistema de agendamento e gestão para salões de beleza: agenda por profissional, escala da equipe, catálogo de serviços, pagamentos, painel da gestora e link de agendamento online enviado pelo WhatsApp.
 
