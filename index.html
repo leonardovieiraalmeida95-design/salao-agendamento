@@ -239,7 +239,7 @@ const S = {
   form: { cliente: '', serv: 'cfem', prof: 'cam', d: 0, hora: null, editId: null },
   cat: 'Todos', servTab: 'lista', ns: null, nsErr: {}, editId: null, confirmDel: false,
   perD: 'semana', perG: 'semana', ord: 'fat', sent: {},
-  clientes: [], cliSel: null, cliBusca: '', cliFiltro: 'todas',
+  clientes: [], cliSel: null, cliBusca: '', cliFiltro: 'todas', cliEdit: null,
   cli: { step: 1, serv: null, prof: null, d: 0, hora: null, nome: '', fone: '' }
 };
 const SV = (id) => S.servs.find((s) => s.id === id);
@@ -881,6 +881,11 @@ function cliMsg(c, st) {
   if (st.sumida) return 'Oi, ' + n + '! 💜 Que saudade de você aqui no *' + SALAO + '*!\n\nFaz um tempinho que você não vem... Que tal reservar seu horário? É rapidinho pelo link:\n' + LINK;
   return 'Oi, ' + n + '! Aqui é do *' + SALAO + '* 💜';
 }
+// Cancelou o cadastro de uma cliente nova sem salvar: tira da lista
+function descartaNova() {
+  const e = S.cliEdit;
+  if (e && e.novo) { const c = CL(e.id); if (c && !c.hist.length && !S.appts.some((a) => a.cid === c.id)) { S.clientes = S.clientes.filter((x) => x.id !== c.id); if (S.cliSel === c.id) S.cliSel = null; } }
+}
 function cliHref(c, st) { const f = soDig(c.fone); return 'https://wa.me/' + (f.length >= 10 ? '55' + f : '') + '?text=' + encodeURIComponent(cliMsg(c, st)); }
 function vClientes() {
   const m = isM();
@@ -907,6 +912,40 @@ function vClientes() {
       ${sel ? ficha(sel.c, sel.st, m) : (m ? '' : '<section class="card" style="flex:999 1 480px"><div class="sub">Escolha uma cliente.</div></section>')}
     </div></main>`;
 }
+const foneFmt = (f) => { const d = soDig(f); return d.length === 11 ? '(' + d.slice(0, 2) + ') ' + d.slice(2, 7) + '-' + d.slice(7) : d.length === 10 ? '(' + d.slice(0, 2) + ') ' + d.slice(2, 6) + '-' + d.slice(6) : String(f || ''); };
+// Dados da cliente: leitura com botão Editar, ou formulário com Salvar / Cancelar
+function dadosCliente(c, nasc) {
+  const e = S.cliEdit && S.cliEdit.id === c.id ? S.cliEdit : null;
+  if (!e) {
+    const linha = (l, v) => `<div><div class="kl">${l}</div><div style="font-size:15px;font-weight:600;margin-top:2px;overflow-wrap:anywhere">${v}</div></div>`;
+    return `<div style="display:flex;flex-direction:column;gap:12px;border-top:1px solid #ECE7E1;padding-top:16px">
+      <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap"><div class="cap">Dados da cliente</div>
+        <button class="btn2" style="height:40px;display:inline-flex;align-items:center;gap:6px" data-a="cliEditar" data-v="${c.id}"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 20h9"></path><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4z"></path></svg>Editar informações</button></div>
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:14px">
+        ${linha('Nome', esc(c.nome))}
+        ${linha('WhatsApp', c.fone ? esc(foneFmt(c.fone)) : '<span style="color:#6B6470;font-weight:400">Não informado</span>')}
+        ${linha('Aniversário', nasc ? pad2(nasc.getDate()) + '/' + pad2(nasc.getMonth() + 1) + '/' + nasc.getFullYear() : '<span style="color:#6B6470;font-weight:400">Não informado</span>')}
+      </div>
+      ${linha('Observações', c.obs ? esc(c.obs) : '<span style="color:#6B6470;font-weight:400">Nenhuma</span>')}
+    </div>`;
+  }
+  const er = e.err || {};
+  return `<div style="display:flex;flex-direction:column;gap:12px;border:2px solid #E2CCDC;background:#FBF7FA;border-radius:16px;padding:16px">
+      <div class="cap" style="color:#4A1D42">${e.novo ? 'Cadastrar cliente' : 'Editando informações'}</div>
+      ${er.geral ? `<div class="err">${esc(er.geral)}</div>` : ''}
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px">
+        <label class="f">Nome *<input type="text" id="ceNome" value="${esc(e.nome)}" placeholder="Nome da cliente">${er.nome ? `<span class="err">${er.nome}</span>` : ''}</label>
+        <label class="f">WhatsApp<input type="tel" inputmode="tel" id="ceFone" value="${esc(e.fone)}" placeholder="(43) 99999-9999">${er.fone ? `<span class="err">${er.fone}</span>` : ''}</label>
+        <label class="f">Aniversário<input type="date" id="ceNasc" value="${esc(e.nasc)}"></label>
+      </div>
+      <label class="f">Observações <span class="sub" style="font-weight:400">(alergias, preferências, cuidados)</span><textarea id="ceObs" rows="3" placeholder="Ex.: alergia a amônia, prefere escova média...">${esc(e.obs)}</textarea></label>
+      <div style="display:flex;gap:8px;flex-wrap:wrap">
+        <button class="btn" style="flex:1 1 180px" data-a="cliSalvar">Salvar alterações</button>
+        <button class="btn2" style="flex:1 1 120px" data-a="cliCancelar">Cancelar</button>
+      </div>
+      ${e.novo ? '' : '<div class="sub" style="font-size:12px">As alterações também valem para os agendamentos e lembretes desta cliente.</div>'}
+    </div>`;
+}
 function ficha(c, st, m) {
   const ticket = st.visitas ? st.gasto / st.visitas : 0;
   const nasc = c.nasc ? new Date(c.nasc + 'T12:00:00') : null;
@@ -931,6 +970,7 @@ function ficha(c, st, m) {
         </div></div>
       <div style="display:flex;gap:8px;flex-wrap:wrap">
         <a class="btnwa" style="text-decoration:none" href="${cliHref(c, st)}" target="_blank" rel="noopener">${WA}${st.aniv ? 'Mandar parabéns' : st.sumida ? 'Chamar de volta' : 'WhatsApp'}</a>
+        <button class="btn2" data-a="cliEditar" data-v="${c.id}">Editar</button>
         <button class="btn" data-a="cliAgendar" data-v="${c.id}">Agendar horário</button>
       </div></div>
     <div class="fk">${kp.map(([l, v]) => `<div><div class="kl">${l}</div><div style="font-size:17px;font-weight:700;margin-top:2px">${v}</div></div>`).join('')}</div>
@@ -938,15 +978,7 @@ function ficha(c, st, m) {
       <div class="pref"><div class="kl">Profissional preferida</div><b>${st.prefP ? PF[st.prefP].nome + ' · ' + PF[st.prefP].func : '—'}</b></div>
       <div class="pref"><div class="kl">Serviço que mais faz</div><b>${st.prefS ? esc(SV(st.prefS).nome) : '—'}</b></div>
     </div>
-    <div style="display:flex;flex-direction:column;gap:12px;border-top:1px solid #ECE7E1;padding-top:16px">
-      <div class="cap">Dados da cliente</div>
-      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px">
-        <label class="f">Nome<input type="text" id="cfNome" data-cf="nome" value="${esc(c.nome)}"></label>
-        <label class="f">WhatsApp<input type="tel" inputmode="tel" data-cf="fone" value="${esc(c.fone)}" placeholder="(43) 99999-9999"></label>
-        <label class="f">Aniversário<input type="date" data-cf="nasc" value="${esc(c.nasc)}"></label>
-      </div>
-      <label class="f">Observações <span class="sub" style="font-weight:400">(alergias, preferências, cuidados)</span><textarea data-cf="obs" rows="3" placeholder="Ex.: alergia a amônia, prefere escova média...">${esc(c.obs)}</textarea></label>
-    </div>
+    ${dadosCliente(c, nasc)}
     <div style="display:flex;flex-direction:column;gap:4px;border-top:1px solid #ECE7E1;padding-top:16px">
       <div class="cap" style="margin-bottom:8px">Histórico · ${st.todos.length} registro${st.todos.length === 1 ? '' : 's'}</div>
       <div class="hl">${hist || '<div class="sub">Sem atendimentos ainda.</div>'}</div>
@@ -1005,14 +1037,36 @@ document.addEventListener('click', (e) => {
     S.panel = 'novo'; S.confirmEx = null;
     if (isM()) setTimeout(() => { const p = document.getElementById('painel'); if (p && p.scrollIntoView) p.scrollIntoView({ behavior: 'smooth' }); }, 0);
   }
-  else if (a === 'cliSel') { S.cliSel = v || null; if (isM()) window.scrollTo(0, 0); }
+  else if (a === 'cliSel') { descartaNova(); S.cliSel = v || null; S.cliEdit = null; if (isM()) window.scrollTo(0, 0); }
   else if (a === 'cliFiltro') S.cliFiltro = v;
   else if (a === 'cliNova') {
+    descartaNova();
     const c = { id: 'c' + Date.now().toString(36), nome: 'Nova cliente', fone: '', nasc: '', obs: '', hist: [] };
     S.clientes.push(c); S.cliSel = c.id; S.cliBusca = ''; S.cliFiltro = 'todas';
-    render(); const el = document.getElementById('cfNome'); if (el) { el.focus(); el.select(); } return;
+    S.cliEdit = { id: c.id, nome: '', fone: '', nasc: '', obs: '', err: {}, novo: true };
+    render(); const el = document.getElementById('ceNome'); if (el) el.focus(); return;
   }
-  else if (a === 'verFicha') { S.cliSel = v; S.cliBusca = ''; S.cliFiltro = 'todas'; location.hash = '#clientes'; return; }
+  else if (a === 'cliEditar') {
+    const c = CL(v); S.cliEdit = { id: c.id, nome: c.nome, fone: c.fone, nasc: c.nasc, obs: c.obs, err: {} };
+    render(); const el = document.getElementById('ceNome'); if (el) { el.focus(); el.scrollIntoView({ block: 'center' }); } return;
+  }
+  else if (a === 'cliCancelar') { descartaNova(); S.cliEdit = null; }
+  else if (a === 'cliSalvar') {
+    const e = S.cliEdit, c = CL(e.id), E = {};
+    const nome = e.nome.trim(), fd = soDig(e.fone);
+    if (!nome) E.nome = 'Informe o nome.';
+    else if (S.clientes.some((x) => x.id !== c.id && normNome(x.nome) === normNome(nome))) E.nome = 'Já existe uma cliente com esse nome. Use o sobrenome ou a inicial para diferenciar.';
+    if (fd && (fd.length < 10 || fd.length > 11)) E.fone = 'WhatsApp com DDD: 10 ou 11 números.';
+    else if (fd && S.clientes.some((x) => x.id !== c.id && soDig(x.fone) === fd)) E.fone = 'Este WhatsApp já está na ficha de ' + S.clientes.find((x) => x.id !== c.id && soDig(x.fone) === fd).nome + '.';
+    if (Object.keys(E).length) { e.err = E; render(); return; }
+    const foneAntigo = c.fone, fone = fd ? foneFmt(fd) : '';
+    Object.assign(c, { nome, fone, nasc: e.nasc, obs: e.obs.trim() });
+    // Leva as mudanças para os agendamentos desta cliente
+    S.appts.forEach((ap) => { if (ap.cid === c.id) { ap.cliente = nome; if (!ap.fone || soDig(ap.fone) === soDig(foneAntigo)) ap.fone = fone; } });
+    S.toast = (e.novo ? 'Cliente ' + nome + ' cadastrada.' : 'Informações de ' + nome + ' atualizadas.');
+    S.cliEdit = null;
+  }
+  else if (a === 'verFicha') { S.cliEdit = null; S.cliSel = v; S.cliBusca = ''; S.cliFiltro = 'todas'; location.hash = '#clientes'; return; }
   else if (a === 'cliAgendar') {
     const c = CL(v), st = cliStats(c);
     const sv = st.prefS && SV(st.prefS) && !SV(st.prefS).arq ? st.prefS : S.form.serv;
@@ -1156,6 +1210,7 @@ document.addEventListener('input', (e) => {
     S.cliBusca = t.value; render();
     const el = document.getElementById('cliBusca'); if (el) { el.focus(); el.setSelectionRange(el.value.length, el.value.length); }
   }
+  else if (S.cliEdit && ['ceNome', 'ceFone', 'ceNasc', 'ceObs'].includes(id)) S.cliEdit[{ ceNome: 'nome', ceFone: 'fone', ceNasc: 'nasc', ceObs: 'obs' }[id]] = t.value;
   else if (t.dataset.cf) {
     const c = CL(S.cliSel); if (!c) return;
     c[t.dataset.cf] = t.value;
