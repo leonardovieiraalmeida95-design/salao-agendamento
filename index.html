@@ -71,6 +71,21 @@ label.f{display:flex;flex-direction:column;gap:6px;font-size:13px;font-weight:60
 .mdn{font-size:13px;font-weight:700}.mdh{font-size:10px;font-weight:700;color:#fff;background:#6B2D5C;border-radius:6px;padding:1px 5px}
 .mdc{font-size:20px;font-weight:700;color:#4A1D42}.mdc small{font-size:11px;font-weight:500}
 .mds{font-size:11px;color:#6B6470}
+.mcal{background:linear-gradient(#FBF7FA,#FBF7FA);border:1px solid #EBD9E6;border-radius:18px;padding:14px 12px 12px}
+.mch{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:0 4px 10px;font-size:14px;color:#4A1D42}
+.mcleg{display:flex;align-items:center;gap:5px;font-size:11px;color:#6B6470}
+.mcg{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:4px;justify-items:center}
+.mcw{font-size:11px;font-weight:600;color:#6B6470;padding-bottom:2px}
+.mc{position:relative;width:38px;height:38px;max-width:100%;border-radius:50%;border:0;background:#fff;color:#1E1A22;font-size:14px;font-weight:600;cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:0 1px 2px rgba(30,26,34,.08)}
+.mc:hover:not(:disabled){background:#F1E6EE}
+.mc.hoje{box-shadow:0 0 0 2px #C98DB8}
+.mc.on{background:#6B2D5C;color:#fff;box-shadow:0 2px 6px rgba(107,45,92,.35)}
+.mc.off{background:transparent;color:#B9B2BF;box-shadow:none;cursor:not-allowed;font-weight:500}
+.mc.cheio{color:#9C94A3;background:#F6F4F1}
+.mcd{position:absolute;bottom:4px;left:50%;margin-left:-2.5px;width:5px;height:5px;border-radius:50%;background:#1F7A6D;display:inline-block}
+.mc.on .mcd{background:#fff}
+.mcm{position:absolute;top:-6px;font-size:9px;font-weight:700;color:#6B2D5C;background:#FBF7FA;padding:0 3px;border-radius:4px;line-height:1.2}
+.mc.on .mcm{color:#6B2D5C}
 .mcard{border:1px solid #ECE7E1;border-radius:14px;padding:14px;display:flex;flex-direction:column;gap:10px;background:#fff}
 .preview{flex:999 1 560px;min-width:0;display:flex;flex-wrap:wrap;gap:24px;justify-content:center;align-items:flex-start;padding:28px 16px}
 .phone{width:390px;max-width:100%;height:780px;background:#F6F4F1;border-radius:28px;border:1px solid #DDD7D0;overflow:hidden;display:flex;flex-direction:column;box-shadow:0 8px 30px rgba(30,26,34,.12)}
@@ -297,6 +312,23 @@ function diaStrip(act, sel, off) {
   return `<div class="chips daystrip" role="group" aria-label="Escolher dia">${DIAS.map((d, i) => `<button class="dchip ${i === sel ? 'on' : ''} ${off(i) ? 'off' : ''}" ${i === sel ? 'data-sel="1" aria-current="date"' : ''} data-a="${act}" data-v="${i}" aria-label="${d.longo}${off(i) ? ', sem atendimento' : ''}"><span style="font-size:11px">${i === 0 ? 'Hoje' : d.sem}</span><b style="font-size:16px">${d.dt.getDate()}</b><span style="font-size:10px">${MES_AB[d.dt.getMonth()]}</span></button>`).join('')}</div>`;
 }
 const fechado = (i) => PROFS.every((p) => !trabalha(p.id, i));
+// Calendário do mês em quadro, com dias redondos. off(i) = sem atendimento; tem(i) = tem horário livre (bolinha)
+function miniCal(act, sel, off, tem) {
+  const d0 = DIAS[0].dt, d1 = DIAS[N_DIAS - 1].dt;
+  const titulo = d0.getDate() + ' ' + MES_AB[d0.getMonth()] + ' – ' + d1.getDate() + ' ' + MES_AB[d1.getMonth()];
+  const cells = [];
+  for (let k = 0; k < DIAS[0].w; k++) cells.push('<span aria-hidden="true"></span>');
+  DIAS.forEach((d, i) => {
+    const o = off(i), livre = !o && tem(i);
+    const cls = ['mc', i === sel ? 'on' : '', i === 0 ? 'hoje' : '', o ? 'off' : '', !o && !livre ? 'cheio' : ''].join(' ');
+    const mes = d.dt.getDate() === 1 ? `<span class="mcm">${MES_AB[d.dt.getMonth()]}</span>` : '';
+    cells.push(`<button class="${cls}" data-a="${act}" data-v="${i}" ${o ? 'disabled' : ''} ${i === sel ? 'aria-pressed="true"' : ''} aria-label="${d.longo}${o ? ', folga' : livre ? ', tem horário livre' : ', lotado'}">${mes}${d.dt.getDate()}${livre ? '<i class="mcd"></i>' : ''}</button>`);
+  });
+  return `<div class="mcal">
+    <div class="mch"><b>${titulo}</b><span class="mcleg"><i class="mcd" style="position:static"></i> livre</span></div>
+    <div class="mcg">${DIAS_ESC.map((x) => `<span class="mcw">${x.slice(0, 1)}</span>`).join('')}${cells.join('')}</div>
+  </div>`;
+}
 function vMes() {
   const cells = [];
   for (let k = 0; k < DIAS[0].w; k++) cells.push('<div aria-hidden="true"></div>');
@@ -348,7 +380,12 @@ function vAgenda() {
         <button class="btn2" style="padding:0 8px" data-a="desmarcar">Cliente desmarcou</button>
         <button class="btn2" style="padding:0 8px;color:#8A3B12" data-a="falta">Faltou</button>
       </div>`
-      : `<button class="btn2" data-a="desfazer">${cur.status === 'pago' ? 'Desfazer pagamento' : 'Voltar para agendado'}</button>`;
+      : cur.status === 'pago'
+        ? `<button class="btn2" data-a="desfazer">Desfazer pagamento</button>`
+        : `<div style="border-top:1px solid #ECE7E1;padding-top:14px;display:flex;flex-direction:column;gap:8px">
+            <div style="font-size:13px;color:#4A4550">${cur.status === 'faltou' ? 'A cliente faltou.' : 'A cliente desmarcou.'} Quer marcar um novo dia para ela?</div>
+            <button class="btn" data-a="remarcar">Remarcar para outro dia</button>
+            <button class="btn2" data-a="desfazer">Voltar para agendado</button></div>`;
     const excluir = S.confirmEx === cur.id
       ? `<div style="background:#FBEFE6;border-radius:12px;padding:12px;display:flex;flex-direction:column;gap:8px"><div style="font-size:13px;color:#7A3310;font-weight:600">Excluir de vez o agendamento de ${esc(cur.cliente)}? Ele some da agenda e dos relatórios.</div><div style="display:flex;gap:8px"><button class="btn" style="flex:1;background:#9A2D0F" data-a="excluirSim">Sim, excluir</button><button class="btn2" style="flex:1" data-a="excluirNao">Não</button></div></div>`
       : `<button data-a="excluir" style="height:44px;border:0;background:transparent;color:#9A2D0F;font-size:13px;font-weight:600;cursor:pointer">Excluir agendamento</button>`;
@@ -411,12 +448,13 @@ function pNovo() {
   const sl = livres(f.prof, f.serv, f.d, f.editId);
   if (f.hora != null && !sl.includes(f.hora)) f.hora = null;
   const motivo = !trabalha(f.prof, f.d) ? PF[f.prof].nome + ' está de folga neste dia.' : 'Sem horários livres para este serviço neste dia.';
-  return `<div style="display:flex;justify-content:space-between;align-items:center"><div class="cap">${f.editId ? 'Remarcar agendamento' : 'Novo agendamento · recepção'}</div><button class="x" data-a="panel" data-v="" aria-label="Fechar">×</button></div>
+  return `<div style="display:flex;justify-content:space-between;align-items:center"><div class="cap">${f.editId || f.fromId ? 'Remarcar · ' + esc(f.cliente) : 'Novo agendamento · recepção'}</div><button class="x" data-a="panel" data-v="" aria-label="Fechar">×</button></div>
     <label class="f">Cliente<input type="text" id="cliNome" value="${esc(f.cliente)}" placeholder="Nome da cliente"></label>
     <label class="f">Serviço<select id="fServ">${SA().map((x) => `<option value="${x.id}" ${x.id === s.id ? 'selected' : ''}>${esc(x.nome)} · ${durTxt(x.dur)} · ${brl(x.preco)}</option>`).join('')}</select></label>
     <label class="f">Profissional <span class="sub" style="font-weight:400">(só quem faz este serviço)</span><select id="fProf">${s.profs.map((id) => `<option value="${id}" ${id === f.prof ? 'selected' : ''}>${PF[id].nome} · ${PF[id].func}</option>`).join('')}</select></label>
-    <label class="f">Dia<select id="fDia">${DIAS.map((d, i) => `<option value="${i}" ${i === f.d ? 'selected' : ''}>${d.l} · ${d.n}${fechado(i) ? ' · fechado' : ''}</option>`).join('')}</select></label>
-    <div style="font-size:13px;font-weight:600">Horários livres</div>
+    <div style="font-size:13px;font-weight:600">Dia</div>
+    ${miniCal('fDiaPick', f.d, (i) => !trabalha(f.prof, i), (i) => livres(f.prof, f.serv, i, f.editId).length > 0)}
+    <div style="font-size:13px;font-weight:600">Horários livres · <span style="color:#6B2D5C">${DIAS[f.d].longo}</span></div>
     <div style="display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px">${sl.map((h) => `<button data-a="slot" data-v="${h}" style="height:40px;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;${f.hora === h ? 'background:#6B2D5C;color:#fff;border:1px solid #6B2D5C' : 'background:#fff;color:#4A1D42;border:1px solid #E2CCDC'}">${hh(h)}</button>`).join('') || `<div class="sub" style="grid-column:1/-1">${motivo}</div>`}</div>
     <button class="btn" data-a="salvar" style="height:48px" ${f.hora == null ? 'disabled' : ''}>${f.editId ? 'Salvar novo horário' : 'Salvar na agenda'}</button>
     <div style="font-size:12px;color:#6B6470">${f.editId ? 'O horário antigo fica livre de novo na agenda e no link.' : 'Assim que salvar, o horário some do link de agendamento online.'}</div>`;
@@ -716,7 +754,14 @@ document.addEventListener('click', (e) => {
   else if (a === 'excluir') S.confirmEx = S.sel;
   else if (a === 'excluirNao') S.confirmEx = null;
   else if (a === 'excluirSim') { const x = selA(); S.appts = S.appts.filter((q) => q.id !== x.id); S.toast = 'Agendamento de ' + x.cliente + ' (' + DIAS[x.d].l + ' ' + DIAS[x.d].n + ' às ' + hh(x.h) + ') excluído.'; S.sel = null; S.confirmEx = null; }
-  else if (a === 'remarcar') { const x = selA(); S.form = { cliente: x.cliente, serv: x.s, prof: x.p, d: x.d, hora: x.h, editId: x.id }; S.panel = 'novo'; S.confirmEx = null; }
+  else if (a === 'remarcar') {
+    const x = selA(), aberto = x.status === 'agendado' || x.status === 'confirmado';
+    // Agendado/confirmado: move o próprio horário. Faltou/desmarcou: marca um horário novo e mantém o registro da falta/desmarque.
+    S.form = aberto ? { cliente: x.cliente, serv: x.s, prof: x.p, d: x.d, hora: x.h, editId: x.id }
+      : { cliente: x.cliente, serv: x.s, prof: x.p, d: Math.min(x.d + 1, N_DIAS - 1), hora: null, editId: null, fromId: x.id, orig: x.orig };
+    S.panel = 'novo'; S.confirmEx = null;
+  }
+  else if (a === 'fDiaPick') { S.form.d = Number(v); S.form.hora = null; }
   else if (a === 'agDia') { S.agD = Number(v); S.agView = 'dia'; S.confirmEx = null; if (S.form.editId == null) S.form.d = S.agD; }
   else if (a === 'agPrev') { if (S.agD > 0) S.agD--; S.confirmEx = null; }
   else if (a === 'agNext') { if (S.agD < N_DIAS - 1) S.agD++; S.confirmEx = null; }
@@ -736,11 +781,11 @@ document.addEventListener('click', (e) => {
       }
       render(); return;
     }
-    const r = salvarAgendamento(f.prof, f.serv, f.d, f.hora, f.cliente.trim() || 'Nova cliente', 'rec');
+    const r = salvarAgendamento(f.prof, f.serv, f.d, f.hora, f.cliente.trim() || 'Nova cliente', f.fromId ? (f.orig || 'rec') : 'rec');
     if (r.startsWith('n')) {
-      S.toast = 'Agendado: ' + (f.cliente.trim() || 'Nova cliente') + ' · ' + SV(f.serv).nome + ' com ' + PF[f.prof].nome + ' · ' + DIAS[f.d].l + ' ' + DIAS[f.d].n + ' às ' + hh(f.hora);
+      S.toast = (f.fromId ? 'Remarcado: ' : 'Agendado: ') + (f.cliente.trim() || 'Nova cliente') + ' · ' + SV(f.serv).nome + ' com ' + PF[f.prof].nome + ' · ' + DIAS[f.d].l + ' ' + DIAS[f.d].n + ' às ' + hh(f.hora) + (f.fromId ? '. O registro anterior continua no histórico.' : '');
       S.agD = f.d; S.agView = 'dia'; S.sel = r;
-      S.panel = null; f.cliente = ''; f.hora = null;
+      S.panel = null; f.cliente = ''; f.hora = null; f.fromId = null;
     } else S.toast = 'Não foi possível agendar: ' + r;
   }
   else if (a === 'esc') {
