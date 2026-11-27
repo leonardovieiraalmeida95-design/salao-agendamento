@@ -264,9 +264,9 @@ function vAgenda() {
       ${pode ? `<div style="border-top:1px solid #ECE7E1;padding-top:14px;display:flex;flex-direction:column;gap:8px">
         <div style="font-size:13px;font-weight:600">Registrar pagamento</div>
         <div style="display:flex;gap:8px;flex-wrap:wrap">
-          <button class="btn" style="flex:1" data-a="pay" data-v="Pix">Pix</button>
-          <button class="btn2" style="flex:1" data-a="pay" data-v="Cartão">Cartão</button>
-          <button class="btn2" style="flex:1" data-a="pay" data-v="Dinheiro">Dinheiro</button>
+          <button class="btn" style="flex:1;padding:0 8px" data-a="pay" data-v="Pix">Pix</button>
+          <button class="btn2" style="flex:1;padding:0 8px" data-a="pay" data-v="Cartão">Cartão</button>
+          <button class="btn2" style="flex:1;padding:0 8px" data-a="pay" data-v="Dinheiro">Dinheiro</button>
         </div>
         <button data-a="falta" style="height:44px;border:0;background:transparent;color:#8A3B12;font-size:13px;font-weight:600;cursor:pointer">Marcar como falta</button></div>` : ''}
       ${cur.status === 'pago' ? `<div style="border-radius:10px;background:#E3F2EE;color:#145C52;padding:12px;font-size:13px;font-weight:600">Pago via ${cur.metodo} · comissão de ${PF[cur.p].nome}: ${brl2(comissao(cur))}</div>` : ''}
@@ -282,7 +282,7 @@ function vAgenda() {
       <div class="kpi"><div class="kl">A receber</div><div class="kv">${brl2(arec)}</div></div>
       <div class="kpi"><div class="kl">Faltas</div><div class="kv" style="color:#8A3B12">${hoje.filter((a) => a.status === 'faltou').length}</div></div>
     </section>
-    <div class="flexrow" style="${m ? 'flex-direction:column-reverse;align-items:stretch' : ''}">
+    <div class="flexrow" style="${m ? 'flex-direction:column;align-items:stretch' : ''}">
       ${grade}
       <aside id="painel" class="card" style="flex:1 1 300px;display:flex;flex-direction:column;gap:14px">${side}</aside>
     </div></main>`;
@@ -576,7 +576,7 @@ document.addEventListener('click', (e) => {
   const a = b.dataset.a, v = b.dataset.v;
   if (a !== 'toastX' && !['nsSalvar', 'salvar', 'esc'].includes(a)) S.toast = null;
   if (a === 'toastX') S.toast = null;
-  else if (a === 'sel') { S.sel = v; S.panel = null; }
+  else if (a === 'sel') { S.sel = v; S.panel = null; if (isM()) setTimeout(() => { const p = document.getElementById('painel'); if (p && p.scrollIntoView) p.scrollIntoView({ behavior: 'smooth' }); }, 0); }
   else if (a === 'agProf') S.agProf = v;
   else if (a === 'pay') { const x = S.appts.find((q) => q.id === S.sel); x.status = 'pago'; x.metodo = v; }
   else if (a === 'falta') { const x = S.appts.find((q) => q.id === S.sel); x.status = 'faltou'; }
